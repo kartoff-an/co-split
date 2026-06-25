@@ -118,6 +118,14 @@ The database consists of six core tables. Row-Level Security (RLS) is enabled gl
 
 All tables are protected with strict RLS policies. SELECT operations are restricted to workspace members (or own profiles/rate limits), and mutation operations (INSERT, UPDATE, DELETE) are restricted to own resources, authenticated owners, or payers.
 
+### Design Decisions & RLS Rationale
+
+To keep the application secure, performant, and maintainable, several key architectural choices were made:
+
+- **Decoupled User Profiles**: Instead of querying the internal `auth.users` table (which is managed by Supabase Auth and restricted), public profiles are synced to `public.user_profiles` via database triggers. This allows the application to query user details securely and perform standard relational joins.
+- **Database-Level RLS as the Security Boundary**: Enforcing Row-Level Security (RLS) policies directly on PostgreSQL tables guarantees that authorization checks happen at the storage layer. Even if client-side logic is bypassed or modified, users can never query or mutate workspaces/expenses they do not participate in.
+- **Denormalized Splits (`split_members` Array)**: For unequal splits, using a nullable UUID array (`split_members`) on the `expenses` table instead of a separate junction table reduces query complexity, avoids heavy JOIN overhead during balance computations, and simplifies data cleanup when a member leaves a workspace.
+
 ---
 
 ## Security & Rate Limiting
