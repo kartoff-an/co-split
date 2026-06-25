@@ -9,7 +9,7 @@ import {
   fetchWorkspace,
   createWorkspace,
   updateWorkspace,
-  deleteWorkspace,
+  deleteWorkspace as dbDeleteWorkspace,
 } from '../db/workspaces';
 import { fetchUserProfile } from '../db/profiles';
 import type { Workspace, Member, WorkspaceItem } from '../types';
@@ -213,8 +213,8 @@ export const updateWorkspaceDetails = async (
   return updateWorkspace(workspaceId, updates);
 };
 
-export const deleteWorkspaceFromDB = async (workspaceId: string): Promise<void> => {
-  await deleteWorkspace(workspaceId);
+export const deleteWorkspace = async (workspaceId: string): Promise<void> => {
+  await dbDeleteWorkspace(workspaceId);
 };
 
 export const subscribeToWorkspaceExpenses = (
