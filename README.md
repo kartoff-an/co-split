@@ -11,12 +11,11 @@ Co-Split takes the overhead and math out of splitting group expenses for roommat
 1. [System Capabilities & Workflows](#system-capabilities--workflows)
 2. [Tech Stack & Architecture](#tech-stack--architecture)
 3. [Database Schema & Row-Level Security (RLS)](#database-schema--row-level-security-rls)
-4. [Database Functions & Stored Procedures (RPCs)](#database-functions--stored-procedures-rpcs)
-5. [Security & Rate Limiting](#security-rate-limiting)
-6. [The Settlement Engine (Greedy Settle-Up)](#the-settlement-engine-greedy-settle-up)
-7. [Frontend Architecture & Routes](#frontend-architecture--routes)
-8. [Real-Time Sync Model](#real-time-sync-model)
-9. [Local Setup & Quick Start](#local-setup--quick-start)
+4. [Security & Rate Limiting](#security-rate-limiting)
+5. [The Settlement Engine (Greedy Settle-Up)](#the-settlement-engine-greedy-settle-up)
+6. [Route Definitions](#route-definitions)
+7. [Real-Time Sync Model](#real-time-sync-model)
+8. [Local Setup & Quick Start](#local-setup--quick-start)
 
 ---
 
@@ -106,160 +105,18 @@ erDiagram
     user_profiles ||--o{ api_rate_limits : "tracked"
 ```
 
-### Table Definitions & Fields
+### Schema Overview & Row-Level Security (RLS)
 
-#### 1. `user_profiles`
+The database consists of six core tables. Row-Level Security (RLS) is enabled globally to enforce data separation. Detailed field structures and references are defined in the ER diagram above.
 
-Stores public user profile details synced from Supabase Auth.
+- **`user_profiles`**: Public user details synced from Supabase Auth (`auth.users`).
+- **`workspaces`**: Ledger groups containing settings (currency, member limits, and invite codes).
+- **`members`**: Many-to-many relationship mapping users to workspaces.
+- **`expenses`**: Transactions containing description, amount, payer, and optional custom split member lists.
+- **`audit_logs`**: Audit trail records of user actions.
+- **`api_rate_limits`**: Internal table tracking RPC calls and transaction counts for rate limiting.
 
-- `id` (UUID, Primary Key, references `auth.users` on cascade delete)
-- `display_name` (Text, Not Null)
-- `email` (Text, Not Null)
-- `avatar_url` (Text, Nullable)
-- `created_at` (Timestamp with time zone)
-
-**RLS Policies:**
-
-- `Allow profile reading for authenticated users`: SELECT permitted for all authenticated users.
-- `Allow profile updating for own profile`: UPDATE permitted if `auth.uid() = id`.
-
-#### 2. `workspaces`
-
-Represents individual group ledgers.
-
-- `id` (UUID, Primary Key, defaults to random UUID)
-- `name` (Text, Not Null)
-- `owner_id` (UUID, Not Null, references `user_profiles.id`)
-- `allowed_members` (Int, default 10, check constraint `>= 1`)
-- `currency` (Text, default 'PHP', check constraint `in ('PHP', 'USD')`)
-- `invite_code` (UUID, default random UUID, Not Null)
-- `created_at` (Timestamp with time zone)
-
-**RLS Policies:**
-
-- `Allow workspace viewing for members`: SELECT permitted if user is a member (via `public.is_workspace_member`).
-- `Allow workspace viewing for owners`: SELECT permitted if `owner_id = auth.uid()`.
-- `Allow workspace creation for authenticated users`: INSERT permitted if owner matches `auth.uid()`.
-- `Allow workspace owner updates`: UPDATE permitted if `owner_id = auth.uid()`.
-- `Allow workspace owner deletes`: DELETE permitted if `owner_id = auth.uid()`.
-
-#### 3. `members`
-
-Maps users to workspaces.
-
-- `id` (Bigserial, Primary Key)
-- `workspace_id` (UUID, Not Null, references `workspaces.id` on cascade delete)
-- `user_id` (UUID, Not Null, references `user_profiles.id` on cascade delete)
-- `joined_at` (Timestamp with time zone)
-- _Constraint:_ Unique index on `(workspace_id, user_id)`
-
-**RLS Policies:**
-
-- `Allow member viewing for authenticated users`: SELECT permitted for all authenticated users.
-- `Allow member insert for authenticated users`: INSERT permitted if `user_id = auth.uid()`.
-- `Allow member deletion for workspace owners or self`: DELETE permitted if `user_id = auth.uid()` or user is the workspace owner.
-
-#### 4. `expenses`
-
-Records ledger expenses.
-
-- `id` (Bigserial, Primary Key)
-- `workspace_id` (UUID, Not Null, references `workspaces.id` on cascade delete)
-- `description` (Text, Not Null)
-- `amount` (Numeric(10,2), Not Null, check constraint `> 0`)
-- `category` (Text, Not Null)
-- `paid_by` (UUID, Not Null, references `user_profiles.id` on cascade delete)
-- `split_members` (UUID Array, Nullable, represents targeted unequal splits)
-- `timestamp` (Timestamp with time zone)
-
-**RLS Policies:**
-
-- `Allow expense viewing for authenticated users`: SELECT permitted for all authenticated users.
-- `Allow expense insertion for members`: INSERT permitted if user is a workspace member and the payer is a member.
-- `Allow expense updates for payer or workspace owner`: UPDATE permitted if `paid_by = auth.uid()` or user is the workspace owner.
-- `Allow expense deletion for payer or workspace owner`: DELETE permitted if `paid_by = auth.uid()` or user is the workspace owner.
-
-#### 5. `audit_logs`
-
-Saves actions for tracing changes.
-
-- `id` (Bigserial, Primary Key)
-- `user_id` (UUID, references `user_profiles.id` on set null)
-- `action` (Text, Not Null)
-- `details` (JSONB)
-- `timestamp` (Timestamp with time zone)
-
-**RLS Policies:**
-
-- `Allow log insertion for authenticated users`: INSERT permitted if `user_id = auth.uid()`.
-- `Allow log reading for authenticated users`: SELECT permitted for all authenticated users.
-
-#### 6. `api_rate_limits`
-
-Tracks RPC call counts.
-
-- `user_id` (UUID, Primary Key, references `user_profiles.id` on cascade delete)
-- `api_name` (Text, Primary Key)
-- `last_call` (Timestamp with time zone)
-- `call_count` (Int, default 1)
-
----
-
-## Database Functions & Stored Procedures (RPCs)
-
-Co-Split uses PostgreSQL PL/pgSQL functions to execute operations securely on the server.
-
-### 1. `calculate_workspace_balances(w_id uuid) -> jsonb`
-
-An RPC function called to compute the ledger's financial sheet.
-
-- **Security:** Defined as `SECURITY DEFINER`. Asserts that `auth.uid()` is a workspace member.
-- **Logic:**
-  1.  Gathers all active workspace members.
-  2.  Loops through expenses. If `split_members` is empty, splits the expense equally by the total number of members. If `split_members` is defined, divides only by the size of the array and debits those individuals.
-  3.  Calculates net balances (credits payer, debits split participants).
-  4.  Runs the greedy matching algorithm to find minimum transfers (see [The Settlement Engine](#the-settlement-engine-greedy-settle-up)).
-  5.  Returns a JSONB payload containing `balances` list, optimized `settlements` list, `total_workspace_cost`, and `average_cost_per_person`.
-
-### 2. `get_user_workspaces(u_id uuid) -> TABLE(...)`
-
-Aggregates and compiles workspaces in which a user participates.
-
-- **Security:** Rejects requests if `auth.uid() != u_id`.
-- **Logic:**
-  - Finds all workspaces where user is in `members`.
-  - Aggregates the total workspace cost, counts members, and calculates the calling user's personal net balance across each workspace.
-  - Returns workspace name, creation time, owner details, currency, member counts, total expenses, and personal balance.
-
-### 3. `join_workspace_with_code(invite_uuid uuid) -> uuid`
-
-Validates and executes workspace joining from a share code.
-
-- **Security:** Checks `auth.uid() != null`. Rate-limited (5 attempts/minute).
-- **Logic:**
-  - Queries `workspaces` table for the matching `invite_code`.
-  - If user is already a member, returns the workspace UUID immediately.
-  - Checks the workspace's `allowed_members` count against current active members. Throws an exception if it is full.
-  - Inserts a new row in `members`.
-
-### 4. `regenerate_workspace_invite_code(w_id uuid) -> uuid`
-
-Regenerates the join code.
-
-- **Security:** Verifies user is the owner of workspace `w_id`.
-- **Logic:** Updates the workspace's `invite_code` with a new `gen_random_uuid()` and returns the new value.
-
-### 5. `handle_new_user() -> TRIGGER`
-
-Fires `after insert on auth.users`. Synchronizes auth accounts into the `public.user_profiles` schema.
-
-### 6. `handle_member_removed() -> TRIGGER`
-
-Fires `after delete on public.members`.
-
-- **Logic:**
-  - Deletes all expenses where `paid_by` matches the departing member.
-  - Updates remaining expenses by removing the user's UUID from the `split_members` array using `array_remove(split_members, old.user_id)`.
+All tables are protected with strict RLS policies. SELECT operations are restricted to workspace members (or own profiles/rate limits), and mutation operations (INSERT, UPDATE, DELETE) are restricted to own resources, authenticated owners, or payers.
 
 ---
 
@@ -278,66 +135,63 @@ Rate limiting is enforced at the database level using PL/pgSQL triggers and the 
 
 ## The Settlement Engine (Greedy Settle-Up)
 
-Balances are resolved using an optimized greedy pointer-matching algorithm written in Postgres:
+To prevent a complex web of tiny, fragmented transfers (e.g., A owing B, B owing C, and C owing A), Co-Split utilizes a **Greedy Settlement Engine** built directly into the database query layer. This engine guarantees the **absolute minimum number of transactions** required to settle all group debts.
 
-1.  **Split Distribution:**
-    - For each expense, the paying member is credited: `+amount`.
-    - Each member involved in the split (either all workspace members, or the customized subset in `split_members`) is debited: `- (amount / split_count)`.
-2.  **Separate Groups:**
-    - The engine filters members into two categories:
-      - **Creditors:** Members with positive net balances (`> 0.01`).
-      - **Debtors:** Members with negative net balances (`< -0.01`).
-    - Both arrays are processed sequentially.
-3.  **Greedy Pointer Matching:**
-    - Pointers start at the first creditor and first debtor.
-    - The transfer amount is the minimum of what the debtor owes vs what the creditor is owed:
-      $$\text{Transfer Amount} = \min(\text{Creditor Owed}, |\text{Debtor Owed}|)$$
-    - A settlement transaction is logged: `[Debtor] owes [Creditor] -> [Transfer Amount]`.
-    - The balances are adjusted. The pointer advances for any party whose balance is reduced to zero (within a $0.01 margin).
-    - This loop repeats until all debts are cleared, guaranteeing the **absolute minimum number of transactions** to settle the group ledger.
+### How It Works
+
+The settlement process runs in three primary phases:
+
+1. **Net Balance Calculation**:
+   - For every expense in a workspace, the engine calculates the net share for each participant.
+   - The user who paid is credited with the expense amount (`+amount`).
+   - The split members (either all workspace members by default, or a custom subset for unequal splits) are debited with their individual share (`- (amount / split_count)`).
+   - Each member's credits and debits are aggregated to produce a single **Net Balance**.
+
+2. **Group Categorization & Sorting**:
+   - Members are split into two groups based on their Net Balance:
+     - **Creditors**: Members who are owed money (Net Balance $> 0.01$).
+     - **Debtors**: Members who owe money (Net Balance $< -0.01$).
+   - Both lists are sorted by the magnitude of their balance (descending), allowing the engine to prioritize matching the largest debts first.
+
+3. **Greedy Matchmaking**:
+   - Pointers are set to the top of both lists (the largest debtor and the largest creditor).
+   - The algorithm computes the transfer amount as the minimum of the creditor's outstanding credit and the debtor's outstanding debt:
+     $$\text{Transfer Amount} = \min(\text{Creditor Owed}, |\text{Debtor Owed}|)$$
+   - A settlement is generated: `[Debtor] pays [Creditor] -> [Transfer Amount]`.
+   - The engine updates their remaining balances and advances the pointers when a member's balance is resolved to $0 (within a $0.01 rounding tolerance).
+   - This process repeats until all debts are fully cleared.
+
+### Concrete Example
+
+Consider a workspace with three members: **Alice**, **Bob**, and **Charlie**.
+
+* **Expense 1**: Alice pays **$90** for a dinner split equally among Alice, Bob, and Charlie.
+  * Alice's net effect: $+90 \text{ (paid)} - 30 \text{ (share)} = +60$
+  * Bob's net effect: $-30 \text{ (share)}$
+  * Charlie's net effect: $-30 \text{ (share)}$
+* **Expense 2**: Bob pays **$30** for snacks split equally among Alice, Bob, and Charlie.
+  * Bob's net effect: $+30 \text{ (paid)} - 10 \text{ (share)} = +20$
+  * Alice's net effect: $-10 \text{ (share)}$
+  * Charlie's net effect: $-10 \text{ (share)}$
+
+#### Final Net Balances:
+* **Alice**: $+60 - 10 = \mathbf{+50}$ (Creditor)
+* **Bob**: $-30 + 20 = \mathbf{-10}$ (Debtor)
+* **Charlie**: $-30 - 10 = \mathbf{-40}$ (Debtor)
+
+#### Settlement Matching:
+1. The engine pairs **Charlie** (largest debtor, owing $40) with **Alice** (largest creditor, owed $50).
+   * **Transfer**: Charlie pays Alice **$40**.
+   * Alice's remaining credit becomes $+10$. Charlie's debt is cleared ($0$).
+2. The engine pairs **Bob** (next debtor, owing $10) with **Alice** (remaining credit $10).
+   * **Transfer**: Bob pays Alice **$10**.
+   * Alice's credit and Bob's debt are both cleared ($0$).
+
+**Optimized Result**: Instead of Bob paying Alice for dinner and Alice paying Bob for snacks, the ledger is settled in just **two transactions**: Charlie pays Alice $40, and Bob pays Alice $10.
 
 ---
 
-## Frontend Architecture & Routes
-
-```
-src/
-├── App.tsx                    # React Router configuration
-├── main.tsx                   # Mounting point & initialization
-├── index.css                  # Core CSS and design style tokens
-├── lib/
-│   └── supabase.ts            # SupabaseClient configuration
-├── types/
-│   └── database.types.ts      # Generated database schema types
-├── services/
-│   ├── authService.ts         # Wrapper for Supabase OAuth login/logout
-│   ├── expenseService.ts      # CRUD operations on expenses
-│   └── workspaceService.ts    # RPC calls and workspace commands
-├── hooks/
-│   ├── useAuth.ts             # Auth status state provider
-│   ├── useWorkspace.ts        # Loads workspace details, handles CRUD, sets up real-time hooks
-│   ├── useBalance.ts          # Integrates balance RPC evaluations
-│   └── useDashboard.ts        # Gathers active workspaces and metrics
-├── components/
-│   ├── GoogleLogin.tsx        # UI element triggering Google sign-in
-│   ├── CoSplitIcon.tsx        # Branded application SVG icon
-│   ├── Avatar.tsx             # Renders fallback user images
-│   ├── Spinner.tsx            # Visual progress indicators
-│   ├── LedgerMockup.tsx       # Live dashboard layout graphics
-│   ├── InviteModal.tsx        # Form displaying share codes and URLs
-│   ├── ExpenseForm.tsx        # Input fields and toggle lists for unequal splits
-│   ├── ExpenseList.tsx        # Paginated scrolling container of workspace expenses
-│   ├── BalanceSummary.tsx     # Computes totals and presents the settlement transfers list
-│   └── WorkspaceSettingsModal.tsx # Form enabling currency changes, member limits, or deletion
-└── pages/
-    ├── HomePage.tsx           # Product overview, features, and login
-    ├── AuthCallback.tsx       # Handles OAuth redirects and tokens
-    ├── Dashboard.tsx          # Workspace index and net balance aggregates
-    ├── WorkspacePage.tsx      # Main workspace ledger view
-    └── JoinPage.tsx           # Redirect landing point for joining via invite link
-```
-
-### Route Definitions
+## Route Definitions
 
 - **`/` (Landing Page):**
   - Displays product branding, features, and Google Sign-in.
