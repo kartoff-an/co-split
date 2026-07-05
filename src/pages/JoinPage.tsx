@@ -5,6 +5,7 @@ import * as workspaceService from '../services/workspaceService';
 import { Spinner } from '../components/Spinner';
 import { CoSplitIcon } from '../components/CoSplitIcon';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata';
 
 export const JoinPage: React.FC = () => {
   const { inviteCode } = useParams<{ inviteCode: string }>();
@@ -13,6 +14,14 @@ export const JoinPage: React.FC = () => {
 
   const [joining, setJoining] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://co-split.vercel.app';
+  useDocumentMetadata({
+    title: 'Join Expense Ledger - Co-Split',
+    description: 'You have been invited to join a shared expense ledger sheet on Co-Split. Sign in to collaborate and start splitting bills in real-time.',
+    url: inviteCode ? `${origin}/join/${inviteCode}` : origin,
+    image: `${origin}/icons/co-split-icon.svg`
+  });
 
   useEffect(() => {
     if (authLoading) return;

@@ -20,6 +20,7 @@ import { CoSplitIcon } from '../components/CoSplitIcon';
 import { Footer } from '../components/Footer';
 import { WorkspaceSettingsModal } from '../components/WorkspaceSettingsModal';
 import * as workspaceService from '../services/workspaceService';
+import { useDocumentMetadata } from '../hooks/useDocumentMetadata';
 
 export const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -63,6 +64,16 @@ export const WorkspacePage: React.FC = () => {
     regenerateInvite,
     refetch,
   } = useWorkspace(workspaceId || '');
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://co-split.vercel.app';
+  useDocumentMetadata({
+    title: workspace ? `${workspace.name} - Co-Split Ledger` : 'Workspace - Co-Split',
+    description: workspace
+      ? `Shared expense ledger for ${workspace.name}. Add expenses, track balances, and settle up bills instantly.`
+      : 'Collaborative shared expense ledger sheet on Co-Split.',
+    url: workspaceId ? `${origin}/workspace/${workspaceId}` : origin,
+    image: `${origin}/icons/co-split-icon.svg`
+  });
 
   const handleDeleteWorkspace = async () => {
     const success = await deleteWorkspace();
@@ -299,11 +310,10 @@ export const WorkspacePage: React.FC = () => {
               {members.map((member) => (
                 <span
                   key={member.id}
-                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                    member.id === user?.id
+                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${member.id === user?.id
                       ? 'text-accent-coral border-accent-coral/45 bg-white shadow-2xs'
                       : 'border-slate-250 bg-white text-slate-600'
-                  }`}
+                    }`}
                 >
                   {member.avatar_url && (
                     <img
