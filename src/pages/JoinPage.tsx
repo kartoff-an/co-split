@@ -15,12 +15,12 @@ export const JoinPage: React.FC = () => {
   const [joining, setJoining] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://co-split.vercel.app';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
   useDocumentMetadata({
     title: 'Join Expense Ledger - Co-Split',
     description: 'You have been invited to join a shared expense ledger sheet on Co-Split. Sign in to collaborate and start splitting bills in real-time.',
     url: inviteCode ? `${origin}/join/${inviteCode}` : origin,
-    image: `${origin}/icons/co-split-icon.svg`
+    image: `${origin}/icons/co-split-icon.png`
   });
 
   useEffect(() => {

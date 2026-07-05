@@ -17,12 +17,12 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://co-split.vercel.app';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
   useDocumentMetadata({
     title: 'Co-Split - Fair Expense Splitting Made Simple',
     description: 'Frictionless shared expense ledger sheets. Sign in with one click to organize bills with your workspace team, roommates, or study group in real-time.',
     url: origin,
-    image: `${origin}/icons/co-split-icon.svg`
+    image: `${origin}/icons/co-split-icon.png`
   });
 
   useEffect(() => {
