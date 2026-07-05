@@ -1,6 +1,14 @@
 {
     "rewrites": [
         {
+            "source": "/workspace/:workspaceId",
+            "destination": "/api/preview"
+        },
+        {
+            "source": "/join/:inviteCode",
+            "destination": "/api/preview"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
