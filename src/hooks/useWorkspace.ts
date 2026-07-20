@@ -59,6 +59,12 @@ export const useWorkspace = (workspaceId: string) => {
               return previousExpenses;
             return [payload.new as Expense, ...previousExpenses];
           });
+        } else if (payload.eventType === 'UPDATE') {
+          setExpenses((previousExpenses) =>
+            previousExpenses.map((expense) =>
+              expense.id === payload.new.id ? (payload.new as Expense) : expense
+            )
+          );
         } else if (payload.eventType === 'DELETE') {
           setExpenses((previousExpenses) =>
             previousExpenses.filter((expense) => expense.id !== payload.old.id)
@@ -161,6 +167,46 @@ export const useWorkspace = (workspaceId: string) => {
     }
   };
 
+  const updateExpense = async (
+    expenseId: number | string,
+    updates: Partial<Omit<Expense, 'id' | 'workspace_id' | 'timestamp'>>
+  ) => {
+    try {
+      const updatedExpense = await expenseService.updateExpense(
+        expenseId,
+        updates
+      );
+      if (!updatedExpense) throw new Error('Failed to update expense.');
+
+      setExpenses((previousExpenses) =>
+        previousExpenses.map((expense) =>
+          expense.id === updatedExpense.id ? updatedExpense : expense
+        )
+      );
+      return updatedExpense;
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to update expense'
+      );
+      throw err;
+    }
+  };
+
+  const deleteExpense = async (expenseId: number | string) => {
+    try {
+      await expenseService.deleteExpense(expenseId);
+      setExpenses((previousExpenses) =>
+        previousExpenses.filter((expense) => expense.id !== Number(expenseId))
+      );
+      return true;
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to delete expense'
+      );
+      throw err;
+    }
+  };
+
   const addMember = async (userId: string) => {
     try {
       const newMember = await workspaceService.addMemberToWorkspaceWithCheck(
@@ -253,6 +299,8 @@ export const useWorkspace = (workspaceId: string) => {
     loadingMore,
     loadMoreExpenses,
     addExpense,
+    updateExpense,
+    deleteExpense,
     addMember,
     removeMember,
     updateWorkspace,
