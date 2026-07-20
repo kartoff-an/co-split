@@ -58,6 +58,8 @@ export const WorkspacePage: React.FC = () => {
     loadingMore,
     loadMoreExpenses,
     addExpense,
+    updateExpense,
+    deleteExpense,
     removeMember,
     updateWorkspace,
     deleteWorkspace,
@@ -360,6 +362,8 @@ export const WorkspacePage: React.FC = () => {
               hasMore={hasMore}
               onLoadMore={loadMoreExpenses}
               loadingMore={loadingMore}
+              onUpdateExpense={updateExpense}
+              onDeleteExpense={deleteExpense}
             />
           </div>
         </div>

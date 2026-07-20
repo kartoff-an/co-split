@@ -50,6 +50,7 @@ export type Database = {
         Row: {
           amount: number;
           category: string;
+          created_by?: string | null;
           description: string;
           id: number;
           paid_by: string;
@@ -60,6 +61,7 @@ export type Database = {
         Insert: {
           amount: number;
           category: string;
+          created_by?: string | null;
           description: string;
           id?: number;
           paid_by: string;
@@ -70,6 +72,7 @@ export type Database = {
         Update: {
           amount?: number;
           category?: string;
+          created_by?: string | null;
           description?: string;
           id?: number;
           paid_by?: string;

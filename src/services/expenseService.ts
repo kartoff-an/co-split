@@ -1,4 +1,8 @@
-import { addExpenseToWorkspace } from '../db/expenses';
+import {
+  addExpenseToWorkspace,
+  updateExpenseInWorkspace,
+  deleteExpenseFromWorkspace,
+} from '../db/expenses';
 import type { Expense } from '../types';
 
 export const addExpense = async (
@@ -7,3 +11,17 @@ export const addExpense = async (
 ): Promise<Expense | null> => {
   return addExpenseToWorkspace(workspaceId, expense);
 };
+
+export const updateExpense = async (
+  expenseId: number | string,
+  updates: Partial<Omit<Expense, 'id' | 'workspace_id' | 'timestamp'>>
+): Promise<Expense | null> => {
+  return updateExpenseInWorkspace(expenseId, updates);
+};
+
+export const deleteExpense = async (
+  expenseId: number | string
+): Promise<void> => {
+  return deleteExpenseFromWorkspace(expenseId);
+};
+
