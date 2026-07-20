@@ -260,7 +260,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setEditingExpense(expense)}
-                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 hover:text-emerald-600 transition-colors"
                                 title="Edit Expense"
                               >
                                 <PencilSquareIcon className="h-4 w-4" />
@@ -270,7 +270,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setDeletingExpenseId(expense.id)}
-                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 hover:text-rose-600 transition-colors"
                                 title="Delete Expense"
                               >
                                 <TrashIcon className="h-4 w-4" />
