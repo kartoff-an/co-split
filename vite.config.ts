@@ -14,8 +14,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        join: resolve(__dirname, 'join.html'),
-        workspace: resolve(__dirname, 'workspace.html'),
       }
     }
   }
