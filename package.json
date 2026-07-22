@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
+    "test": "vitest run",
     "test:integration": "vitest run --mode test",
     "db:setup-test": "node scripts/setup-test-db.cjs"
   },
