@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import type { Expense, Member, Workspace } from '../../types';
 import * as workspaceService from './workspaceService';
 import * as expenseService from '../expenses/expenseService';
-import { fetchUserProfile } from '../auth/profiles';
 import { fetchWorkspaceExpensesPaginated } from '../expenses/expenses';
 
 export const useWorkspace = (workspaceId: string) => {
@@ -46,80 +45,6 @@ export const useWorkspace = (workspaceId: string) => {
     };
 
     fetchWorkspaceData();
-
-    // Expenses subscription
-    const expensesSubscription = workspaceService.subscribeToWorkspaceExpenses(
-      workspaceId,
-      (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setExpenses((previousExpenses) => {
-            if (
-              previousExpenses.some((expense) => expense.id === payload.new.id)
-            )
-              return previousExpenses;
-            return [payload.new as Expense, ...previousExpenses];
-          });
-        } else if (payload.eventType === 'UPDATE') {
-          setExpenses((previousExpenses) =>
-            previousExpenses.map((expense) =>
-              expense.id === payload.new.id ? (payload.new as Expense) : expense
-            )
-          );
-        } else if (payload.eventType === 'DELETE') {
-          setExpenses((previousExpenses) =>
-            previousExpenses.filter((expense) => expense.id !== payload.old.id)
-          );
-        }
-      }
-    );
-
-    // Members subscription
-    const membersSubscription = workspaceService.subscribeToWorkspaceMembers(
-      workspaceId,
-      async (payload) => {
-        if (payload.eventType === 'INSERT') {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const newMember = payload.new as any;
-
-          const profileData = await fetchUserProfile(newMember.user_id);
-
-          if (profileData) {
-            setMembers((previousMembers) => {
-              if (
-                previousMembers.some(
-                  (member) => member.id === newMember.user_id
-                )
-              )
-                return previousMembers;
-              return [
-                ...previousMembers,
-                {
-                  id: newMember.user_id,
-                  membership_id: String(newMember.id),
-                  workspace_id: newMember.workspace_id,
-                  display_name: profileData.display_name,
-                  avatar_url: profileData.avatar_url,
-                  joined_at: newMember.joined_at,
-                },
-              ];
-            });
-          }
-        } else if (payload.eventType === 'DELETE') {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const oldMember = payload.old as any;
-          setMembers((previousMembers) =>
-            previousMembers.filter(
-              (m) => m.membership_id !== String(oldMember.id)
-            )
-          );
-        }
-      }
-    );
-
-    return () => {
-      expensesSubscription.unsubscribe();
-      membersSubscription.unsubscribe();
-    };
   }, [workspaceId, refreshTrigger]);
 
   const loadMoreExpenses = async () => {

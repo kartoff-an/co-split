@@ -31,17 +31,6 @@ export const useDashboard = (userId: string | undefined) => {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUserWorkspaces();
-
-    const subscription = workspaceService.subscribeToUserMemberships(
-      userId,
-      () => {
-        fetchUserWorkspaces();
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [userId, fetchUserWorkspaces]);
 
   const createWorkspace = async (name: string): Promise<string | null> => {
