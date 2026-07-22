@@ -1,7 +1,7 @@
-import { supabase } from '../lib/supabase';
-import { fetchUserProfile } from '../db/profiles';
+import { supabase } from '../../lib/supabase';
+import { fetchUserProfile } from './profiles';
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
-import type { UserProfile } from '../types';
+import type { UserProfile } from '../../types';
 
 export const getCurrentUser = async (): Promise<User | null> => {
   const {

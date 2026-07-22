@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import * as workspaceService from '../services/workspaceService';
-import { Spinner } from '../components/Spinner';
-import { CoSplitIcon } from '../components/CoSplitIcon';
+import { useAuth } from '../auth/useAuth';
+import * as workspaceService from './workspaceService';
+import { Spinner } from '../../components/Spinner';
+import { CoSplitIcon } from '../../components/CoSplitIcon';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { useDocumentMetadata } from '../hooks/useDocumentMetadata';
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
 
 export const JoinPage: React.FC = () => {
   const { inviteCode } = useParams<{ inviteCode: string }>();

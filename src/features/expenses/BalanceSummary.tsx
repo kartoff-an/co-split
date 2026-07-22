@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import type { Balance, Settlement, Member } from '../types';
+import type { Balance, Settlement, Member } from '../../types';
 import {
   ChartBarIcon,
   CheckCircleIcon,
   CheckIcon,
   ArrowRightIcon,
 } from '@heroicons/react/24/outline';
-import { formatCurrency } from '../lib/currency';
+import { formatCurrency } from '../../lib/currency';
 
 interface BalanceSummaryProps {
   balances: Balance[];

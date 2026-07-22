@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 export const fetchUserMemberships = async (userId: string): Promise<any[]> => {
   const { data, error } = await supabase

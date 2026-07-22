@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { Expense } from '../types';
+import { supabase } from '../../lib/supabase';
+import type { Expense } from '../../types';
 
 export const fetchWorkspaceExpensesPaginated = async (
   workspaceId: string,

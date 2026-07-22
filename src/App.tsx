@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
-import { HomePage } from './pages/HomePage';
-import { WorkspacePage } from './pages/WorkspacePage';
-import { Dashboard } from './pages/Dashboard';
-import { AuthCallback } from './pages/AuthCallback';
-import { JoinPage } from './pages/JoinPage';
+import { HomePage } from './features/landing/HomePage';
+import { WorkspacePage } from './features/workspaces/WorkspacePage';
+import { Dashboard } from './features/dashboard/Dashboard';
+import { AuthCallback } from './features/auth/AuthCallback';
+import { JoinPage } from './features/workspaces/JoinPage';
 
 function App() {
   return (

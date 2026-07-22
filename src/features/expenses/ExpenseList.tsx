@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState, useMemo } from 'react';
-import type { Expense, Member } from '../types';
+import type { Expense, Member } from '../../types';
 import {
   ClipboardDocumentIcon,
   MagnifyingGlassIcon,
@@ -8,8 +8,8 @@ import {
   TrashIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
-import { Avatar } from './Avatar';
-import { formatCurrency } from '../lib/currency';
+import { Avatar } from '../../components/Avatar';
+import { formatCurrency } from '../../lib/currency';
 import { EditExpenseModal } from './EditExpenseModal';
 
 const formatRelativeTime = (timestamp: string) => {

@@ -1,26 +1,26 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { useWorkspace } from '../hooks/useWorkspace';
-import { useBalance } from '../hooks/useBalance';
-import { useAuth } from '../hooks/useAuth';
-import { ExpenseForm } from '../components/ExpenseForm';
-import { ExpenseList } from '../components/ExpenseList';
-import { BalanceSummary } from '../components/BalanceSummary';
-import type { Expense } from '../types';
-import { InviteModal } from '../components/InviteModal';
+import { useWorkspace } from './useWorkspace';
+import { useBalance } from '../expenses/useBalance';
+import { useAuth } from '../auth/useAuth';
+import { ExpenseForm } from '../expenses/ExpenseForm';
+import { ExpenseList } from '../expenses/ExpenseList';
+import { BalanceSummary } from '../expenses/BalanceSummary';
+import type { Expense } from '../../types';
+import { InviteModal } from './InviteModal';
 import {
   ExclamationTriangleIcon,
   ArrowLeftIcon,
   UserPlusIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
-import { Spinner } from '../components/Spinner';
-import { CoSplitIcon } from '../components/CoSplitIcon';
-import { Footer } from '../components/Footer';
-import { WorkspaceSettingsModal } from '../components/WorkspaceSettingsModal';
-import * as workspaceService from '../services/workspaceService';
-import { useDocumentMetadata } from '../hooks/useDocumentMetadata';
+import { Spinner } from '../../components/Spinner';
+import { CoSplitIcon } from '../../components/CoSplitIcon';
+import { Footer } from '../../components/Footer';
+import { WorkspaceSettingsModal } from './WorkspaceSettingsModal';
+import * as workspaceService from './workspaceService';
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
 
 export const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();

@@ -5,7 +5,7 @@ import {
   ClipboardDocumentIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
-import { Spinner } from './Spinner';
+import { Spinner } from '../../components/Spinner';
 
 interface InviteModalProps {
   isOpen: boolean;

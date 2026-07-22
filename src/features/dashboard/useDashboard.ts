@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import * as workspaceService from '../services/workspaceService';
-import type { WorkspaceItem } from '../types';
+import * as workspaceService from '../workspaces/workspaceService';
+import type { WorkspaceItem } from '../../types';
 
 interface DashboardMessage {
   text: string;

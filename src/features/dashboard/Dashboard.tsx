@@ -1,18 +1,18 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useDashboard } from '../hooks/useDashboard';
+import { useAuth } from '../auth/useAuth';
+import { useDashboard } from './useDashboard';
 import {
   InboxIcon,
   UsersIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
 } from '@heroicons/react/24/outline';
-import { CoSplitIcon } from '../components/CoSplitIcon';
-import { Spinner } from '../components/Spinner';
-import { Footer } from '../components/Footer';
-import { formatCurrency } from '../lib/currency';
+import { CoSplitIcon } from '../../components/CoSplitIcon';
+import { Spinner } from '../../components/Spinner';
+import { Footer } from '../../components/Footer';
+import { formatCurrency } from '../../lib/currency';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();

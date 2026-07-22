@@ -2,8 +2,8 @@ import {
   addExpenseToWorkspace,
   updateExpenseInWorkspace,
   deleteExpenseFromWorkspace,
-} from '../db/expenses';
-import type { Expense } from '../types';
+} from './expenses';
+import type { Expense } from '../../types';
 
 export const addExpense = async (
   workspaceId: string,

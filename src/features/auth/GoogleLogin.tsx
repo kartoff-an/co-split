@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useState } from 'react';
-import * as authService from '../services/authService';
-import { Spinner } from './Spinner';
+import * as authService from './authService';
+import { Spinner } from '../../components/Spinner';
 
 export const GoogleLogin: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);

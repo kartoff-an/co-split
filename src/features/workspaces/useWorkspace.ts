@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import type { Expense, Member, Workspace } from '../types';
-import * as workspaceService from '../services/workspaceService';
-import * as expenseService from '../services/expenseService';
-import { fetchUserProfile } from '../db/profiles';
-import { fetchWorkspaceExpensesPaginated } from '../db/expenses';
+import type { Expense, Member, Workspace } from '../../types';
+import * as workspaceService from './workspaceService';
+import * as expenseService from '../expenses/expenseService';
+import { fetchUserProfile } from '../auth/profiles';
+import { fetchWorkspaceExpensesPaginated } from '../expenses/expenses';
 
 export const useWorkspace = (workspaceId: string) => {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);

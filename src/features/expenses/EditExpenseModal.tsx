@@ -1,8 +1,8 @@
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import type { Expense, Member } from '../types';
+import type { Expense, Member } from '../../types';
 import { XMarkIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
-import { getCurrencySymbol } from '../lib/currency';
+import { getCurrencySymbol } from '../../lib/currency';
 
 interface EditExpenseModalProps {
   isOpen: boolean;

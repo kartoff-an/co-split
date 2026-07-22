@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getCurrencySymbol, formatCurrency, SUPPORTED_CURRENCIES } from '../currency';
+import { getCurrencySymbol, formatCurrency, SUPPORTED_CURRENCIES } from './currency';
 
 describe('currency utilities', () => {
   it('should list supported currencies', () => {

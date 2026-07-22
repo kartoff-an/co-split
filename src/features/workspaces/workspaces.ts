@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { Workspace } from '../types';
+import { supabase } from '../../lib/supabase';
+import type { Workspace } from '../../types';
 
 export const fetchWorkspace = async (
   workspaceId: string

@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { GoogleLogin } from '../components/GoogleLogin';
-import { LedgerMockup } from '../components/LedgerMockup';
+import { useAuth } from '../auth/useAuth';
+import { GoogleLogin } from '../auth/GoogleLogin';
+import { LedgerMockup } from './LedgerMockup';
 import {
   BoltIcon,
   UserPlusIcon,
   CalculatorIcon,
 } from '@heroicons/react/24/outline';
-import { CoSplitIcon } from '../components/CoSplitIcon';
-import { Spinner } from '../components/Spinner';
-import { Footer } from '../components/Footer';
-import { useDocumentMetadata } from '../hooks/useDocumentMetadata';
+import { CoSplitIcon } from '../../components/CoSplitIcon';
+import { Spinner } from '../../components/Spinner';
+import { Footer } from '../../components/Footer';
+import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();

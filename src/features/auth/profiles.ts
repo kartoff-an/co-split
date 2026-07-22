@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
-import type { UserProfile } from '../types';
+import { supabase } from '../../lib/supabase';
+import type { UserProfile } from '../../types';
 
 export const fetchUserProfile = async (
   userId: string

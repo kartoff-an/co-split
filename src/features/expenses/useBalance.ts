@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import type { Balance, Settlement } from '../types';
-import { supabase } from '../lib/supabase';
+import type { Balance, Settlement } from '../../types';
+import { supabase } from '../../lib/supabase';
 
 interface SupabaseRpc {
   rpc(

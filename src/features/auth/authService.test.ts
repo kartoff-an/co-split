@@ -11,13 +11,13 @@ vi.mock('../../lib/supabase', () => ({
   },
 }));
 
-vi.mock('../../db/profiles', () => ({
+vi.mock('./profiles', () => ({
   fetchUserProfile: vi.fn(),
 }));
 
-import { getCurrentUser, signOut, getUserProfile } from '../authService';
+import { getCurrentUser, signOut, getUserProfile } from './authService';
 import { supabase } from '../../lib/supabase';
-import { fetchUserProfile } from '../../db/profiles';
+import { fetchUserProfile } from './profiles';
 
 describe('authService', () => {
   beforeEach(() => {

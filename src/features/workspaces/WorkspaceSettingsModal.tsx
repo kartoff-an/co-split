@@ -1,9 +1,9 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import type { Member, Workspace } from '../types';
+import type { Member, Workspace } from '../../types';
 import { XMarkIcon, UserMinusIcon } from '@heroicons/react/24/outline';
-import { Spinner } from './Spinner';
-import { SUPPORTED_CURRENCIES } from '../lib/currency';
+import { Spinner } from '../../components/Spinner';
+import { SUPPORTED_CURRENCIES } from '../../lib/currency';
 
 interface WorkspaceSettingsModalProps {
   isOpen: boolean;
