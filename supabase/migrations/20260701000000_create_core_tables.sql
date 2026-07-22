@@ -77,12 +77,3 @@ create table if not exists public.api_rate_limits (
   primary key (user_id, api_name)
 );
 alter table public.api_rate_limits enable row level security;
-
--- Realtime replication configuration
-begin;
-  drop publication if exists supabase_realtime;
-  create publication supabase_realtime;
-commit;
-
-alter publication supabase_realtime add table public.expenses;
-alter publication supabase_realtime add table public.members;
