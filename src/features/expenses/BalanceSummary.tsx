@@ -16,6 +16,7 @@ interface BalanceSummaryProps {
   activeUserId?: string | null;
   members: Member[];
   currency?: string;
+  onSettleUp?: (settlement: Settlement) => void;
 }
 
 export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
@@ -26,6 +27,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
   activeUserId,
   members,
   currency = 'PHP',
+  onSettleUp,
 }) => {
   const maxAbsBalance = useMemo(() => {
     const values = balances.map((balance) => Math.abs(balance.net_balance));
@@ -201,9 +203,19 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                   </span>
                 </div>
 
-                <span className="shrink-0 text-xs font-extrabold tracking-tight text-slate-800">
-                  {formatCurrency(settlement.amount, currency)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 text-xs font-extrabold tracking-tight text-slate-800">
+                    {formatCurrency(settlement.amount, currency)}
+                  </span>
+                  {onSettleUp && (
+                    <button
+                      onClick={() => onSettleUp(settlement)}
+                      className="cursor-pointer rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white shadow-2xs transition-all hover:bg-emerald-700 active:scale-95"
+                    >
+                      Settle Up
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

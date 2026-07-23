@@ -77,6 +77,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   }, [isBubbleOpen]);
 
   if (!isOpen || !expense) return null;
+  if (expense.category === 'Payment' || expense.category === 'Settlement') return null;
 
   const selectedSplitMembers = members
     .map((member) => member.id)

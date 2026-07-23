@@ -183,6 +183,9 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                   ? 'you'
                   : payer?.display_name || 'Unknown';
 
+                const isPayment =
+                  expense.category === 'Payment' || expense.category === 'Settlement';
+
                 const isLogger =
                   !!activeUserId &&
                   ((expense as { created_by?: string | null }).created_by
@@ -201,9 +204,16 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                         </div>
 
                         <div className="min-w-0">
-                          <p className="truncate text-xs font-semibold text-slate-800 md:text-sm">
-                            {expense.description}
-                          </p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="truncate text-xs font-semibold text-slate-800 md:text-sm">
+                              {expense.description}
+                            </p>
+                            {isPayment && (
+                              <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-100 bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600">
+                                Payment
+                              </span>
+                            )}
+                          </div>
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                             <span className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
                               <Avatar
@@ -255,12 +265,12 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                         </span>
 
                         {isLogger && (
-                          <div className="flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                            {onUpdateExpense && (
+                          <div className="flex items-center gap-1 opacity-90 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                            {onUpdateExpense && !isPayment && (
                               <button
                                 type="button"
                                 onClick={() => setEditingExpense(expense)}
-                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 hover:text-emerald-600 transition-colors"
+                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors hover:text-emerald-600"
                                 title="Edit Expense"
                               >
                                 <PencilSquareIcon className="h-4 w-4" />
@@ -270,7 +280,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setDeletingExpenseId(expense.id)}
-                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 hover:text-rose-600 transition-colors"
+                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors hover:text-rose-600"
                                 title="Delete Expense"
                               >
                                 <TrashIcon className="h-4 w-4" />

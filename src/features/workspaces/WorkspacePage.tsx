@@ -7,7 +7,8 @@ import { useAuth } from '../auth/useAuth';
 import { ExpenseForm } from '../expenses/ExpenseForm';
 import { ExpenseList } from '../expenses/ExpenseList';
 import { BalanceSummary } from '../expenses/BalanceSummary';
-import type { Expense } from '../../types';
+import { SettleUpModal } from '../expenses/SettleUpModal';
+import type { Expense, Settlement } from '../../types';
 import { InviteModal } from './InviteModal';
 import {
   ExclamationTriangleIcon,
@@ -31,6 +32,8 @@ export const WorkspacePage: React.FC = () => {
 
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
+  const [selectedSettlement, setSelectedSettlement] = useState<Settlement | null>(null);
 
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -84,6 +87,26 @@ export const WorkspacePage: React.FC = () => {
       return true;
     }
     return false;
+  };
+
+  const handleConfirmSettlement = async (
+    paidBy: string,
+    paidTo: string,
+    amount: number
+  ) => {
+    const payerName =
+      members.find((member) => member.id === paidBy)?.display_name || 'Member';
+    const payeeName =
+      members.find((member) => member.id === paidTo)?.display_name || 'Member';
+
+    await addExpense({
+      description: `Payment: ${payerName} paid ${payeeName}`,
+      amount,
+      category: 'Payment',
+      paid_by: paidBy,
+      split_members: [paidTo],
+    });
+    refetch();
   };
 
   const isOwner = !!(user && workspace && workspace.owner_id === user.id);
@@ -350,6 +373,10 @@ export const WorkspacePage: React.FC = () => {
               activeUserId={user?.id}
               members={members}
               currency={workspace.currency}
+              onSettleUp={(settlement) => {
+                setSelectedSettlement(settlement);
+                setIsSettleUpOpen(true);
+              }}
             />
           </div>
 
@@ -377,6 +404,18 @@ export const WorkspacePage: React.FC = () => {
         inviteCode={workspace?.invite_code}
         isOwner={isOwner}
         onRegenerateInvite={regenerateInvite}
+      />
+
+      <SettleUpModal
+        isOpen={isSettleUpOpen}
+        onClose={() => {
+          setIsSettleUpOpen(false);
+          setSelectedSettlement(null);
+        }}
+        settlement={selectedSettlement}
+        members={members}
+        currency={workspace?.currency}
+        onConfirmSettlement={handleConfirmSettlement}
       />
 
       {workspace && (

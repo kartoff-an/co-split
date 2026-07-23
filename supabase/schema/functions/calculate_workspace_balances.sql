@@ -25,8 +25,10 @@ declare
   c_len int := 0;
   d_len int := 0;
   
+  creditor_ids uuid[] := array[]::uuid[];
   creditor_names text[] := array[]::text[];
   creditor_bals numeric[] := array[]::numeric[];
+  debtor_ids uuid[] := array[]::uuid[];
   debtor_names text[] := array[]::text[];
   debtor_bals numeric[] := array[]::numeric[];
   
@@ -89,11 +91,14 @@ begin
 
   -- Aggregate expenses
   for e_record in 
-    select amount, paid_by, split_members 
+    select amount, paid_by, split_members, category 
     from public.expenses 
     where workspace_id = w_id
   loop
-    total_cost := total_cost + e_record.amount;
+    -- Exclude settlement / debt payment transactions from total workspace cost
+    if e_record.category is null or (e_record.category != 'Payment' and e_record.category != 'Settlement') then
+      total_cost := total_cost + e_record.amount;
+    end if;
     
     if e_record.split_members is not null and array_length(e_record.split_members, 1) > 0 then
       split_count := array_length(e_record.split_members, 1);
@@ -158,9 +163,11 @@ begin
       );
       
       if net_bal > 0.01 then
+        creditor_ids := array_append(creditor_ids, m_record.user_id);
         creditor_names := array_append(creditor_names, m_record.display_name);
         creditor_bals := array_append(creditor_bals, net_bal);
       elsif net_bal < -0.01 then
+        debtor_ids := array_append(debtor_ids, m_record.user_id);
         debtor_names := array_append(debtor_names, m_record.display_name);
         debtor_bals := array_append(debtor_bals, net_bal);
       end if;
@@ -180,7 +187,9 @@ begin
     if settle_amount > 0.01 then
       settlements := settlements || jsonb_build_object(
         'from', debtor_names[d_idx + 1],
+        'from_id', debtor_ids[d_idx + 1],
         'to', creditor_names[c_idx + 1],
+        'to_id', creditor_ids[c_idx + 1],
         'amount', round(settle_amount, 2)
       );
     end if;

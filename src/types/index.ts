@@ -21,7 +21,9 @@ export interface Balance {
 
 export interface Settlement {
   from: UserProfile['display_name'];
+  from_id?: UserProfile['id'];
   to: UserProfile['display_name'];
+  to_id?: UserProfile['id'];
   amount: Expense['amount'];
 }
 
