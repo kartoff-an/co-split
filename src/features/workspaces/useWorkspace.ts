@@ -1,75 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
+import {
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { Expense, Member, Workspace } from '../../types';
 import * as workspaceService from './workspaceService';
 import * as expenseService from '../expenses/expenseService';
 import { fetchWorkspaceExpensesPaginated } from '../expenses/expenses';
 
 export const useWorkspace = (workspaceId: string) => {
-  const [workspace, setWorkspace] = useState<Workspace | null>(null);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [members, setMembers] = useState<Member[]>([]);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const queryClient = useQueryClient();
+  const [actionError, setActionError] = useState<string | null>(null);
   const pageSize = 10;
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  useEffect(() => {
-    if (!workspaceId) return;
+  const {
+    data: workspaceDetails,
+    isLoading: detailsLoading,
+    error: detailsError,
+  } = useQuery({
+    queryKey: ['workspace', workspaceId],
+    queryFn: () => workspaceService.getWorkspaceDetails(workspaceId),
+    enabled: !!workspaceId,
+  });
 
-    const fetchWorkspaceData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        setPage(1);
+  const {
+    data: infiniteExpensesData,
+    isLoading: expensesLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['workspace-expenses', workspaceId],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchWorkspaceExpensesPaginated(workspaceId, pageParam, pageSize),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.hasMore ? allPages.length + 1 : undefined;
+    },
+    enabled: !!workspaceId,
+  });
 
-        const details = await workspaceService.getWorkspaceDetails(workspaceId);
-        setWorkspace(details.workspace);
-        setMembers(details.members);
-
-        const { expenses: firstPageExpenses, hasMore: firstPageHasMore } =
-          await fetchWorkspaceExpensesPaginated(workspaceId, 1, pageSize);
-        setExpenses(firstPageExpenses);
-        setHasMore(firstPageHasMore);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to load workspace'
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWorkspaceData();
-  }, [workspaceId, refreshTrigger]);
+  const expenses = useMemo(() => {
+    return (
+      infiniteExpensesData?.pages.flatMap((page) => page.expenses) ?? []
+    );
+  }, [infiniteExpensesData]);
 
   const loadMoreExpenses = async () => {
-    if (!workspaceId || loadingMore || !hasMore) return;
+    if (!workspaceId || isFetchingNextPage || !hasNextPage) return;
     try {
-      setLoadingMore(true);
-      const nextPage = page + 1;
-      const { expenses: nextPageExpenses, hasMore: nextPageHasMore } =
-        await fetchWorkspaceExpensesPaginated(workspaceId, nextPage, pageSize);
-
-      setExpenses((previousExpenses) => {
-        const filteredNext = nextPageExpenses.filter(
-          (newExp) =>
-            !previousExpenses.some((oldExp) => oldExp.id === newExp.id)
-        );
-        return [...previousExpenses, ...filteredNext];
-      });
-      setPage(nextPage);
-      setHasMore(nextPageHasMore);
+      await fetchNextPage();
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : 'Failed to load more expenses'
       );
-    } finally {
-      setLoadingMore(false);
     }
   };
 
@@ -80,14 +65,40 @@ export const useWorkspace = (workspaceId: string) => {
       const newExpense = await expenseService.addExpense(workspaceId, expense);
       if (!newExpense) throw new Error('Failed to add expense.');
 
-      setExpenses((previousExpenses) => {
-        if (previousExpenses.some((expense) => expense.id === newExpense.id))
-          return previousExpenses;
-        return [newExpense, ...previousExpenses];
-      });
+      queryClient.setQueryData(
+        ['workspace-expenses', workspaceId],
+        (
+          old:
+            | {
+              pages: { expenses: Expense[]; hasMore: boolean }[];
+              pageParams: number[];
+            }
+            | undefined
+        ) => {
+          if (!old || !old.pages.length) return old;
+          const firstPage = old.pages[0];
+          const newFirstPage = {
+            ...firstPage,
+            expenses: [
+              newExpense,
+              ...firstPage.expenses.filter((e) => e.id !== newExpense.id),
+            ],
+          };
+          return {
+            ...old,
+            pages: [newFirstPage, ...old.pages.slice(1)],
+          };
+        }
+      );
+
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+
       return newExpense;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add expense');
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to add expense'
+      );
       throw err;
     }
   };
@@ -103,14 +114,35 @@ export const useWorkspace = (workspaceId: string) => {
       );
       if (!updatedExpense) throw new Error('Failed to update expense.');
 
-      setExpenses((previousExpenses) =>
-        previousExpenses.map((expense) =>
-          expense.id === updatedExpense.id ? updatedExpense : expense
-        )
+      queryClient.setQueryData(
+        ['workspace-expenses', workspaceId],
+        (
+          old:
+            | {
+              pages: { expenses: Expense[]; hasMore: boolean }[];
+              pageParams: number[];
+            }
+            | undefined
+        ) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              expenses: page.expenses.map((e) =>
+                e.id === updatedExpense.id ? updatedExpense : e
+              ),
+            })),
+          };
+        }
       );
+
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+
       return updatedExpense;
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : 'Failed to update expense'
       );
       throw err;
@@ -120,12 +152,36 @@ export const useWorkspace = (workspaceId: string) => {
   const deleteExpense = async (expenseId: number | string) => {
     try {
       await expenseService.deleteExpense(expenseId);
-      setExpenses((previousExpenses) =>
-        previousExpenses.filter((expense) => expense.id !== Number(expenseId))
+
+      queryClient.setQueryData(
+        ['workspace-expenses', workspaceId],
+        (
+          old:
+            | {
+              pages: { expenses: Expense[]; hasMore: boolean }[];
+              pageParams: number[];
+            }
+            | undefined
+        ) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              expenses: page.expenses.filter(
+                (e) => e.id !== Number(expenseId)
+              ),
+            })),
+          };
+        }
       );
+
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+
       return true;
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : 'Failed to delete expense'
       );
       throw err;
@@ -138,9 +194,31 @@ export const useWorkspace = (workspaceId: string) => {
         workspaceId,
         userId
       );
+      if (newMember) {
+        queryClient.setQueryData(
+          ['workspace', workspaceId],
+          (
+            old:
+              | { workspace: Workspace | null; members: Member[] }
+              | undefined
+          ) => {
+            if (!old) return old;
+            return {
+              ...old,
+              members: [
+                ...old.members.filter((m) => m.id !== userId),
+                newMember,
+              ],
+            };
+          }
+        );
+        queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      }
       return newMember;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add member');
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to add member'
+      );
       return null;
     }
   };
@@ -149,13 +227,27 @@ export const useWorkspace = (workspaceId: string) => {
     try {
       const success = await workspaceService.removeMember(workspaceId, userId);
       if (success) {
-        setMembers((previousMembers) =>
-          previousMembers.filter((m) => m.id !== userId)
+        queryClient.setQueryData(
+          ['workspace', workspaceId],
+          (
+            old:
+              | { workspace: Workspace | null; members: Member[] }
+              | undefined
+          ) => {
+            if (!old) return old;
+            return {
+              ...old,
+              members: old.members.filter((m) => m.id !== userId),
+            };
+          }
         );
+        queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       }
       return success;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove member');
+      setActionError(
+        err instanceof Error ? err.message : 'Failed to remove member'
+      );
       return false;
     }
   };
@@ -167,11 +259,25 @@ export const useWorkspace = (workspaceId: string) => {
         updates
       );
       if (updated) {
-        setWorkspace(updated);
+        queryClient.setQueryData(
+          ['workspace', workspaceId],
+          (
+            old:
+              | { workspace: Workspace | null; members: Member[] }
+              | undefined
+          ) => {
+            if (!old) return old;
+            return {
+              ...old,
+              workspace: updated,
+            };
+          }
+        );
+        queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       }
       return updated;
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : 'Failed to update workspace'
       );
       return null;
@@ -181,9 +287,14 @@ export const useWorkspace = (workspaceId: string) => {
   const deleteWorkspace = async () => {
     try {
       await workspaceService.deleteWorkspace(workspaceId);
+      queryClient.removeQueries({ queryKey: ['workspace', workspaceId] });
+      queryClient.removeQueries({
+        queryKey: ['workspace-expenses', workspaceId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       return true;
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : 'Failed to delete workspace'
       );
       return false;
@@ -193,35 +304,53 @@ export const useWorkspace = (workspaceId: string) => {
   const regenerateInvite = async () => {
     if (!workspaceId) return null;
     try {
-      setError(null);
+      setActionError(null);
       const newCode = await workspaceService.regenerateInviteCode(workspaceId);
       if (newCode) {
-        setWorkspace((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            invite_code: newCode,
-          };
-        });
+        queryClient.setQueryData(
+          ['workspace', workspaceId],
+          (
+            old:
+              | { workspace: Workspace | null; members: Member[] }
+              | undefined
+          ) => {
+            if (!old || !old.workspace) return old;
+            return {
+              ...old,
+              workspace: {
+                ...old.workspace,
+                invite_code: newCode,
+              },
+            };
+          }
+        );
       }
       return newCode;
     } catch (err) {
-      setError(
+      setActionError(
         err instanceof Error ? err.message : 'Failed to regenerate invite code'
       );
       return null;
     }
   };
 
+  const error =
+    actionError ||
+    (detailsError
+      ? detailsError instanceof Error
+        ? detailsError.message
+        : 'Failed to load workspace'
+      : null);
+
   return {
-    workspace,
+    workspace: workspaceDetails?.workspace ?? null,
     expenses,
-    members,
-    loading,
+    members: workspaceDetails?.members ?? [],
+    loading: (detailsLoading || expensesLoading) && !workspaceDetails,
     error,
-    clearError: () => setError(null),
-    hasMore,
-    loadingMore,
+    clearError: () => setActionError(null),
+    hasMore: !!hasNextPage,
+    loadingMore: isFetchingNextPage,
     loadMoreExpenses,
     addExpense,
     updateExpense,
@@ -231,6 +360,13 @@ export const useWorkspace = (workspaceId: string) => {
     updateWorkspace,
     deleteWorkspace,
     regenerateInvite,
-    refetch: () => setRefreshTrigger((prev) => prev + 1),
+    refetch: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId] }),
+        queryClient.invalidateQueries({
+          queryKey: ['workspace-expenses', workspaceId],
+        }),
+      ]);
+    },
   };
 };

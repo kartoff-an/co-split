@@ -103,8 +103,7 @@ export const regenerateInviteCode = async (
 };
 
 export const joinWorkspace = async (
-  pastedLinkOrId: string,
-  _userId: string
+  pastedLinkOrId: string
 ): Promise<string> => {
   const input = pastedLinkOrId.trim();
   let inviteCode: string | null = null;

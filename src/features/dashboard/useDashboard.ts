@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as workspaceService from '../workspaces/workspaceService';
 import type { WorkspaceItem } from '../../types';
 
@@ -8,30 +9,18 @@ interface DashboardMessage {
 }
 
 export const useDashboard = (userId: string | undefined) => {
-  const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
-  const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
+  const queryClient = useQueryClient();
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<DashboardMessage | null>(null);
 
-  const fetchUserWorkspaces = useCallback(async () => {
-    if (!userId) return;
-    try {
-      setLoadingWorkspaces(true);
-      const list = await workspaceService.getUserWorkspaces(userId);
-      setWorkspaces(list);
-    } catch (err) {
-      console.error('Error fetching workspaces:', err);
-    } finally {
-      setLoadingWorkspaces(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchUserWorkspaces();
-  }, [userId, fetchUserWorkspaces]);
+  const {
+    data: workspaces = [] as WorkspaceItem[],
+    isLoading: loadingWorkspaces,
+  } = useQuery({
+    queryKey: ['workspaces', userId],
+    queryFn: () => workspaceService.getUserWorkspaces(userId!),
+    enabled: !!userId,
+  });
 
   const createWorkspace = async (name: string): Promise<string | null> => {
     if (!name.trim() || !userId) return null;
@@ -43,6 +32,7 @@ export const useDashboard = (userId: string | undefined) => {
         name.trim(),
         userId
       );
+      queryClient.invalidateQueries({ queryKey: ['workspaces', userId] });
       return workspaceId;
     } catch (err) {
       console.error('Failed to create workspace:', err);
@@ -50,8 +40,9 @@ export const useDashboard = (userId: string | undefined) => {
         text: err instanceof Error ? err.message : 'Failed to create workspace',
         type: 'error',
       });
-      setActionLoading(false);
       return null;
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -62,10 +53,8 @@ export const useDashboard = (userId: string | undefined) => {
     setActionLoading(true);
     setMessage(null);
     try {
-      const workspaceId = await workspaceService.joinWorkspace(
-        targetId,
-        userId
-      );
+      const workspaceId = await workspaceService.joinWorkspace(targetId);
+      queryClient.invalidateQueries({ queryKey: ['workspaces', userId] });
       return workspaceId;
     } catch (err) {
       console.error('Failed to join workspace:', err);
@@ -73,8 +62,9 @@ export const useDashboard = (userId: string | undefined) => {
         text: err instanceof Error ? err.message : 'Failed to join workspace',
         type: 'error',
       });
-      setActionLoading(false);
       return null;
+    } finally {
+      setActionLoading(false);
     }
   };
 
