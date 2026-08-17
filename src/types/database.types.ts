@@ -197,6 +197,39 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      calculate_workspace_balances: {
+        Args: { w_id: string };
+        Returns: {
+          balances: {
+            member_id: string;
+            member_name: string;
+            net_balance: number;
+          }[];
+          settlements: {
+            from: string;
+            from_id?: string;
+            to: string;
+            to_id?: string;
+            amount: number;
+          }[];
+          total_workspace_cost: number;
+          average_cost_per_person: number;
+        };
+      };
+      get_user_workspaces: {
+        Args: { u_id: string };
+        Returns: {
+          id: string;
+          name: string;
+          created_at: string;
+          owner_id: string;
+          owner_name: string;
+          currency: string;
+          total_expenses: number;
+          member_count: number;
+          user_net_balance: number;
+        }[];
+      };
       is_project_member: {
         Args: { project_id: string; user_id: string };
         Returns: boolean;
@@ -204,6 +237,14 @@ export type Database = {
       is_workspace_member: {
         Args: { user_id: string; workspace_id: string };
         Returns: boolean;
+      };
+      join_workspace_with_code: {
+        Args: { invite_uuid: string };
+        Returns: string;
+      };
+      regenerate_workspace_invite_code: {
+        Args: { w_id: string };
+        Returns: string;
       };
     };
     Enums: {
