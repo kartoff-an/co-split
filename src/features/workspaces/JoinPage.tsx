@@ -63,11 +63,11 @@ export const JoinPage: React.FC = () => {
 
   if (authLoading || joining) {
     return (
-      <div className="bg-mesh-light flex min-h-screen flex-col items-center justify-center font-sans">
+      <div className="bg-mesh-light flex min-h-screen flex-col items-center justify-center font-sans text-text-primary">
         <div className="flex flex-col items-center gap-4 text-center select-none">
           <CoSplitIcon className="animate-pulse" />
           <Spinner className="text-primary-green h-12 w-12" />
-          <p className="text-sm font-semibold text-slate-500">
+          <p className="text-sm font-semibold text-text-muted">
             Joining ledger sheet...
           </p>
         </div>
@@ -76,18 +76,18 @@ export const JoinPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-mesh-light flex min-h-screen flex-col items-center justify-center px-4 font-sans">
-      <div className="glass-card w-full max-w-md rounded-2xl border border-slate-100 p-8 text-center shadow-md">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-500">
+    <div className="bg-mesh-light flex min-h-screen flex-col items-center justify-center px-4 font-sans text-text-primary">
+      <div className="glass-card w-full max-w-md rounded-2xl p-8 text-center shadow-md">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 text-rose-600 [data-theme='dark']_&:text-rose-400">
           <ExclamationTriangleIcon className="h-7 w-7" />
         </div>
-        <h2 className="text-lg font-bold text-slate-800">Cannot Join Ledger</h2>
-        <p className="text-slate-450 mt-2 text-xs leading-relaxed font-medium">
+        <h2 className="text-lg font-bold text-text-primary">Cannot Join Ledger</h2>
+        <p className="mt-2 text-xs leading-relaxed font-medium text-text-muted">
           {error}
         </p>
         <button
           onClick={() => navigate('/dashboard')}
-          className="bg-primary-green hover:bg-primary-green-dark border-primary-green/10 mt-6 cursor-pointer rounded-xl border px-5 py-2.5 text-xs font-bold text-white transition-all hover:shadow-xs active:scale-[0.98]"
+          className="bg-primary-green hover:bg-primary-green-hover border-primary-green/10 mt-6 cursor-pointer rounded-xl border px-5 py-2.5 text-xs font-bold text-white transition-all hover:shadow-xs active:scale-[0.98]"
         >
           Go to Dashboard
         </button>

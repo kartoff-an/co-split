@@ -20,10 +20,10 @@ export const GoogleLogin: React.FC = () => {
     <button
       onClick={handleLogin}
       disabled={isLoading}
-      className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-xs transition-all duration-200 hover:bg-slate-50 hover:shadow-sm active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+      className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border border-border-subtle bg-surface px-4 py-3 text-sm font-semibold text-text-primary shadow-xs transition-all duration-200 hover:bg-surface-subtle hover:shadow-sm active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
     >
       {isLoading ? (
-        <Spinner className="h-5 w-5 text-slate-500" />
+        <Spinner className="h-5 w-5 text-text-muted" />
       ) : (
         <img
           src="/icons/google-icon.svg"

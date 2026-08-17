@@ -112,14 +112,14 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
   if (expenses.length === 0) {
     return (
-      <div className="animate-fade-in rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-xs">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-400">
+      <div className="animate-fade-in rounded-2xl border border-border-subtle bg-surface p-10 text-center shadow-xs">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-subtle text-text-muted">
           <ClipboardDocumentIcon className="h-8 w-8" />
         </div>
-        <h4 className="text-base font-bold text-slate-700">
+        <h4 className="text-base font-bold text-text-primary">
           No transactions recorded
         </h4>
-        <p className="text-slate-450 mx-auto mt-1 max-w-xs text-sm">
+        <p className="mx-auto mt-1 max-w-xs text-sm text-text-muted">
           Add expenses in the left panel to begin balancing your workspace
           budget.
         </p>
@@ -129,37 +129,37 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
   return (
     <>
-      <div className="animate-fade-in overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-xs transition-shadow duration-300 hover:shadow-md">
-        <div className="border-b border-slate-100 bg-linear-to-b from-slate-50/50 to-white p-4">
+      <div className="animate-fade-in overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-xs transition-shadow duration-300 hover:shadow-md">
+        <div className="border-b border-border-subtle bg-surface-subtle/50 p-4">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
-              <h3 className="text-sm font-bold tracking-tight text-slate-800">
+              <h3 className="text-sm font-bold tracking-tight text-text-primary">
                 Ledger transactions
               </h3>
-              <p className="mt-0.5 text-[10px] font-medium text-slate-400">
+              <p className="mt-0.5 text-[10px] font-medium text-text-muted">
                 {expenses.length} expense{expenses.length === 1 ? '' : 's'} logged
                 in total
               </p>
             </div>
 
             <div className="relative w-full max-w-xs">
-              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                <MagnifyingGlassIcon className="h-3.5 w-3.5" />
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-text-muted">
+                <MagnifyingGlassesOrSearch className="h-3.5 w-3.5" />
               </span>
               <input
                 type="text"
                 placeholder="Search expenses..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-1.5 pr-3 pl-8 text-xs font-semibold text-slate-700 placeholder-slate-400 outline-hidden transition-all focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full rounded-xl border border-border-subtle bg-surface py-1.5 pr-3 pl-8 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:border-primary-green focus:ring-2 focus:ring-primary-green/20"
               />
             </div>
           </div>
         </div>
 
-        <div className="max-h-[500px] divide-y divide-slate-100 overflow-y-auto">
+        <div className="max-h-[500px] divide-y divide-border-subtle overflow-y-auto">
           {filteredExpenses.length === 0 ? (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-text-muted">
               <p className="text-xs font-medium">
                 No transactions match your search criteria.
               </p>
@@ -167,7 +167,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 onClick={() => {
                   setSearch('');
                 }}
-                className="mt-2.5 cursor-pointer text-xs font-semibold text-emerald-600 underline hover:text-emerald-800"
+                className="mt-2.5 cursor-pointer text-xs font-semibold text-emerald-600 underline hover:text-emerald-800 [data-theme='dark']_&:text-emerald-400"
               >
                 Clear search
               </button>
@@ -195,27 +195,27 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 return (
                   <div
                     key={expense.id}
-                    className="group p-3 transition-colors duration-200 hover:bg-slate-50/50"
+                    className="group p-3 transition-colors duration-200 hover:bg-surface-subtle/50"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-[10px] font-bold text-slate-500 shadow-xs transition-transform duration-200 group-hover:scale-105">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-subtle text-[10px] font-bold text-text-muted shadow-2xs transition-transform duration-200 group-hover:scale-105">
                           #{index + 1}
                         </div>
 
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <p className="truncate text-xs font-semibold text-slate-800 md:text-sm">
+                            <p className="truncate text-xs font-semibold text-text-primary md:text-sm">
                               {expense.description}
                             </p>
                             {isPayment && (
-                              <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-100 bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600">
+                              <span className="inline-flex shrink-0 items-center rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 [data-theme='dark']_&:text-emerald-400">
                                 Payment
                               </span>
                             )}
                           </div>
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                            <span className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
+                            <span className="flex items-center gap-1 text-[10px] font-medium text-text-muted">
                               <Avatar
                                 avatarUrl={payer?.avatar_url}
                                 name={payerName}
@@ -223,21 +223,21 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                               />
                               <span>
                                 Paid by{' '}
-                                <strong className="font-semibold text-slate-500">
+                                <strong className="font-semibold text-text-secondary">
                                   {payerName}
                                 </strong>
                               </span>
                             </span>
-                            <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline" />
-                            <span className="text-[10px] font-medium text-slate-400">
+                            <span className="hidden h-1 w-1 rounded-full bg-border-strong sm:inline" />
+                            <span className="text-[10px] font-medium text-text-muted">
                               {formatRelativeTime(expense.timestamp)}
                             </span>
                             {expense.split_members &&
                               expense.split_members.length > 0 && (
                                 <>
-                                  <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:inline" />
+                                  <span className="hidden h-1 w-1 rounded-full bg-border-strong sm:inline" />
                                   <span
-                                    className="inline-flex cursor-help items-center rounded-md border border-slate-100 bg-slate-50 px-1.5 py-0.5 text-[9px] font-bold text-slate-500 transition-colors hover:bg-slate-100"
+                                    className="inline-flex cursor-help items-center rounded-md border border-border-subtle bg-surface-subtle px-1.5 py-0.5 text-[9px] font-bold text-text-muted transition-colors hover:bg-surface"
                                     title={expense.split_members
                                       .map(
                                         (memberId) =>
@@ -260,7 +260,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                       </div>
 
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs font-extrabold tracking-tight text-slate-800 md:text-sm">
+                        <span className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
                           {formatCurrency(expense.amount, currency)}
                         </span>
 
@@ -270,7 +270,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setEditingExpense(expense)}
-                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors hover:text-emerald-600"
+                                className="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:text-emerald-600 [data-theme='dark']_&:hover:text-emerald-400"
                                 title="Edit Expense"
                               >
                                 <PencilSquareIcon className="h-4 w-4" />
@@ -279,8 +279,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                             {onDeleteExpense && (
                               <button
                                 type="button"
-                                onClick={() => setDeletingExpenseId(expense.id)}
-                                className="cursor-pointer rounded-lg p-1.5 text-slate-400 transition-colors hover:text-rose-600"
+                                onClick={() => setDeletingExpenseId(Number(expense.id))}
+                                className="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:text-rose-600"
                                 title="Delete Expense"
                               >
                                 <TrashIcon className="h-4 w-4" />
@@ -294,11 +294,11 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 );
               })}
               {hasMore && (
-                <div className="border-t border-slate-100 bg-slate-50/50 p-3 text-center">
+                <div className="border-t border-border-subtle bg-surface-subtle/50 p-3 text-center">
                   <button
                     onClick={onLoadMore}
                     disabled={loadingMore}
-                    className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:text-emerald-800 disabled:opacity-50"
+                    className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:text-emerald-800 disabled:opacity-50 [data-theme='dark']_&:text-emerald-400"
                   >
                     {loadingMore
                       ? 'Loading older transactions...'
@@ -325,15 +325,15 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
       {deletingExpenseId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-          <div className="animate-scale-up relative w-full max-w-sm rounded-2xl border border-slate-100 bg-white p-6 shadow-xl text-center space-y-4">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center">
-              <ExclamationTriangleIcon className="h-6 w-6 text-rose-600" />
+          <div className="animate-scale-up relative w-full max-w-sm rounded-2xl border border-border-subtle bg-surface p-6 text-center shadow-xl space-y-4">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
+              <ExclamationTriangleIcon className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800">
+              <h3 className="text-base font-bold text-text-primary">
                 Delete Expense?
               </h3>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-text-muted">
                 Are you sure you want to delete this transaction? This action will update workspace balances and cannot be undone.
               </p>
             </div>
@@ -342,7 +342,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 type="button"
                 onClick={() => setDeletingExpenseId(null)}
                 disabled={isDeleting}
-                className="w-1/2 cursor-pointer rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                className="w-1/2 cursor-pointer rounded-xl border border-border-subtle bg-surface py-2.5 text-xs font-semibold text-text-secondary hover:bg-surface-subtle"
               >
                 Cancel
               </button>
@@ -365,3 +365,4 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
     </>
   );
 };
+const MagnifyingGlassesOrSearch = MagnifyingGlassIcon;

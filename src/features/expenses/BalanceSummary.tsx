@@ -31,7 +31,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
 }) => {
   const maxAbsBalance = useMemo(() => {
     const values = balances.map((balance) => Math.abs(balance.net_balance));
-    return Math.max(...values, 1); // Fallback to 1 to avoid division by zero
+    return Math.max(...values, 1);
   }, [balances]);
 
   return (
@@ -39,47 +39,47 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-2.5">
         {/* Total Cost */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50 p-3 transition-shadow duration-200 hover:shadow-xs">
+        <div className="flex flex-col justify-between rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-shadow duration-200 hover:shadow-xs">
           <div className="mb-1.5">
-            <span className="text-slate-450 text-[9px] font-bold">
+            <span className="text-[9px] font-bold text-text-muted">
               Total spent
             </span>
           </div>
-          <p className="text-xs font-extrabold tracking-tight text-slate-800 md:text-sm">
+          <p className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
             {formatCurrency(totalWorkspaceCost, currency)}
           </p>
         </div>
 
         {/* Average Per Person */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50 p-3 transition-shadow duration-200 hover:shadow-xs">
+        <div className="flex flex-col justify-between rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-shadow duration-200 hover:shadow-xs">
           <div className="mb-1.5">
-            <span className="text-slate-450 text-[9px] font-bold">
+            <span className="text-[9px] font-bold text-text-muted">
               Avg / Head
             </span>
           </div>
-          <p className="text-xs font-extrabold tracking-tight text-slate-800 md:text-sm">
+          <p className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
             {formatCurrency(averageCostPerPerson, currency)}
           </p>
         </div>
 
         {/* Settlements Counter */}
-        <div className="flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50 p-3 transition-shadow duration-200 hover:shadow-xs">
+        <div className="flex flex-col justify-between rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-shadow duration-200 hover:shadow-xs">
           <div className="mb-1.5">
-            <span className="text-slate-450 text-[9px] font-bold">Settles</span>
+            <span className="text-[9px] font-bold text-text-muted">Settles</span>
           </div>
-          <p className="text-xs font-extrabold tracking-tight text-slate-800 md:text-sm">
+          <p className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
             {settlements.length}
           </p>
         </div>
       </div>
 
       {/* Individual Balances */}
-      <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xs transition-shadow duration-300 hover:shadow-md">
+      <div className="rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-shadow duration-300 hover:shadow-md">
         <div className="mb-3.5 flex items-center gap-2">
-          <div className="text-emerald-655 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
             <ChartBarIcon className="h-4 w-4" />
           </div>
-          <h3 className="text-sm font-bold tracking-tight text-slate-800">
+          <h3 className="text-sm font-bold tracking-tight text-text-primary">
             Balances
           </h3>
         </div>
@@ -99,7 +99,9 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
               <div key={balance.member_id} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span
-                    className={`flex items-center gap-1.5 font-semibold text-slate-700 ${isCurrentUser ? 'text-emerald-650' : ''}`}
+                    className={`flex items-center gap-1.5 font-semibold text-text-secondary ${
+                      isCurrentUser ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400' : ''
+                    }`}
                   >
                     {members.find((member) => member.id === balance.member_id)
                       ?.avatar_url ? (
@@ -110,10 +112,10 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                           )?.avatar_url || ''
                         }
                         alt=""
-                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-slate-100"
+                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-border-subtle"
                       />
                     ) : (
-                      <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[8px] font-bold text-slate-500">
+                      <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-[8px] font-bold text-text-muted">
                         {balance.member_name.slice(0, 1).toUpperCase()}
                       </span>
                     )}
@@ -124,10 +126,10 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                   <span
                     className={`font-extrabold tracking-tight ${
                       isPositive
-                        ? 'text-emerald-600'
+                        ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
                         : isNegative
-                          ? 'text-rose-650'
-                          : 'text-slate-400'
+                          ? 'text-rose-600 [data-theme="dark"]_&:text-rose-400'
+                          : 'text-text-muted'
                     }`}
                   >
                     {isPositive ? '+' : isNegative ? '-' : ''}
@@ -136,7 +138,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                 </div>
 
                 {/* Visual Balance Bar */}
-                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-surface-subtle">
                   {isPositive && (
                     <div
                       className="absolute left-1/2 h-full origin-left rounded-r-full bg-emerald-500 transition-all duration-500"
@@ -150,7 +152,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                     />
                   )}
                   {/* Center Line Indicator */}
-                  <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-slate-300" />
+                  <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-border-strong" />
                 </div>
               </div>
             );
@@ -159,23 +161,23 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
       </div>
 
       {/* Settlement Plan */}
-      <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xs transition-shadow duration-300 hover:shadow-md">
+      <div className="rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-shadow duration-300 hover:shadow-md">
         <div className="mb-3.5 flex items-center gap-2">
-          <div className="text-teal-655 flex h-7 w-7 items-center justify-center rounded-lg bg-teal-50">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600 [data-theme='dark']_&:text-teal-400">
             <CheckCircleIcon className="h-4 w-4" />
           </div>
-          <h3 className="text-sm font-bold tracking-tight text-slate-800">
+          <h3 className="text-sm font-bold tracking-tight text-text-primary">
             Settlement Plan
           </h3>
         </div>
 
         {settlements.length === 0 ? (
-          <div className="py-3 text-center text-slate-400">
-            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
+          <div className="py-3 text-center text-text-muted">
+            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
               <CheckIcon className="h-4 w-4" />
             </div>
-            <p className="text-xs font-bold text-slate-700">All settled up!</p>
-            <p className="text-slate-450 mt-0.5 text-[10px]">
+            <p className="text-xs font-bold text-text-primary">All settled up!</p>
+            <p className="mt-0.5 text-[10px] text-text-muted">
               No transactions or all balances are balanced.
             </p>
           </div>
@@ -184,27 +186,27 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             {settlements.map((settlement, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-2 transition-colors duration-200 hover:bg-slate-100/50"
+                className="flex items-center justify-between rounded-xl border border-border-subtle bg-surface-subtle p-2 transition-colors duration-200 hover:bg-surface"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   {/* Debtor */}
-                  <span className="text-rose-750 max-w-[80px] truncate rounded-md border border-rose-100 bg-rose-50 px-1.5 py-0.5 text-[10px] font-semibold md:max-w-[100px]">
+                  <span className="max-w-[80px] truncate rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600 md:max-w-[100px] [data-theme='dark']_&:text-rose-400">
                     {settlement.from}
                   </span>
 
                   {/* Arrow transfer animation */}
-                  <div className="mx-0.5 flex shrink-0 items-center text-slate-400">
+                  <div className="mx-0.5 flex shrink-0 items-center text-text-muted">
                     <ArrowRightIcon className="h-3.5 w-3.5 animate-pulse" />
                   </div>
 
                   {/* Creditor */}
-                  <span className="text-emerald-750 max-w-[80px] truncate rounded-md border border-emerald-100 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold md:max-w-[100px]">
+                  <span className="max-w-[80px] truncate rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 md:max-w-[100px] [data-theme='dark']_&:text-emerald-400">
                     {settlement.to}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 text-xs font-extrabold tracking-tight text-slate-800">
+                  <span className="shrink-0 text-xs font-extrabold tracking-tight text-text-primary">
                     {formatCurrency(settlement.amount, currency)}
                   </span>
                   {onSettleUp && (

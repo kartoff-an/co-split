@@ -101,20 +101,20 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xs transition-shadow duration-300 hover:shadow-md"
+      className="rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-shadow duration-300 hover:shadow-md"
     >
       <div className="mb-3.5 flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
           <PlusIcon className="h-4 w-4" />
         </div>
-        <h3 className="text-sm font-bold tracking-tight text-slate-800">
+        <h3 className="text-sm font-bold tracking-tight text-text-primary">
           Add Expense
         </h3>
       </div>
 
       <div className="space-y-3.5">
         <div>
-          <label className="mb-1 block text-[10px] font-bold text-slate-400">
+          <label className="mb-1 block text-[10px] font-bold text-text-muted">
             Description
           </label>
           <input
@@ -122,7 +122,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             placeholder="Cloud server hosting, sticker printing..."
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            className="focus:ring-primary-green/20 focus:border-primary-green w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 placeholder-slate-400 outline-hidden transition-all focus:bg-white focus:ring-2"
+            className="focus:ring-primary-green/20 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs font-medium text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:bg-surface focus:ring-2"
             disabled={isLoading}
             required
           />
@@ -130,11 +130,11 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
         <div className="grid grid-cols-2 gap-3.5">
           <div>
-            <label className="mb-1 block text-[10px] font-bold text-slate-400">
+            <label className="mb-1 block text-[10px] font-bold text-text-muted">
               Amount ({currency})
             </label>
             <div className="relative">
-              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-medium text-slate-400">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-medium text-text-muted">
                 {symbol}
               </span>
               <input
@@ -142,7 +142,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 placeholder="0.00"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
-                className="focus:ring-primary-green/20 focus:border-primary-green w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pr-3 pl-7 text-xs font-semibold text-slate-700 placeholder-slate-400 outline-hidden transition-all focus:bg-white focus:ring-2"
+                className="focus:ring-primary-green/20 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle py-2 pr-3 pl-7 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:bg-surface focus:ring-2"
                 disabled={isLoading}
                 min="0.01"
                 step="0.01"
@@ -152,13 +152,13 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-[10px] font-bold text-slate-400">
+            <label className="mb-1 block text-[10px] font-bold text-text-muted">
               Payer
             </label>
             <select
               value={paidBy}
               onChange={(event) => setPaidBy(event.target.value)}
-              className="focus:ring-primary-green/20 focus:border-primary-green w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-medium text-slate-700 outline-hidden transition-all focus:bg-white focus:ring-2"
+              className="focus:ring-primary-green/20 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle px-2.5 py-2 text-xs font-medium text-text-primary outline-hidden transition-all focus:bg-surface focus:ring-2"
               disabled={isLoading}
               required
             >
@@ -184,12 +184,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 setExcludedSplitMembers([]);
               }
             }}
-            className="border-slate-350 text-emerald-650 h-3.5 w-3.5 cursor-pointer rounded focus:ring-emerald-500"
+            className="h-3.5 w-3.5 cursor-pointer rounded border-border-strong text-emerald-600 focus:ring-emerald-500"
             disabled={isLoading}
           />
           <label
             htmlFor="unequal-split"
-            className="cursor-pointer text-[10px] font-bold text-slate-400 select-none"
+            className="cursor-pointer text-[10px] font-bold text-text-muted select-none"
           >
             Split unequally
           </label>
@@ -197,13 +197,13 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
         {isUnequalSplit && (
           <div className="relative mt-2" ref={bubbleRef}>
-            <label className="mb-1 block text-[10px] font-bold text-slate-400">
+            <label className="mb-1 block text-[10px] font-bold text-text-muted">
               Split Members
             </label>
             <button
               type="button"
               onClick={() => setIsBubbleOpen((previousState) => !previousState)}
-              className="focus:ring-primary-green/20 focus:border-primary-green flex w-full cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs font-semibold text-slate-700 outline-hidden transition-all focus:bg-white focus:ring-2"
+              className="focus:ring-primary-green/20 focus:border-primary-green flex w-full cursor-pointer items-center justify-between rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-left text-xs font-semibold text-text-primary outline-hidden transition-all focus:bg-surface focus:ring-2"
               disabled={isLoading}
             >
               <span>
@@ -211,14 +211,14 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   ? 'All members'
                   : `${selectedSplitMembers.length} of ${members.length} selected`}
               </span>
-              <span className="text-[10px] font-bold text-slate-400">
+              <span className="text-[10px] font-bold text-text-muted">
                 Configure…
               </span>
             </button>
 
             {isBubbleOpen && (
-              <div className="border-slate-250 animate-scale-up absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border bg-white p-4 shadow-xl">
-                <h4 className="mb-2 text-xs font-extrabold text-slate-700">
+              <div className="animate-scale-up absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border border-border-subtle bg-surface p-4 shadow-xl">
+                <h4 className="mb-2 text-xs font-extrabold text-text-primary">
                   Include in Split:
                 </h4>
                 <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
@@ -227,7 +227,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                     return (
                       <label
                         key={member.id}
-                        className="flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                        className="flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-subtle"
                       >
                         <input
                           type="checkbox"
@@ -248,14 +248,14 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                               );
                             }
                           }}
-                          className="border-slate-350 text-emerald-650 h-3.5 w-3.5 rounded focus:ring-emerald-500"
+                          className="h-3.5 w-3.5 rounded border-border-strong text-emerald-600 focus:ring-emerald-500"
                         />
                         <span>{member.display_name}</span>
                       </label>
                     );
                   })}
                 </div>
-                <div className="mt-3 flex justify-end border-t border-slate-100 pt-2">
+                <div className="mt-3 flex justify-end border-t border-border-subtle pt-2">
                   <button
                     type="button"
                     onClick={() => setIsBubbleOpen(false)}
@@ -278,7 +278,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             !amount ||
             !paidBy
           }
-          className="bg-accent-coral hover:bg-accent-coral-hover mt-1 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+          className="bg-accent-coral hover:bg-accent-coral-hover mt-1 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-200 hover:shadow-md active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
         >
           {isLoading ? (
             <>
