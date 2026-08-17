@@ -16,7 +16,7 @@ interface BalanceSummaryProps {
   activeUserId?: string | null;
   members: Member[];
   currency?: string;
-  onSettleUp?: (settlement: Settlement) => void;
+  onSettleUp?: () => void;
   className?: string;
 }
 
@@ -49,6 +49,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
           </h3>
         </div>
 
+        {/* 3-Column Metrics Segment Bar (Total spent, Avg / Head, Settles) */}
         <div className="mb-4">
           <div className="grid grid-cols-3 divide-x divide-border-subtle overflow-hidden rounded-xl border border-border-subtle bg-surface-subtle">
             <div className="flex flex-col justify-between p-2.5">
@@ -96,10 +97,11 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
               <div key={balance.member_id} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span
-                    className={`flex items-center gap-1.5 font-semibold text-text-secondary ${isCurrentUser
+                    className={`flex items-center gap-1.5 font-semibold text-text-secondary ${
+                      isCurrentUser
                         ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
                         : ''
-                      }`}
+                    }`}
                   >
                     {members.find((member) => member.id === balance.member_id)
                       ?.avatar_url ? (
@@ -122,12 +124,13 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                     </span>
                   </span>
                   <span
-                    className={`font-extrabold tracking-tight ${isPositive
+                    className={`font-extrabold tracking-tight ${
+                      isPositive
                         ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
                         : isNegative
                           ? 'text-rose-600 [data-theme="dark"]_&:text-rose-400'
                           : 'text-text-muted'
-                      }`}
+                    }`}
                   >
                     {isPositive ? '+' : isNegative ? '-' : ''}
                     {formatCurrency(balance.net_balance, currency)}
@@ -159,13 +162,24 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
 
       {/* Settlement Plan Section */}
       <div className="p-4 sm:p-5">
-        <div className="mb-3.5 flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600 [data-theme='dark']_&:text-teal-400">
-            <CheckCircleIcon className="h-4 w-4" />
+        <div className="mb-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600 [data-theme='dark']_&:text-teal-400">
+              <CheckCircleIcon className="h-4 w-4" />
+            </div>
+            <h3 className="text-sm font-bold tracking-tight text-text-primary">
+              Settlement Plan
+            </h3>
           </div>
-          <h3 className="text-sm font-bold tracking-tight text-text-primary">
-            Settlement Plan
-          </h3>
+
+          {onSettleUp && settlements.length > 0 && (
+            <button
+              onClick={onSettleUp}
+              className="cursor-pointer rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs transition-all hover:bg-emerald-700 active:scale-95"
+            >
+              Settle Up
+            </button>
+          )}
         </div>
 
         {settlements.length === 0 ? (
@@ -202,19 +216,9 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 text-xs font-extrabold tracking-tight text-text-primary">
-                    {formatCurrency(settlement.amount, currency)}
-                  </span>
-                  {onSettleUp && (
-                    <button
-                      onClick={() => onSettleUp(settlement)}
-                      className="cursor-pointer rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-bold text-white shadow-2xs transition-all hover:bg-emerald-700 active:scale-95"
-                    >
-                      Settle Up
-                    </button>
-                  )}
-                </div>
+                <span className="shrink-0 text-xs font-extrabold tracking-tight text-text-primary">
+                  {formatCurrency(settlement.amount, currency)}
+                </span>
               </div>
             ))}
           </div>

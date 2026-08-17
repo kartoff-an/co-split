@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Settlement, Member } from '../../types';
 import { XMarkIcon, ArrowRightIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import { getCurrencySymbol, formatCurrency } from '../../lib/currency';
@@ -8,8 +8,9 @@ import { Spinner } from '../../components/Spinner';
 interface SettleUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  settlement: Settlement | null;
+  settlements: Settlement[];
   members: Member[];
+  activeUserId?: string | null;
   currency?: string;
   onConfirmSettlement: (
     paidBy: string,
@@ -21,43 +22,80 @@ interface SettleUpModalProps {
 export const SettleUpModal: React.FC<SettleUpModalProps> = ({
   isOpen,
   onClose,
-  settlement,
+  settlements,
   members,
+  activeUserId,
   currency = 'PHP',
   onConfirmSettlement,
 }) => {
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [amount, setAmount] = useState<string>('');
-  const [payerId, setPayerId] = useState<string>('');
-  const [payeeId, setPayeeId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Order settlements: place settlements involving the current user at the top
+  const orderedSettlements = useMemo(() => {
+    if (!activeUserId) return settlements;
+    const userDebts = settlements.filter((s) => s.from_id === activeUserId);
+    const userCredits = settlements.filter(
+      (s) => s.to_id === activeUserId && s.from_id !== activeUserId
+    );
+    const others = settlements.filter(
+      (s) => s.from_id !== activeUserId && s.to_id !== activeUserId
+    );
+    return [...userDebts, ...userCredits, ...others];
+  }, [settlements, activeUserId]);
+
+  const selectedSettlement = orderedSettlements[selectedIndex] || null;
+
   useEffect(() => {
-    if (settlement) {
-      setAmount(settlement.amount.toString());
-
-      const debtor = members.find(
-        (m) => m.id === settlement.from_id || m.display_name === settlement.from
-      );
-      setPayerId(debtor?.id || members[0]?.id || '');
-
-      const creditor = members.find(
-        (m) => m.id === settlement.to_id || m.display_name === settlement.to
-      );
-      setPayeeId(creditor?.id || members[1]?.id || '');
+    if (isOpen && orderedSettlements.length > 0) {
+      setSelectedIndex(0);
+      setAmount(orderedSettlements[0].amount.toString());
       setError(null);
     }
-  }, [settlement, members]);
+  }, [isOpen, orderedSettlements]);
 
-  if (!isOpen || !settlement) return null;
+  // Update amount when user selects a different radio option
+  const handleSelectSettlement = (index: number) => {
+    setSelectedIndex(index);
+    if (orderedSettlements[index]) {
+      setAmount(orderedSettlements[index].amount.toString());
+    }
+    setError(null);
+  };
+
+  if (!isOpen) return null;
 
   const symbol = getCurrencySymbol(currency);
-  const payerMember = members.find((m) => m.id === payerId);
-  const payeeMember = members.find((m) => m.id === payeeId);
+
+  const debtorMember = selectedSettlement
+    ? members.find(
+        (m) =>
+          m.id === selectedSettlement.from_id ||
+          m.display_name === selectedSettlement.from
+      )
+    : null;
+
+  const creditorMember = selectedSettlement
+    ? members.find(
+        (m) =>
+          m.id === selectedSettlement.to_id ||
+          m.display_name === selectedSettlement.to
+      )
+    : null;
+
+  const payerId = debtorMember?.id || selectedSettlement?.from_id || '';
+  const payeeId = creditorMember?.id || selectedSettlement?.to_id || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!selectedSettlement) {
+      setError('Please select a settlement.');
+      return;
+    }
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -90,7 +128,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border-subtle bg-surface text-text-primary shadow-2xl transition-all">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-border-subtle bg-surface text-text-primary shadow-2xl transition-all">
         <div className="flex items-center justify-between border-b border-border-subtle bg-surface-subtle/50 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
@@ -98,7 +136,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-text-primary">Settle Up</h2>
-              <p className="text-xs text-text-muted">Record a debt repayment</p>
+              <p className="text-xs text-text-muted">Select a settlement to record payment</p>
             </div>
           </div>
           <button
@@ -109,53 +147,6 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
           </button>
         </div>
 
-        <div className="mx-6 mt-5 flex items-center justify-between rounded-xl border border-border-subtle bg-surface-subtle p-4">
-          <div className="flex flex-col items-center gap-1">
-            {payerMember?.avatar_url ? (
-              <img
-                src={payerMember.avatar_url}
-                alt=""
-                className="h-10 w-10 rounded-full border border-border-subtle object-cover"
-              />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/15 font-bold text-rose-600 [data-theme='dark']_&:text-rose-400">
-                {(payerMember?.display_name || settlement.from)[0]?.toUpperCase()}
-              </div>
-            )}
-            <span className="max-w-[100px] truncate text-xs font-bold text-text-primary">
-              {payerMember?.display_name || settlement.from}
-            </span>
-            <span className="text-[10px] font-semibold text-rose-600 [data-theme='dark']_&:text-rose-400">Payer</span>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-extrabold text-emerald-600 [data-theme='dark']_&:text-emerald-400">
-              <ArrowRightIcon className="h-3.5 w-3.5" />
-              <span>{formatCurrency(parseFloat(amount) || settlement.amount, currency)}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center gap-1">
-            {payeeMember?.avatar_url ? (
-              <img
-                src={payeeMember.avatar_url}
-                alt=""
-                className="h-10 w-10 rounded-full border border-border-subtle object-cover"
-              />
-            ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 font-bold text-emerald-600 [data-theme='dark']_&:text-emerald-400">
-                {(payeeMember?.display_name || settlement.to)[0]?.toUpperCase()}
-              </div>
-            )}
-            <span className="max-w-[100px] truncate text-xs font-bold text-text-primary">
-              {payeeMember?.display_name || settlement.to}
-            </span>
-            <span className="text-[10px] font-semibold text-emerald-600 [data-theme='dark']_&:text-emerald-400">
-              Receiver
-            </span>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-4 p-6">
           {error && (
             <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-600 [data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300">
@@ -163,26 +154,95 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </div>
           )}
 
-          <div>
-            <label className="mb-1.5 block text-xs font-bold text-text-primary">
-              Payment Amount
-            </label>
-            <div className="relative">
-              <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm font-bold text-text-muted">
-                {symbol}
-              </span>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
-                className="w-full rounded-xl border border-border-subtle bg-surface-subtle py-2.5 pr-4 pl-8 text-sm font-bold text-text-primary focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20 focus:outline-none"
-                required
-              />
+          {orderedSettlements.length === 0 ? (
+            <div className="py-8 text-center text-text-muted">
+              <p className="text-xs font-bold text-text-primary">All balances are settled!</p>
+              <p className="mt-1 text-[11px] text-text-muted">There are no pending debts in this workspace.</p>
             </div>
-          </div>
+          ) : (
+            <div>
+              <label className="mb-2 block text-xs font-bold text-text-muted">
+                Choose Settlement:
+              </label>
+              <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
+                {orderedSettlements.map((settlement, idx) => {
+                  const isDebtorUser = settlement.from_id === activeUserId;
+                  const isCreditorUser = settlement.to_id === activeUserId;
+                  const isSelected = selectedIndex === idx;
+
+                  return (
+                    <label
+                      key={idx}
+                      onClick={() => handleSelectSettlement(idx)}
+                      className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 transition-all ${
+                        isSelected
+                          ? 'border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/30'
+                          : 'border-border-subtle bg-surface-subtle/50 hover:bg-surface-subtle'
+                      }`}
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <input
+                          type="radio"
+                          name="settlement-option"
+                          checked={isSelected}
+                          onChange={() => handleSelectSettlement(idx)}
+                          className="h-4 w-4 shrink-0 cursor-pointer text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <div className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-text-primary">
+                          <span className="truncate max-w-[90px] sm:max-w-[120px]">
+                            {settlement.from}
+                          </span>
+                          <ArrowRightIcon className="h-3 w-3 shrink-0 text-text-muted" />
+                          <span className="truncate max-w-[90px] sm:max-w-[120px]">
+                            {settlement.to}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex shrink-0 items-center gap-2">
+                        {isDebtorUser && (
+                          <span className="rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-600 [data-theme='dark']_&:text-rose-400">
+                            You pay
+                          </span>
+                        )}
+                        {isCreditorUser && (
+                          <span className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 [data-theme='dark']_&:text-emerald-400">
+                            You receive
+                          </span>
+                        )}
+                        <span className="text-xs font-extrabold text-text-primary">
+                          {formatCurrency(settlement.amount, currency)}
+                        </span>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {selectedSettlement && (
+            <div>
+              <label className="mb-1.5 block text-xs font-bold text-text-primary">
+                Payment Amount
+              </label>
+              <div className="relative">
+                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm font-bold text-text-muted">
+                  {symbol}
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full rounded-xl border border-border-subtle bg-surface-subtle py-2.5 pr-4 pl-8 text-sm font-bold text-text-primary focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20 focus:outline-none"
+                  required
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center gap-3 pt-2">
             <button
@@ -194,7 +254,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || orderedSettlements.length === 0}
               className="flex-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
               {isSubmitting ? (

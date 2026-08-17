@@ -8,7 +8,7 @@ import { ExpenseForm } from '../expenses/ExpenseForm';
 import { ExpenseList } from '../expenses/ExpenseList';
 import { BalanceSummary } from '../expenses/BalanceSummary';
 import { SettleUpModal } from '../expenses/SettleUpModal';
-import type { Expense, Settlement } from '../../types';
+import type { Expense } from '../../types';
 import { InviteModal } from './InviteModal';
 import {
   ExclamationTriangleIcon,
@@ -33,7 +33,6 @@ export const WorkspacePage: React.FC = () => {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
-  const [selectedSettlement, setSelectedSettlement] = useState<Settlement | null>(null);
 
   const [joining, setJoining] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -375,10 +374,7 @@ export const WorkspacePage: React.FC = () => {
                 activeUserId={user?.id}
                 members={members}
                 currency={workspace.currency}
-                onSettleUp={(settlement) => {
-                  setSelectedSettlement(settlement);
-                  setIsSettleUpOpen(true);
-                }}
+                onSettleUp={() => setIsSettleUpOpen(true)}
               />
             </div>
           </div>
@@ -411,12 +407,10 @@ export const WorkspacePage: React.FC = () => {
 
       <SettleUpModal
         isOpen={isSettleUpOpen}
-        onClose={() => {
-          setIsSettleUpOpen(false);
-          setSelectedSettlement(null);
-        }}
-        settlement={selectedSettlement}
+        onClose={() => setIsSettleUpOpen(false)}
+        settlements={settlements}
         members={members}
+        activeUserId={user?.id}
         currency={workspace?.currency}
         onConfirmSettlement={handleConfirmSettlement}
       />
