@@ -17,7 +17,6 @@ import {
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 import { Spinner } from '../../components/Spinner';
-import { CoSplitIcon } from '../../components/CoSplitIcon';
 import { Footer } from '../../components/Footer';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { WorkspaceSettingsModal } from './WorkspaceSettingsModal';
@@ -248,9 +247,8 @@ export const WorkspacePage: React.FC = () => {
               <ArrowLeftIcon className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <CoSplitIcon />
               <span className="hidden text-base font-extrabold tracking-tight text-text-primary sm:inline">
-                Co-Split
+                {workspace.name}
               </span>
             </div>
           </div>
@@ -320,7 +318,7 @@ export const WorkspacePage: React.FC = () => {
             </button>
           </div>
         )}
-        <div className="flex flex-col justify-between gap-3.5 rounded-2xl border border-border-subtle bg-surface p-4 shadow-2xs md:flex-row md:items-center">
+        {/* <div className="flex flex-col justify-between gap-3.5 rounded-2xl border border-border-subtle bg-surface p-4 shadow-2xs md:flex-row md:items-center">
           <div className="space-y-0.5">
             <span className="text-[9px] font-bold text-text-muted">
               Workspace ledger
@@ -338,11 +336,10 @@ export const WorkspacePage: React.FC = () => {
               {members.map((member) => (
                 <span
                   key={member.id}
-                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                    member.id === user?.id
-                      ? 'border-accent-coral/45 bg-surface text-accent-coral shadow-2xs'
-                      : 'border-border-subtle bg-surface text-text-secondary'
-                  }`}
+                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${member.id === user?.id
+                    ? 'border-accent-coral/45 bg-surface text-accent-coral shadow-2xs'
+                    : 'border-border-subtle bg-surface text-text-secondary'
+                    }`}
                 >
                   {member.avatar_url && (
                     <img
@@ -359,29 +356,31 @@ export const WorkspacePage: React.FC = () => {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-1">
-            <ExpenseForm
-              members={members}
-              onAddExpense={handleAddExpense}
-              activeUserId={user?.id}
-              currency={workspace.currency}
-            />
-            <BalanceSummary
-              balances={balances}
-              settlements={settlements}
-              totalWorkspaceCost={totalWorkspaceCost}
-              averageCostPerPerson={averageCostPerPerson}
-              activeUserId={user?.id}
-              members={members}
-              currency={workspace.currency}
-              onSettleUp={(settlement) => {
-                setSelectedSettlement(settlement);
-                setIsSettleUpOpen(true);
-              }}
-            />
+          <div className="lg:col-span-1">
+            <div className="overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-xs divide-y divide-border-subtle">
+              <ExpenseForm
+                members={members}
+                onAddExpense={handleAddExpense}
+                activeUserId={user?.id}
+                currency={workspace.currency}
+              />
+              <BalanceSummary
+                balances={balances}
+                settlements={settlements}
+                totalWorkspaceCost={totalWorkspaceCost}
+                averageCostPerPerson={averageCostPerPerson}
+                activeUserId={user?.id}
+                members={members}
+                currency={workspace.currency}
+                onSettleUp={(settlement) => {
+                  setSelectedSettlement(settlement);
+                  setIsSettleUpOpen(true);
+                }}
+              />
+            </div>
           </div>
 
           <div className="lg:col-span-2">

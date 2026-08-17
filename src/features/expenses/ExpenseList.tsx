@@ -120,7 +120,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
           No transactions recorded
         </h4>
         <p className="mx-auto mt-1 max-w-xs text-sm text-text-muted">
-          Add expenses in the left panel to begin balancing your workspace
+          Add expenses to begin balancing your workspace
           budget.
         </p>
       </div>

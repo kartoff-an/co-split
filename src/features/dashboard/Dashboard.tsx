@@ -134,88 +134,79 @@ export const Dashboard: React.FC = () => {
 
         {message && (
           <div
-            className={`animate-scale-up mb-6 flex items-center gap-2 rounded-xl border p-3.5 text-xs font-bold ${
-              message.type === 'error'
-                ? 'border-rose-200 bg-rose-50 text-rose-700 [data-theme="dark"]_&:border-rose-900/50 [data-theme="dark"]_&:bg-rose-950/40 [data-theme="dark"]_&:text-rose-300'
-                : 'border-emerald-200 bg-emerald-50 text-emerald-700 [data-theme="dark"]_&:border-emerald-900/50 [data-theme="dark"]_&:bg-emerald-950/40 [data-theme="dark"]_&:text-emerald-300'
-            }`}
+            className={`animate-scale-up mb-6 flex items-center gap-2 rounded-xl border p-3.5 text-xs font-bold ${message.type === 'error'
+              ? 'border-rose-200 bg-rose-50 text-rose-700 [data-theme="dark"]_&:border-rose-900/50 [data-theme="dark"]_&:bg-rose-950/40 [data-theme="dark"]_&:text-rose-300'
+              : 'border-emerald-200 bg-emerald-50 text-emerald-700 [data-theme="dark"]_&:border-emerald-900/50 [data-theme="dark"]_&:bg-emerald-950/40 [data-theme="dark"]_&:text-emerald-300'
+              }`}
           >
             <span>{message.text}</span>
           </div>
         )}
 
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="flex shrink-0 flex-col gap-5 lg:w-72 xl:w-80">
-            {/* Create Ledger Card */}
-            <div className="glass-card group hover:border-primary-green/30 relative flex flex-col rounded-2xl p-5 shadow-xs transition-all duration-300 hover:shadow-md">
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute top-2.5 left-2.5 h-2 w-2 border-t border-l transition-colors" />
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute top-2.5 right-2.5 h-2 w-2 border-t border-r transition-colors" />
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute bottom-2.5 left-2.5 h-2 w-2 border-b border-l transition-colors" />
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute right-2.5 bottom-2.5 h-2 w-2 border-r border-b transition-colors" />
+          <div className="flex shrink-0 flex-col lg:w-72 xl:w-80">
+            <div className="glass-card overflow-hidden rounded-2xl border border-border-subtle shadow-xs divide-y divide-border-subtle">
+              {/* Start a new ledger */}
+              <div className="p-5">
+                <div className="mb-3.5">
+                  <h2 className="text-sm font-bold tracking-tight text-text-primary">
+                    Start a new ledger
+                  </h2>
+                  <p className="mt-0.5 text-[10px] leading-snug text-text-muted">
+                    Create a real-time split ledger for your group.
+                  </p>
+                </div>
 
-              <div className="mb-3.5">
-                <h2 className="text-sm font-bold tracking-tight text-text-primary">
-                  Start a new ledger
-                </h2>
-                <p className="mt-0.5 text-[10px] leading-snug text-text-muted">
-                  Create a real-time split ledger for your group.
-                </p>
+                <form onSubmit={handleCreateWorkspace} className="space-y-2.5">
+                  <input
+                    type="text"
+                    placeholder="Ledger title (e.g. Summer Trip)"
+                    value={workspaceName}
+                    onChange={(e) => setWorkspaceName(e.target.value)}
+                    className="focus:ring-primary-green/15 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:bg-surface focus:ring-2"
+                    disabled={actionLoading}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={actionLoading || !workspaceName.trim()}
+                    className="bg-accent-coral hover:bg-accent-coral-hover flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    {actionLoading ? 'Launching...' : 'Start a new ledger'}
+                  </button>
+                </form>
               </div>
 
-              <form onSubmit={handleCreateWorkspace} className="space-y-2.5">
-                <input
-                  type="text"
-                  placeholder="Ledger title (e.g. Summer Trip)"
-                  value={workspaceName}
-                  onChange={(e) => setWorkspaceName(e.target.value)}
-                  className="focus:ring-primary-green/15 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:bg-surface focus:ring-2"
-                  disabled={actionLoading}
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={actionLoading || !workspaceName.trim()}
-                  className="bg-accent-coral hover:bg-accent-coral-hover flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
-                >
-                  {actionLoading ? 'Launching...' : 'Start a new ledger'}
-                </button>
-              </form>
-            </div>
+              {/* Join a ledger */}
+              <div className="bg-surface-subtle/30 p-5">
+                <div className="mb-3.5">
+                  <h2 className="text-sm font-bold tracking-tight text-text-primary">
+                    Join a ledger
+                  </h2>
+                  <p className="mt-0.5 text-[10px] leading-snug text-text-muted">
+                    Collaborate using a shared invite link.
+                  </p>
+                </div>
 
-            {/* Join Ledger Card */}
-            <div className="glass-card group hover:border-primary-green/30 relative flex flex-col rounded-2xl p-5 shadow-xs transition-all duration-300 hover:shadow-md">
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute top-2.5 left-2.5 h-2 w-2 border-t border-l transition-colors" />
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute top-2.5 right-2.5 h-2 w-2 border-t border-r transition-colors" />
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute bottom-2.5 left-2.5 h-2 w-2 border-b border-l transition-colors" />
-              <div className="border-primary-green/25 group-hover:border-primary-green/50 pointer-events-none absolute right-2.5 bottom-2.5 h-2 w-2 border-r border-b transition-colors" />
-
-              <div className="mb-3.5">
-                <h2 className="text-sm font-bold tracking-tight text-text-primary">
-                  Join a ledger
-                </h2>
-                <p className="mt-0.5 text-[10px] leading-snug text-text-muted">
-                  Collaborate using a shared invite link.
-                </p>
+                <form onSubmit={handleJoinWorkspace} className="space-y-2.5">
+                  <input
+                    type="text"
+                    placeholder="Paste invite link or code..."
+                    value={workspaceIdToJoin}
+                    onChange={(e) => setWorkspaceIdToJoin(e.target.value)}
+                    className="focus:ring-primary-green/15 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:bg-surface focus:ring-2"
+                    disabled={actionLoading}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={actionLoading || !workspaceIdToJoin.trim()}
+                    className="bg-primary-green hover:bg-primary-green-hover flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+                  >
+                    Join ledger
+                  </button>
+                </form>
               </div>
-
-              <form onSubmit={handleJoinWorkspace} className="space-y-2.5">
-                <input
-                  type="text"
-                  placeholder="Paste invite link or code..."
-                  value={workspaceIdToJoin}
-                  onChange={(e) => setWorkspaceIdToJoin(e.target.value)}
-                  className="focus:ring-primary-green/15 focus:border-primary-green w-full rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:bg-surface focus:ring-2"
-                  disabled={actionLoading}
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={actionLoading || !workspaceIdToJoin.trim()}
-                  className="bg-primary-green hover:bg-primary-green-hover flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
-                >
-                  Join ledger
-                </button>
-              </form>
             </div>
           </div>
 
@@ -258,7 +249,7 @@ export const Dashboard: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
                 {workspaces.map((workspace) => {
                   const isOwner = workspace.owner_id === user?.id;
                   const netBalance = workspace.user_net_balance;
@@ -269,11 +260,11 @@ export const Dashboard: React.FC = () => {
                     <div
                       key={workspace.id}
                       onClick={() => navigate(`/workspace/${workspace.id}`)}
-                      className="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-xs transition-all duration-200 hover:scale-[1.015] hover:border-border-strong hover:shadow-md"
+                      className="group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-all duration-200 hover:scale-[1.01] hover:border-border-strong hover:shadow-md"
                     >
-                      <div className="from-primary-green/60 h-[3px] w-full bg-gradient-to-r via-emerald-400/40 to-transparent" />
+                      <div className="from-primary-green/60 absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r via-emerald-400/40 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
 
-                      <div className="space-y-3 p-4">
+                      <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <h3 className="group-hover:text-primary-green truncate text-sm font-extrabold tracking-tight text-text-primary transition-colors">
@@ -292,8 +283,8 @@ export const Dashboard: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2">
+                        <div className="grid grid-cols-2 divide-x divide-border-subtle overflow-hidden rounded-xl border border-border-subtle bg-surface-subtle">
+                          <div className="px-3 py-2">
                             <p className="text-[9px] font-bold tracking-wide text-text-muted">
                               Total
                             </p>
@@ -306,13 +297,7 @@ export const Dashboard: React.FC = () => {
                           </div>
 
                           <div
-                            className={`rounded-xl border px-3 py-2 ${
-                              isSettled
-                                ? 'border-border-subtle bg-surface-subtle'
-                                : isPositive
-                                  ? 'border-emerald-500/20 bg-emerald-500/10'
-                                  : 'border-rose-500/20 bg-rose-500/10'
-                            }`}
+                            className="px-3 py-2 bg-surface-subtle"
                           >
                             <p className="text-[9px] font-bold tracking-wide text-text-muted">
                               Your balance
@@ -325,13 +310,12 @@ export const Dashboard: React.FC = () => {
                                   <ArrowTrendingDownIcon className="h-3 w-3 shrink-0 text-rose-500" />
                                 ))}
                               <p
-                                className={`text-xs font-extrabold ${
-                                  isSettled
-                                    ? 'text-text-muted'
-                                    : isPositive
-                                      ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
-                                      : 'text-rose-600 [data-theme="dark"]_&:text-rose-400'
-                                }`}
+                                className={`text-xs font-extrabold ${isSettled
+                                  ? 'text-text-muted'
+                                  : isPositive
+                                    ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
+                                    : 'text-rose-600 [data-theme="dark"]_&:text-rose-400'
+                                  }`}
                               >
                                 {isSettled
                                   ? 'Settled'
@@ -342,7 +326,7 @@ export const Dashboard: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between border-t border-border-subtle px-4 py-2.5 text-[9px] font-medium text-text-muted">
+                      <div className="mt-3 flex items-center justify-between border-t border-border-subtle/60 pt-2.5 text-[9px] font-medium text-text-muted">
                         <div className="flex items-center gap-1">
                           <UsersIcon className="h-3 w-3" />
                           <span>

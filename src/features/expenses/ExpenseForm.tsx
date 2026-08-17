@@ -11,6 +11,7 @@ interface ExpenseFormProps {
   ) => Promise<void>;
   activeUserId?: string | null;
   currency?: string;
+  className?: string;
 }
 
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({
@@ -18,6 +19,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onAddExpense,
   activeUserId,
   currency = 'PHP',
+  className = '',
 }) => {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -101,7 +103,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-shadow duration-300 hover:shadow-md"
+      className={`p-4 sm:p-5 ${className}`}
     >
       <div className="mb-3.5 flex items-center gap-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">

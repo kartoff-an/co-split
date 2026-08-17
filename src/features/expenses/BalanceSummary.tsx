@@ -17,6 +17,7 @@ interface BalanceSummaryProps {
   members: Member[];
   currency?: string;
   onSettleUp?: (settlement: Settlement) => void;
+  className?: string;
 }
 
 export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
@@ -28,6 +29,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
   members,
   currency = 'PHP',
   onSettleUp,
+  className = '',
 }) => {
   const maxAbsBalance = useMemo(() => {
     const values = balances.map((balance) => Math.abs(balance.net_balance));
@@ -35,46 +37,9 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
   }, [balances]);
 
   return (
-    <div className="space-y-4">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-2.5">
-        {/* Total Cost */}
-        <div className="flex flex-col justify-between rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-shadow duration-200 hover:shadow-xs">
-          <div className="mb-1.5">
-            <span className="text-[9px] font-bold text-text-muted">
-              Total spent
-            </span>
-          </div>
-          <p className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
-            {formatCurrency(totalWorkspaceCost, currency)}
-          </p>
-        </div>
-
-        {/* Average Per Person */}
-        <div className="flex flex-col justify-between rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-shadow duration-200 hover:shadow-xs">
-          <div className="mb-1.5">
-            <span className="text-[9px] font-bold text-text-muted">
-              Avg / Head
-            </span>
-          </div>
-          <p className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
-            {formatCurrency(averageCostPerPerson, currency)}
-          </p>
-        </div>
-
-        {/* Settlements Counter */}
-        <div className="flex flex-col justify-between rounded-xl border border-border-subtle bg-surface-subtle p-3 transition-shadow duration-200 hover:shadow-xs">
-          <div className="mb-1.5">
-            <span className="text-[9px] font-bold text-text-muted">Settles</span>
-          </div>
-          <p className="text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
-            {settlements.length}
-          </p>
-        </div>
-      </div>
-
-      {/* Individual Balances */}
-      <div className="rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-shadow duration-300 hover:shadow-md">
+    <div className={`divide-y divide-border-subtle ${className}`}>
+      {/* Balances Section */}
+      <div className="p-4 sm:p-5">
         <div className="mb-3.5 flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
             <ChartBarIcon className="h-4 w-4" />
@@ -84,6 +49,38 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
           </h3>
         </div>
 
+        <div className="mb-4">
+          <div className="grid grid-cols-3 divide-x divide-border-subtle overflow-hidden rounded-xl border border-border-subtle bg-surface-subtle">
+            <div className="flex flex-col justify-between p-2.5">
+              <span className="text-[9px] font-bold text-text-muted">
+                Total spent
+              </span>
+              <p className="mt-1 text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
+                {formatCurrency(totalWorkspaceCost, currency)}
+              </p>
+            </div>
+
+            <div className="flex flex-col justify-between p-2.5">
+              <span className="text-[9px] font-bold text-text-muted">
+                Avg / Head
+              </span>
+              <p className="mt-1 text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
+                {formatCurrency(averageCostPerPerson, currency)}
+              </p>
+            </div>
+
+            <div className="flex flex-col justify-between p-2.5">
+              <span className="text-[9px] font-bold text-text-muted">
+                Settles
+              </span>
+              <p className="mt-1 text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
+                {settlements.length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Individual Member Balances */}
         <div className="space-y-3">
           {balances.map((balance) => {
             const isPositive = balance.net_balance > 0;
@@ -99,9 +96,10 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
               <div key={balance.member_id} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span
-                    className={`flex items-center gap-1.5 font-semibold text-text-secondary ${
-                      isCurrentUser ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400' : ''
-                    }`}
+                    className={`flex items-center gap-1.5 font-semibold text-text-secondary ${isCurrentUser
+                        ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
+                        : ''
+                      }`}
                   >
                     {members.find((member) => member.id === balance.member_id)
                       ?.avatar_url ? (
@@ -124,13 +122,12 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                     </span>
                   </span>
                   <span
-                    className={`font-extrabold tracking-tight ${
-                      isPositive
+                    className={`font-extrabold tracking-tight ${isPositive
                         ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
                         : isNegative
                           ? 'text-rose-600 [data-theme="dark"]_&:text-rose-400'
                           : 'text-text-muted'
-                    }`}
+                      }`}
                   >
                     {isPositive ? '+' : isNegative ? '-' : ''}
                     {formatCurrency(balance.net_balance, currency)}
@@ -160,8 +157,8 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
         </div>
       </div>
 
-      {/* Settlement Plan */}
-      <div className="rounded-2xl border border-border-subtle bg-surface p-4 shadow-xs transition-shadow duration-300 hover:shadow-md">
+      {/* Settlement Plan Section */}
+      <div className="p-4 sm:p-5">
         <div className="mb-3.5 flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600 [data-theme='dark']_&:text-teal-400">
             <CheckCircleIcon className="h-4 w-4" />
