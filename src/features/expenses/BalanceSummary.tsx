@@ -36,6 +36,14 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
     return Math.max(...values, 1);
   }, [balances]);
 
+  const hasUserDebts = useMemo(() => {
+    if (!activeUserId) return settlements.length > 0;
+    const currentMember = members.find((m) => m.id === activeUserId);
+    return settlements.some(
+      (s) => s.from_id === activeUserId || s.from === currentMember?.display_name
+    );
+  }, [settlements, activeUserId, members]);
+
   return (
     <div className={`divide-y divide-border-subtle ${className}`}>
       {/* Balances Section */}
@@ -172,7 +180,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             </h3>
           </div>
 
-          {onSettleUp && settlements.length > 0 && (
+          {onSettleUp && hasUserDebts && (
             <button
               onClick={onSettleUp}
               className="cursor-pointer rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs transition-all hover:bg-emerald-700 active:scale-95"

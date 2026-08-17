@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import type { Settlement, Member } from '../../types';
-import { XMarkIcon, ArrowRightIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ArrowRightIcon, BanknotesIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { getCurrencySymbol, formatCurrency } from '../../lib/currency';
 import { Spinner } from '../../components/Spinner';
 
@@ -33,34 +33,31 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Order settlements: place settlements involving the current user at the top
-  const orderedSettlements = useMemo(() => {
+  // Only settlements where the active user is the debtor (the one who owes money)
+  const payableDebts = useMemo(() => {
     if (!activeUserId) return settlements;
-    const userDebts = settlements.filter((s) => s.from_id === activeUserId);
-    const userCredits = settlements.filter(
-      (s) => s.to_id === activeUserId && s.from_id !== activeUserId
+    const currentMember = members.find((m) => m.id === activeUserId);
+    return settlements.filter(
+      (s) =>
+        s.from_id === activeUserId ||
+        s.from === currentMember?.display_name
     );
-    const others = settlements.filter(
-      (s) => s.from_id !== activeUserId && s.to_id !== activeUserId
-    );
-    return [...userDebts, ...userCredits, ...others];
-  }, [settlements, activeUserId]);
+  }, [settlements, activeUserId, members]);
 
-  const selectedSettlement = orderedSettlements[selectedIndex] || null;
+  const selectedSettlement = payableDebts[selectedIndex] || null;
 
   useEffect(() => {
-    if (isOpen && orderedSettlements.length > 0) {
+    if (isOpen && payableDebts.length > 0) {
       setSelectedIndex(0);
-      setAmount(orderedSettlements[0].amount.toString());
+      setAmount(payableDebts[0].amount.toString());
       setError(null);
     }
-  }, [isOpen, orderedSettlements]);
+  }, [isOpen, payableDebts]);
 
-  // Update amount when user selects a different radio option
   const handleSelectSettlement = (index: number) => {
     setSelectedIndex(index);
-    if (orderedSettlements[index]) {
-      setAmount(orderedSettlements[index].amount.toString());
+    if (payableDebts[index]) {
+      setAmount(payableDebts[index].amount.toString());
     }
     setError(null);
   };
@@ -68,14 +65,6 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
   if (!isOpen) return null;
 
   const symbol = getCurrencySymbol(currency);
-
-  const debtorMember = selectedSettlement
-    ? members.find(
-        (m) =>
-          m.id === selectedSettlement.from_id ||
-          m.display_name === selectedSettlement.from
-      )
-    : null;
 
   const creditorMember = selectedSettlement
     ? members.find(
@@ -85,7 +74,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
       )
     : null;
 
-  const payerId = debtorMember?.id || selectedSettlement?.from_id || '';
+  const payerId = activeUserId || selectedSettlement?.from_id || '';
   const payeeId = creditorMember?.id || selectedSettlement?.to_id || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,7 +82,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     setError(null);
 
     if (!selectedSettlement) {
-      setError('Please select a settlement.');
+      setError('Please select a debt to settle.');
       return;
     }
 
@@ -136,7 +125,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-text-primary">Settle Up</h2>
-              <p className="text-xs text-text-muted">Select a settlement to record payment</p>
+              <p className="text-xs text-text-muted">Pay an outstanding debt</p>
             </div>
           </div>
           <button
@@ -154,20 +143,21 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </div>
           )}
 
-          {orderedSettlements.length === 0 ? (
+          {payableDebts.length === 0 ? (
             <div className="py-8 text-center text-text-muted">
-              <p className="text-xs font-bold text-text-primary">All balances are settled!</p>
-              <p className="mt-1 text-[11px] text-text-muted">There are no pending debts in this workspace.</p>
+              <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
+                <CheckIcon className="h-5 w-5" />
+              </div>
+              <p className="text-xs font-bold text-text-primary">No debts to settle!</p>
+              <p className="mt-1 text-[11px] text-text-muted">You do not owe any money in this workspace.</p>
             </div>
           ) : (
             <div>
               <label className="mb-2 block text-xs font-bold text-text-muted">
-                Choose Settlement:
+                Select Debt to Pay:
               </label>
               <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
-                {orderedSettlements.map((settlement, idx) => {
-                  const isDebtorUser = settlement.from_id === activeUserId;
-                  const isCreditorUser = settlement.to_id === activeUserId;
+                {payableDebts.map((settlement, idx) => {
                   const isSelected = selectedIndex === idx;
 
                   return (
@@ -190,7 +180,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                         />
                         <div className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-text-primary">
                           <span className="truncate max-w-[90px] sm:max-w-[120px]">
-                            {settlement.from}
+                            {settlement.from} (You)
                           </span>
                           <ArrowRightIcon className="h-3 w-3 shrink-0 text-text-muted" />
                           <span className="truncate max-w-[90px] sm:max-w-[120px]">
@@ -200,16 +190,9 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                       </div>
 
                       <div className="flex shrink-0 items-center gap-2">
-                        {isDebtorUser && (
-                          <span className="rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-600 [data-theme='dark']_&:text-rose-400">
-                            You pay
-                          </span>
-                        )}
-                        {isCreditorUser && (
-                          <span className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 [data-theme='dark']_&:text-emerald-400">
-                            You receive
-                          </span>
-                        )}
+                        <span className="rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-600 [data-theme='dark']_&:text-rose-400">
+                          You owe
+                        </span>
                         <span className="text-xs font-extrabold text-text-primary">
                           {formatCurrency(settlement.amount, currency)}
                         </span>
@@ -254,7 +237,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || orderedSettlements.length === 0}
+              disabled={isSubmitting || payableDebts.length === 0}
               className="flex-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
               {isSubmitting ? (

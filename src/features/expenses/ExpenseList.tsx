@@ -186,7 +186,17 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 const isPayment =
                   expense.category === 'Payment' || expense.category === 'Settlement';
 
-                const isLogger =
+                // Only debtor (expense.paid_by) can delete their settlement; for regular expenses, logger or payer can delete
+                const canDelete =
+                  !!activeUserId &&
+                  (isPayment
+                    ? expense.paid_by === activeUserId
+                    : (expense as { created_by?: string | null }).created_by
+                      ? (expense as { created_by?: string | null }).created_by === activeUserId
+                      : expense.paid_by === activeUserId);
+
+                const canEdit =
+                  !isPayment &&
                   !!activeUserId &&
                   ((expense as { created_by?: string | null }).created_by
                     ? (expense as { created_by?: string | null }).created_by === activeUserId
@@ -264,9 +274,9 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                           {formatCurrency(expense.amount, currency)}
                         </span>
 
-                        {isLogger && (
+                        {(canEdit || canDelete) && (
                           <div className="flex items-center gap-1 opacity-90 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                            {onUpdateExpense && !isPayment && (
+                            {onUpdateExpense && canEdit && (
                               <button
                                 type="button"
                                 onClick={() => setEditingExpense(expense)}
@@ -276,12 +286,12 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                                 <PencilSquareIcon className="h-4 w-4" />
                               </button>
                             )}
-                            {onDeleteExpense && (
+                            {onDeleteExpense && canDelete && (
                               <button
                                 type="button"
                                 onClick={() => setDeletingExpenseId(Number(expense.id))}
                                 className="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:text-rose-600"
-                                title="Delete Expense"
+                                title={isPayment ? 'Delete Settlement Payment' : 'Delete Expense'}
                               >
                                 <TrashIcon className="h-4 w-4" />
                               </button>
@@ -323,45 +333,52 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         />
       )}
 
-      {deletingExpenseId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-          <div className="animate-scale-up relative w-full max-w-sm rounded-2xl border border-border-subtle bg-surface p-6 text-center shadow-xl space-y-4">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
-              <ExclamationTriangleIcon className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-text-primary">
-                Delete Expense?
-              </h3>
-              <p className="mt-1 text-xs text-text-muted">
-                Are you sure you want to delete this transaction? This action will update workspace balances and cannot be undone.
-              </p>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeletingExpenseId(null)}
-                disabled={isDeleting}
-                className="w-1/2 cursor-pointer rounded-xl border border-border-subtle bg-surface py-2.5 text-xs font-semibold text-text-secondary hover:bg-surface-subtle"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                disabled={isDeleting}
-                className="w-1/2 cursor-pointer rounded-xl bg-rose-600 py-2.5 text-xs font-semibold text-white hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-1.5"
-              >
-                {isDeleting ? (
-                  <span>Deleting...</span>
-                ) : (
-                  <span>Delete</span>
-                )}
-              </button>
+      {deletingExpenseId !== null && (() => {
+        const targetExpense = expenses.find((e) => Number(e.id) === deletingExpenseId);
+        const isPayment = targetExpense?.category === 'Payment' || targetExpense?.category === 'Settlement';
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+            <div className="animate-scale-up relative w-full max-w-sm rounded-2xl border border-border-subtle bg-surface p-6 text-center shadow-xl space-y-4">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
+                <ExclamationTriangleIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-text-primary">
+                  {isPayment ? 'Delete Settlement?' : 'Delete Expense?'}
+                </h3>
+                <p className="mt-1 text-xs text-text-muted">
+                  {isPayment
+                    ? 'Are you sure you want to delete this settlement payment? The unsettled debt will be restored to your balance.'
+                    : 'Are you sure you want to delete this transaction? This action will update workspace balances and cannot be undone.'}
+                </p>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDeletingExpenseId(null)}
+                  disabled={isDeleting}
+                  className="w-1/2 cursor-pointer rounded-xl border border-border-subtle bg-surface py-2.5 text-xs font-semibold text-text-secondary hover:bg-surface-subtle"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="w-1/2 cursor-pointer rounded-xl bg-rose-600 py-2.5 text-xs font-semibold text-white hover:bg-rose-700 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  {isDeleting ? (
+                    <span>Deleting...</span>
+                  ) : (
+                    <span>Delete</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </>
   );
 };
