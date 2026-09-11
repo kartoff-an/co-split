@@ -326,9 +326,7 @@ export const Dashboard: React.FC = () => {
 
                         <div className="divide-border-subtle border-border-subtle bg-surface-subtle grid grid-cols-2 divide-x overflow-hidden rounded-xl border">
                           <div className="px-3 py-2">
-                            <p className="text-text-muted text-[9px]">
-                              Total
-                            </p>
+                            <p className="text-text-muted text-[9px]">Total</p>
                             <p className="text-text-primary mt-0.5 text-xs">
                               {formatCurrency(
                                 workspace.total_expenses,

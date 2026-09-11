@@ -271,10 +271,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           isLoading={isLoading}
           className="w-full"
           disabled={
-            members.length === 0 ||
-            !description.trim() ||
-            !amount ||
-            !paidBy
+            members.length === 0 || !description.trim() || !amount || !paidBy
           }
         >
           <PlusIcon className="h-4 w-4" />

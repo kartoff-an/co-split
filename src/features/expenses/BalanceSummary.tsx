@@ -62,27 +62,21 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
         <div className="mb-4">
           <div className="divide-border-subtle border-border-subtle bg-surface-subtle grid grid-cols-3 divide-x overflow-hidden rounded-xl border">
             <div className="flex flex-col justify-between p-2.5">
-              <span className="text-text-muted text-[9px]">
-                Total spent
-              </span>
+              <span className="text-text-muted text-[9px]">Total spent</span>
               <p className="text-text-primary mt-1 text-xs md:text-sm">
                 {formatCurrency(totalWorkspaceCost, currency)}
               </p>
             </div>
 
             <div className="flex flex-col justify-between p-2.5">
-              <span className="text-text-muted text-[9px]">
-                Avg / Head
-              </span>
+              <span className="text-text-muted text-[9px]">Avg / Head</span>
               <p className="text-text-primary mt-1 text-xs md:text-sm">
                 {formatCurrency(averageCostPerPerson, currency)}
               </p>
             </div>
 
             <div className="flex flex-col justify-between p-2.5">
-              <span className="text-text-muted text-[9px]">
-                Settles
-              </span>
+              <span className="text-text-muted text-[9px]">Settles</span>
               <p className="text-text-primary mt-1 text-xs md:text-sm">
                 {settlements.length}
               </p>
@@ -196,9 +190,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
               <CheckIcon className="h-4 w-4" />
             </div>
-            <p className="text-text-primary text-xs">
-              All settled up!
-            </p>
+            <p className="text-text-primary text-xs">All settled up!</p>
             <p className="text-text-muted mt-0.5 text-[10px]">
               No transactions or all balances are balanced.
             </p>
