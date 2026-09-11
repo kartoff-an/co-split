@@ -48,9 +48,7 @@ export const updateWorkspace = async (
   return data;
 };
 
-export const deleteWorkspace = async (
-  workspaceId: string
-): Promise<void> => {
+export const deleteWorkspace = async (workspaceId: string): Promise<void> => {
   const { error } = await supabase
     .from('workspaces')
     .delete()

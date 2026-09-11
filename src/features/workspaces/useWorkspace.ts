@@ -42,9 +42,7 @@ export const useWorkspace = (workspaceId: string) => {
   });
 
   const expenses = useMemo(() => {
-    return (
-      infiniteExpensesData?.pages.flatMap((page) => page.expenses) ?? []
-    );
+    return infiniteExpensesData?.pages.flatMap((page) => page.expenses) ?? [];
   }, [infiniteExpensesData]);
 
   const loadMoreExpenses = async () => {
@@ -70,9 +68,9 @@ export const useWorkspace = (workspaceId: string) => {
         (
           old:
             | {
-              pages: { expenses: Expense[]; hasMore: boolean }[];
-              pageParams: number[];
-            }
+                pages: { expenses: Expense[]; hasMore: boolean }[];
+                pageParams: number[];
+              }
             | undefined
         ) => {
           if (!old || !old.pages.length) return old;
@@ -119,9 +117,9 @@ export const useWorkspace = (workspaceId: string) => {
         (
           old:
             | {
-              pages: { expenses: Expense[]; hasMore: boolean }[];
-              pageParams: number[];
-            }
+                pages: { expenses: Expense[]; hasMore: boolean }[];
+                pageParams: number[];
+              }
             | undefined
         ) => {
           if (!old) return old;
@@ -158,9 +156,9 @@ export const useWorkspace = (workspaceId: string) => {
         (
           old:
             | {
-              pages: { expenses: Expense[]; hasMore: boolean }[];
-              pageParams: number[];
-            }
+                pages: { expenses: Expense[]; hasMore: boolean }[];
+                pageParams: number[];
+              }
             | undefined
         ) => {
           if (!old) return old;
@@ -168,9 +166,7 @@ export const useWorkspace = (workspaceId: string) => {
             ...old,
             pages: old.pages.map((page) => ({
               ...page,
-              expenses: page.expenses.filter(
-                (e) => e.id !== Number(expenseId)
-              ),
+              expenses: page.expenses.filter((e) => e.id !== Number(expenseId)),
             })),
           };
         }
@@ -198,9 +194,7 @@ export const useWorkspace = (workspaceId: string) => {
         queryClient.setQueryData(
           ['workspace', workspaceId],
           (
-            old:
-              | { workspace: Workspace | null; members: Member[] }
-              | undefined
+            old: { workspace: Workspace | null; members: Member[] } | undefined
           ) => {
             if (!old) return old;
             return {
@@ -230,9 +224,7 @@ export const useWorkspace = (workspaceId: string) => {
         queryClient.setQueryData(
           ['workspace', workspaceId],
           (
-            old:
-              | { workspace: Workspace | null; members: Member[] }
-              | undefined
+            old: { workspace: Workspace | null; members: Member[] } | undefined
           ) => {
             if (!old) return old;
             return {
@@ -262,9 +254,7 @@ export const useWorkspace = (workspaceId: string) => {
         queryClient.setQueryData(
           ['workspace', workspaceId],
           (
-            old:
-              | { workspace: Workspace | null; members: Member[] }
-              | undefined
+            old: { workspace: Workspace | null; members: Member[] } | undefined
           ) => {
             if (!old) return old;
             return {
@@ -310,9 +300,7 @@ export const useWorkspace = (workspaceId: string) => {
         queryClient.setQueryData(
           ['workspace', workspaceId],
           (
-            old:
-              | { workspace: Workspace | null; members: Member[] }
-              | undefined
+            old: { workspace: Workspace | null; members: Member[] } | undefined
           ) => {
             if (!old || !old.workspace) return old;
             return {

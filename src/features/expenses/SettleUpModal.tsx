@@ -1,7 +1,12 @@
 import type React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import type { Settlement, Member } from '../../types';
-import { XMarkIcon, ArrowRightIcon, BanknotesIcon, CheckIcon } from '@heroicons/react/24/outline';
+import {
+  XMarkIcon,
+  ArrowRightIcon,
+  BanknotesIcon,
+  CheckIcon,
+} from '@heroicons/react/24/outline';
 import { getCurrencySymbol, formatCurrency } from '../../lib/currency';
 import { Spinner } from '../../components/Spinner';
 
@@ -39,8 +44,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     const currentMember = members.find((m) => m.id === activeUserId);
     return settlements.filter(
       (s) =>
-        s.from_id === activeUserId ||
-        s.from === currentMember?.display_name
+        s.from_id === activeUserId || s.from === currentMember?.display_name
     );
   }, [settlements, activeUserId, members]);
 
@@ -103,7 +107,9 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
       onClose();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to record settlement payment.'
+        err instanceof Error
+          ? err.message
+          : 'Failed to record settlement payment.'
       );
     } finally {
       setIsSubmitting(false);
@@ -117,20 +123,22 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-border-subtle bg-surface text-text-primary shadow-2xl transition-all">
-        <div className="flex items-center justify-between border-b border-border-subtle bg-surface-subtle/50 px-6 py-4">
+      <div className="border-border-subtle bg-surface text-text-primary relative w-full max-w-lg overflow-hidden rounded-2xl border shadow-2xl transition-all">
+        <div className="border-border-subtle bg-surface-subtle/50 flex items-center justify-between border-b px-6 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
+            <div className="[data-theme='dark']_&:text-emerald-400 flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600">
               <BanknotesIcon className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-text-primary">Settle Up</h2>
-              <p className="text-xs text-text-muted">Pay an outstanding debt</p>
+              <h2 className="text-text-primary text-base font-bold">
+                Settle Up
+              </h2>
+              <p className="text-text-muted text-xs">Pay an outstanding debt</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-text-muted hover:bg-surface-subtle hover:text-text-primary"
+            className="text-text-muted hover:bg-surface-subtle hover:text-text-primary flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
@@ -138,22 +146,26 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4 p-6">
           {error && (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-600 [data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300">
+            <div className="[data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-600">
               {error}
             </div>
           )}
 
           {payableDebts.length === 0 ? (
-            <div className="py-8 text-center text-text-muted">
+            <div className="text-text-muted py-8 text-center">
               <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
                 <CheckIcon className="h-5 w-5" />
               </div>
-              <p className="text-xs font-bold text-text-primary">No debts to settle!</p>
-              <p className="mt-1 text-[11px] text-text-muted">You do not owe any money in this workspace.</p>
+              <p className="text-text-primary text-xs font-bold">
+                No debts to settle!
+              </p>
+              <p className="text-text-muted mt-1 text-[11px]">
+                You do not owe any money in this workspace.
+              </p>
             </div>
           ) : (
             <div>
-              <label className="mb-2 block text-xs font-bold text-text-muted">
+              <label className="text-text-muted mb-2 block text-xs font-bold">
                 Select Debt to Pay:
               </label>
               <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
@@ -178,22 +190,22 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                           onChange={() => handleSelectSettlement(idx)}
                           className="h-4 w-4 shrink-0 cursor-pointer text-emerald-600 focus:ring-emerald-500"
                         />
-                        <div className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-text-primary">
-                          <span className="truncate max-w-[90px] sm:max-w-[120px]">
+                        <div className="text-text-primary flex min-w-0 items-center gap-1.5 text-xs font-semibold">
+                          <span className="max-w-[90px] truncate sm:max-w-[120px]">
                             {settlement.from} (You)
                           </span>
-                          <ArrowRightIcon className="h-3 w-3 shrink-0 text-text-muted" />
-                          <span className="truncate max-w-[90px] sm:max-w-[120px]">
+                          <ArrowRightIcon className="text-text-muted h-3 w-3 shrink-0" />
+                          <span className="max-w-[90px] truncate sm:max-w-[120px]">
                             {settlement.to}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex shrink-0 items-center gap-2">
-                        <span className="rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-600 [data-theme='dark']_&:text-rose-400">
+                        <span className="[data-theme='dark']_&:text-rose-400 rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-600">
                           You owe
                         </span>
-                        <span className="text-xs font-extrabold text-text-primary">
+                        <span className="text-text-primary text-xs font-extrabold">
                           {formatCurrency(settlement.amount, currency)}
                         </span>
                       </div>
@@ -206,11 +218,11 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
           {selectedSettlement && (
             <div>
-              <label className="mb-1.5 block text-xs font-bold text-text-primary">
+              <label className="text-text-primary mb-1.5 block text-xs font-bold">
                 Payment Amount
               </label>
               <div className="relative">
-                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm font-bold text-text-muted">
+                <span className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2 text-sm font-bold">
                   {symbol}
                 </span>
                 <input
@@ -220,7 +232,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="w-full rounded-xl border border-border-subtle bg-surface-subtle py-2.5 pr-4 pl-8 text-sm font-bold text-text-primary focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20 focus:outline-none"
+                  className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border py-2.5 pr-4 pl-8 text-sm font-bold focus:ring-2 focus:outline-none"
                   required
                 />
               </div>
@@ -231,14 +243,14 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 cursor-pointer rounded-xl border border-border-subtle bg-surface py-2.5 text-xs font-semibold text-text-secondary hover:bg-surface-subtle"
+              className="border-border-subtle bg-surface text-text-secondary hover:bg-surface-subtle flex-1 cursor-pointer rounded-xl border py-2.5 text-xs font-semibold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || payableDebts.length === 0}
-              className="flex-1 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 disabled:opacity-50"
+              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <Spinner className="h-4 w-4 text-white" />

@@ -22,6 +22,7 @@ import { ThemeToggle } from '../../components/ThemeToggle';
 import { WorkspaceSettingsModal } from './WorkspaceSettingsModal';
 import * as workspaceService from './workspaceService';
 import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
+import { Button } from '../../components/Button';
 
 export const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -69,14 +70,19 @@ export const WorkspacePage: React.FC = () => {
     refetch,
   } = useWorkspace(workspaceId || '');
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://cosplit.site/';
   useDocumentMetadata({
-    title: workspace ? `${workspace.name} - Co-Split Ledger` : 'Workspace - Co-Split',
+    title: workspace
+      ? `${workspace.name} - Co-Split Ledger`
+      : 'Workspace - Co-Split',
     description: workspace
       ? `Shared expense ledger for ${workspace.name}. Add expenses, track balances, and settle up bills instantly.`
       : 'Collaborative shared expense ledger sheet on Co-Split.',
     url: workspaceId ? `${origin}/workspace/${workspaceId}` : origin,
-    image: `${origin}/icons/co-split-icon.png`
+    image: `${origin}/icons/co-split-icon.png`,
   });
 
   const handleDeleteWorkspace = async () => {
@@ -176,7 +182,7 @@ export const WorkspacePage: React.FC = () => {
 
   if (authLoading || joining || (workspaceLoading && !workspace)) {
     return (
-      <div className="bg-mesh-light flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <Spinner className="text-primary-green h-16 w-16" />
       </div>
     );
@@ -184,20 +190,20 @@ export const WorkspacePage: React.FC = () => {
 
   if (error && !workspace) {
     return (
-      <div className="bg-mesh-light flex min-h-screen items-center justify-center p-4 font-sans text-text-primary">
-        <div className="animate-scale-up w-full max-w-md space-y-5 rounded-3xl border border-rose-200 bg-surface p-8 text-center shadow-xl [data-theme='dark']_&:border-rose-900/50">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-600 [data-theme='dark']_&:text-rose-400">
+      <div className="text-text-primary flex min-h-screen items-center justify-center p-4 font-sans">
+        <div className="animate-scale-up bg-surface [data-theme='dark']_&:border-rose-900/50 w-full max-w-md space-y-5 rounded-3xl border border-rose-200 p-8 text-center shadow-xl">
+          <div className="[data-theme='dark']_&:text-rose-400 mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-600">
             <ExclamationTriangleIcon className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-text-primary">
+            <h3 className="text-text-primary text-lg font-bold">
               Connection Interrupted
             </h3>
-            <p className="mt-1 text-sm text-text-muted">{error}</p>
+            <p className="text-text-muted mt-1 text-sm">{error}</p>
           </div>
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full cursor-pointer rounded-xl bg-primary-green px-4 py-3 text-sm font-semibold text-white shadow-xs transition duration-200 hover:bg-primary-green-hover"
+            className="bg-primary-green hover:bg-primary-green-hover w-full cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-xs transition duration-200"
           >
             Return to Dashboard
           </button>
@@ -208,23 +214,23 @@ export const WorkspacePage: React.FC = () => {
 
   if (!workspace) {
     return (
-      <div className="bg-mesh-light flex min-h-screen items-center justify-center p-4 font-sans text-text-primary">
-        <div className="animate-scale-up w-full max-w-md space-y-5 rounded-3xl border border-border-subtle bg-surface p-8 text-center shadow-xl">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-600 [data-theme='dark']_&:text-rose-400">
+      <div className="text-text-primary flex min-h-screen items-center justify-center p-4 font-sans">
+        <div className="animate-scale-up border-border-subtle bg-surface w-full max-w-md space-y-5 rounded-3xl border p-8 text-center shadow-xl">
+          <div className="[data-theme='dark']_&:text-rose-400 mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-600">
             <ExclamationTriangleIcon className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-text-primary">
+            <h3 className="text-text-primary text-lg font-bold">
               {joinError ? 'Access Denied' : 'Workspace Not Found'}
             </h3>
-            <p className="mt-1 text-sm text-text-muted">
+            <p className="text-text-muted mt-1 text-sm">
               {joinError ||
                 'The ledger sheet you are looking for might have been archived, deleted, or requires a valid invite code to access.'}
             </p>
           </div>
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full cursor-pointer rounded-xl bg-primary-green px-4 py-3 text-sm font-semibold text-white shadow-xs transition duration-200 hover:bg-primary-green-hover"
+            className="bg-primary-green hover:bg-primary-green-hover w-full cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-xs transition duration-200"
           >
             Return to Dashboard
           </button>
@@ -234,37 +240,38 @@ export const WorkspacePage: React.FC = () => {
   }
 
   return (
-    <div className="bg-mesh-light min-h-screen pb-12 font-sans text-text-primary">
-      <nav className="sticky top-0 z-40 border-b border-border-glass bg-surface/75 px-4 py-3 shadow-xs backdrop-blur-xl backdrop-saturate-150">
+    <div className="text-text-primary min-h-screen pb-12 font-sans">
+      <nav className="border-border-glass bg-surface/75 sticky top-0 z-40 border-b px-4 py-3 shadow-xs backdrop-blur-xl backdrop-saturate-150">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/dashboard')}
-              className="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary"
+              className="text-text-muted hover:bg-surface-subtle hover:text-text-primary cursor-pointer rounded-lg p-1.5 transition-colors"
               title="Return to Dashboard"
             >
               <ArrowLeftIcon className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <span className="hidden text-base font-extrabold tracking-tight text-text-primary sm:inline">
+              <span className="text-text-primary hidden text-base font-extrabold tracking-tight sm:inline">
                 {workspace.name}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              type="button"
+              isLoading={joining}
               onClick={() => setIsInviteOpen(true)}
-              className="bg-accent-coral hover:bg-accent-coral-hover flex cursor-pointer items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-white shadow-2xs transition-all duration-200"
             >
               <UserPlusIcon className="h-4 w-4" />
               <span>Invite</span>
-            </button>
+            </Button>
 
             {isOwner && (
               <button
                 onClick={() => setIsSettingsOpen(true)}
-                className="cursor-pointer rounded-lg p-1.5 text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary"
+                className="text-text-muted hover:bg-surface-subtle hover:text-text-primary cursor-pointer rounded-lg p-1.5 transition-colors"
                 title="Workspace Settings"
               >
                 <Cog6ToothIcon className="h-5 w-5" />
@@ -273,12 +280,12 @@ export const WorkspacePage: React.FC = () => {
 
             <ThemeToggle />
 
-            <div className="flex items-center gap-2 border-l border-border-subtle pl-3">
+            <div className="border-border-subtle flex items-center gap-2 border-l pl-3">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
                   alt={profile.display_name}
-                  className="h-7 w-7 rounded-full border border-border-subtle"
+                  className="border-border-subtle h-7 w-7 rounded-full border"
                 />
               ) : (
                 <div className="bg-primary-green-light text-primary-green flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold">
@@ -286,16 +293,16 @@ export const WorkspacePage: React.FC = () => {
                 </div>
               )}
               <div className="hidden flex-col text-left md:flex">
-                <span className="text-[9px] leading-none font-bold text-text-muted">
+                <span className="text-text-muted text-[9px] leading-none font-bold">
                   Signed in as
                 </span>
-                <span className="mt-0.5 text-xs font-bold text-text-primary">
+                <span className="text-text-primary mt-0.5 text-xs font-bold">
                   {profile?.display_name}
                 </span>
               </div>
               <button
                 onClick={signOut}
-                className="ml-1 cursor-pointer rounded-lg bg-surface-subtle px-3 py-1.5 text-xs font-bold text-text-secondary transition-all duration-200 hover:bg-rose-600 hover:text-white"
+                className="bg-surface-subtle text-text-secondary ml-1 cursor-pointer rounded-lg px-3 py-1.5 text-xs font-bold transition-all duration-200 hover:bg-rose-600 hover:text-white"
                 title="Sign out of Google Session"
               >
                 Sign out
@@ -307,7 +314,7 @@ export const WorkspacePage: React.FC = () => {
 
       <div className="animate-slide-up mx-auto mt-5 max-w-6xl space-y-4 px-4">
         {error && (
-          <div className="animate-scale-up flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs font-bold text-rose-700 [data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300">
+          <div className="animate-scale-up [data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300 flex items-center justify-between rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs font-bold text-rose-700">
             <span>{error}</span>
             <button
               onClick={clearError}
@@ -359,7 +366,7 @@ export const WorkspacePage: React.FC = () => {
 
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
           <div className="lg:col-span-1">
-            <div className="overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-xs divide-y divide-border-subtle">
+            <div className="border-border-subtle bg-surface divide-border-subtle divide-y overflow-hidden rounded-2xl border shadow-xs">
               <ExpenseForm
                 members={members}
                 onAddExpense={handleAddExpense}

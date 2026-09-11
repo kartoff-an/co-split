@@ -7,30 +7,30 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ className = 'max-w-6xl' }) => {
   return (
     <footer
-      className={`mx-auto mt-16 w-full pb-6 text-center text-[10px] font-medium text-text-muted ${className}`}
+      className={`text-text-muted mx-auto mt-16 w-full pb-6 text-center text-[10px] font-medium ${className}`}
     >
       <div className="flex flex-col items-center justify-center gap-2 px-4 sm:flex-row sm:gap-x-4 sm:gap-y-0">
         <span>&copy; {new Date().getFullYear()} Co-Split.</span>
-        <span className="hidden text-border-strong sm:inline">|</span>
-        <a href="#" className="transition-colors hover:text-text-primary">
+        <span className="text-border-strong hidden sm:inline">|</span>
+        <a href="#" className="hover:text-text-primary transition-colors">
           Terms
         </a>
-        <span className="hidden text-border-strong sm:inline">|</span>
-        <a href="#" className="transition-colors hover:text-text-primary">
+        <span className="text-border-strong hidden sm:inline">|</span>
+        <a href="#" className="hover:text-text-primary transition-colors">
           Privacy
         </a>
-        <span className="hidden text-border-strong sm:inline">|</span>
-        <a href="#" className="transition-colors hover:text-text-primary">
+        <span className="text-border-strong hidden sm:inline">|</span>
+        <a href="#" className="hover:text-text-primary transition-colors">
           Support
         </a>
-        <span className="hidden text-border-strong sm:inline">|</span>
+        <span className="text-border-strong hidden sm:inline">|</span>
         <span className="flex items-center justify-center gap-1.5">
           <span>Free & Open Source</span>
           <a
             href="https://github.com/kartoff-an/co-split"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-text-muted transition-colors hover:text-text-primary"
+            className="text-text-muted hover:text-text-primary transition-colors"
             title="GitHub Repository"
           >
             <span

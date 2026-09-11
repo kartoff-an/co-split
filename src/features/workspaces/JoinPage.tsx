@@ -15,12 +15,16 @@ export const JoinPage: React.FC = () => {
   const [joining, setJoining] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://cosplit.site/';
   useDocumentMetadata({
     title: 'Join Expense Ledger - Co-Split',
-    description: 'You have been invited to join a shared expense ledger sheet on Co-Split. Sign in to collaborate and start splitting bills in real-time.',
+    description:
+      'You have been invited to join a shared expense ledger sheet on Co-Split. Sign in to collaborate and start splitting bills in real-time.',
     url: inviteCode ? `${origin}/join/${inviteCode}` : origin,
-    image: `${origin}/icons/co-split-icon.png`
+    image: `${origin}/icons/co-split-icon.png`,
   });
 
   useEffect(() => {
@@ -63,11 +67,11 @@ export const JoinPage: React.FC = () => {
 
   if (authLoading || joining) {
     return (
-      <div className="bg-mesh-light flex min-h-screen flex-col items-center justify-center font-sans text-text-primary">
+      <div className="bg-mesh-light text-text-primary flex min-h-screen flex-col items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-4 text-center select-none">
           <CoSplitIcon className="animate-pulse" />
           <Spinner className="text-primary-green h-12 w-12" />
-          <p className="text-sm font-semibold text-text-muted">
+          <p className="text-text-muted text-sm font-semibold">
             Joining ledger sheet...
           </p>
         </div>
@@ -76,13 +80,15 @@ export const JoinPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-mesh-light flex min-h-screen flex-col items-center justify-center px-4 font-sans text-text-primary">
+    <div className="bg-mesh-light text-text-primary flex min-h-screen flex-col items-center justify-center px-4 font-sans">
       <div className="glass-card w-full max-w-md rounded-2xl p-8 text-center shadow-md">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 text-rose-600 [data-theme='dark']_&:text-rose-400">
+        <div className="[data-theme='dark']_&:text-rose-400 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
           <ExclamationTriangleIcon className="h-7 w-7" />
         </div>
-        <h2 className="text-lg font-bold text-text-primary">Cannot Join Ledger</h2>
-        <p className="mt-2 text-xs leading-relaxed font-medium text-text-muted">
+        <h2 className="text-text-primary text-lg font-bold">
+          Cannot Join Ledger
+        </h2>
+        <p className="text-text-muted mt-2 text-xs leading-relaxed font-medium">
           {error}
         </p>
         <button

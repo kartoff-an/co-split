@@ -32,7 +32,9 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUnequalSplit, setIsUnequalSplit] = useState(false);
-  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>([]);
+  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(
+    []
+  );
   const [isBubbleOpen, setIsBubbleOpen] = useState(false);
 
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -76,7 +78,8 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   }, [isBubbleOpen]);
 
   if (!isOpen || !expense) return null;
-  if (expense.category === 'Payment' || expense.category === 'Settlement') return null;
+  if (expense.category === 'Payment' || expense.category === 'Settlement')
+    return null;
 
   const selectedSplitMembers = members
     .map((member) => member.id)
@@ -85,7 +88,12 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const parsedAmount = parseFloat(amount);
-    if (!description.trim() || isNaN(parsedAmount) || parsedAmount <= 0 || !paidBy) {
+    if (
+      !description.trim() ||
+      isNaN(parsedAmount) ||
+      parsedAmount <= 0 ||
+      !paidBy
+    ) {
       setError('Please fill in all required fields with valid values.');
       return;
     }
@@ -101,7 +109,9 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update expense.');
+      setError(
+        err instanceof Error ? err.message : 'Failed to update expense.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -109,32 +119,34 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-      <div className="animate-scale-up relative w-full max-w-md rounded-2xl border border-border-subtle bg-surface p-6 shadow-xl text-text-primary">
+      <div className="animate-scale-up border-border-subtle bg-surface text-text-primary relative w-full max-w-md rounded-2xl border p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
+            <div className="[data-theme='dark']_&:text-emerald-400 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
               <PencilSquareIcon className="h-4 w-4" />
             </div>
-            <h3 className="text-base font-bold text-text-primary">Edit Expense</h3>
+            <h3 className="text-text-primary text-base font-bold">
+              Edit Expense
+            </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-lg p-1 text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary"
+            className="text-text-muted hover:bg-surface-subtle hover:text-text-primary cursor-pointer rounded-lg p-1 transition-colors"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-600 [data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300">
+          <div className="[data-theme='dark']_&:border-rose-900/50 [data-theme='dark']_&:bg-rose-950/40 [data-theme='dark']_&:text-rose-300 mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-600">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-bold text-text-muted">
+            <label className="text-text-muted mb-1 block text-xs font-bold">
               Description
             </label>
             <input
@@ -142,7 +154,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               placeholder="Expense description..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-xs font-medium text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20"
+              className="border-border-subtle bg-surface-subtle text-text-primary placeholder:text-text-muted focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border px-3 py-2 text-xs font-medium outline-hidden transition-all focus:ring-2"
               disabled={isLoading}
               required
             />
@@ -150,11 +162,11 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-bold text-text-muted">
+              <label className="text-text-muted mb-1 block text-xs font-bold">
                 Amount ({currency})
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-medium text-text-muted">
+                <span className="text-text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-medium">
                   {symbol}
                 </span>
                 <input
@@ -162,7 +174,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-xl border border-border-subtle bg-surface-subtle py-2 pr-3 pl-7 text-xs font-semibold text-text-primary placeholder:text-text-muted outline-hidden transition-all focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20"
+                  className="border-border-subtle bg-surface-subtle text-text-primary placeholder:text-text-muted focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border py-2 pr-3 pl-7 text-xs font-semibold outline-hidden transition-all focus:ring-2"
                   disabled={isLoading}
                   min="0.01"
                   step="0.01"
@@ -172,13 +184,13 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-bold text-text-muted">
+              <label className="text-text-muted mb-1 block text-xs font-bold">
                 Payer
               </label>
               <select
                 value={paidBy}
                 onChange={(e) => setPaidBy(e.target.value)}
-                className="w-full rounded-xl border border-border-subtle bg-surface-subtle px-2.5 py-2 text-xs font-medium text-text-primary outline-hidden transition-all focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20"
+                className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border px-2.5 py-2 text-xs font-medium outline-hidden transition-all focus:ring-2"
                 disabled={isLoading}
                 required
               >
@@ -204,12 +216,12 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   setExcludedSplitMembers([]);
                 }
               }}
-              className="h-3.5 w-3.5 cursor-pointer rounded border-border-strong text-emerald-600 focus:ring-emerald-500"
+              className="border-border-strong h-3.5 w-3.5 cursor-pointer rounded text-emerald-600 focus:ring-emerald-500"
               disabled={isLoading}
             />
             <label
               htmlFor="edit-unequal-split"
-              className="cursor-pointer text-xs font-bold text-text-muted select-none"
+              className="text-text-muted cursor-pointer text-xs font-bold select-none"
             >
               Split unequally
             </label>
@@ -217,13 +229,13 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
           {isUnequalSplit && (
             <div className="relative mt-2" ref={bubbleRef}>
-              <label className="mb-1 block text-xs font-bold text-text-muted">
+              <label className="text-text-muted mb-1 block text-xs font-bold">
                 Split Members
               </label>
               <button
                 type="button"
                 onClick={() => setIsBubbleOpen((prev) => !prev)}
-                className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-border-subtle bg-surface-subtle px-3 py-2 text-left text-xs font-semibold text-text-primary outline-hidden transition-all focus:border-primary-green focus:bg-surface focus:ring-2 focus:ring-primary-green/20"
+                className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 flex w-full cursor-pointer items-center justify-between rounded-xl border px-3 py-2 text-left text-xs font-semibold outline-hidden transition-all focus:ring-2"
                 disabled={isLoading}
               >
                 <span>
@@ -231,14 +243,14 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                     ? 'All members'
                     : `${selectedSplitMembers.length} of ${members.length} selected`}
                 </span>
-                <span className="text-xs font-bold text-text-muted">
+                <span className="text-text-muted text-xs font-bold">
                   Configure…
                 </span>
               </button>
 
               {isBubbleOpen && (
-                <div className="animate-scale-up absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border border-border-subtle bg-surface p-4 shadow-xl">
-                  <h4 className="mb-2 text-xs font-extrabold text-text-primary">
+                <div className="animate-scale-up border-border-subtle bg-surface absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border p-4 shadow-xl">
+                  <h4 className="text-text-primary mb-2 text-xs font-extrabold">
                     Include in Split:
                   </h4>
                   <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
@@ -249,7 +261,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                       return (
                         <label
                           key={member.id}
-                          className="flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-subtle"
+                          className="text-text-secondary hover:bg-surface-subtle flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-xs font-semibold transition-colors"
                         >
                           <input
                             type="checkbox"
@@ -270,14 +282,14 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                                 );
                               }
                             }}
-                            className="h-3.5 w-3.5 rounded border-border-strong text-emerald-600 focus:ring-emerald-500"
+                            className="border-border-strong h-3.5 w-3.5 rounded text-emerald-600 focus:ring-emerald-500"
                           />
                           <span>{member.display_name}</span>
                         </label>
                       );
                     })}
                   </div>
-                  <div className="mt-3 flex justify-end border-t border-border-subtle pt-2">
+                  <div className="border-border-subtle mt-3 flex justify-end border-t pt-2">
                     <button
                       type="button"
                       onClick={() => setIsBubbleOpen(false)}
@@ -295,7 +307,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-1/2 cursor-pointer rounded-xl border border-border-subtle bg-surface py-2.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-subtle"
+              className="border-border-subtle bg-surface text-text-secondary hover:bg-surface-subtle w-1/2 cursor-pointer rounded-xl border py-2.5 text-xs font-semibold transition-colors"
               disabled={isLoading}
             >
               Cancel

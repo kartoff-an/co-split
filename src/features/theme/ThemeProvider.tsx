@@ -31,8 +31,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const resolvedTheme: ResolvedTheme =
-    theme === 'system' ? systemTheme : theme;
+  const resolvedTheme: ResolvedTheme = theme === 'system' ? systemTheme : theme;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

@@ -18,14 +18,14 @@ export const Avatar: React.FC<AvatarProps> = ({
       <img
         src={avatarUrl}
         alt={`${name}'s avatar`}
-        className={`${className} shrink-0 rounded-full border border-border-subtle object-cover`}
+        className={`${className} border-border-subtle shrink-0 rounded-full border object-cover`}
       />
     );
   }
 
   return (
     <span
-      className={`${className} flex shrink-0 items-center justify-center rounded-full bg-surface-subtle text-[7px] font-bold text-text-muted`}
+      className={`${className} bg-surface-subtle text-text-muted flex shrink-0 items-center justify-center rounded-full text-[7px] font-bold`}
       aria-label={`${name}'s initials`}
     >
       {initials}

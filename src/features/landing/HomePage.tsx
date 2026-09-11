@@ -18,12 +18,16 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://cosplit.site/';
   useDocumentMetadata({
     title: 'Co-Split - Fair Expense Splitting Made Simple',
-    description: 'Frictionless shared expense ledger sheets. Sign in with one click to organize bills with your workspace team, roommates, or study group in real-time.',
+    description:
+      'Frictionless shared expense ledger sheets. Sign in with one click to organize bills with your workspace team, roommates, or study group in real-time.',
     url: origin,
-    image: `${origin}/icons/co-split-icon.png`
+    image: `${origin}/icons/co-split-icon.png`,
   });
 
   useEffect(() => {
@@ -51,21 +55,21 @@ export const HomePage: React.FC = () => {
 
   if (authLoading) {
     return (
-      <div className="bg-mesh-light flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <Spinner className="text-primary-green h-16 w-16" />
       </div>
     );
   }
 
   return (
-    <div className="bg-mesh-light relative flex min-h-screen flex-col justify-between overflow-hidden px-4 py-10 font-sans text-text-primary md:px-8">
-      <div className="bg-primary-green-light/45 pointer-events-none absolute top-[8%] left-[-5%] -z-10 h-[380px] w-[380px] rounded-full opacity-60 blur-3xl filter [data-theme='dark']_&:opacity-20" />
-      <div className="pointer-events-none absolute right-[-5%] bottom-[20%] -z-10 h-[420px] w-[420px] rounded-full bg-amber-50 opacity-50 blur-3xl filter [data-theme='dark']_&:opacity-10" />
+    <div className="text-text-primary relative flex min-h-screen flex-col justify-between overflow-hidden px-4 py-10 font-sans md:px-8">
+      <div className="bg-primary-green-light/45 [data-theme='dark']_&:opacity-20 pointer-events-none absolute top-[8%] left-[-5%] -z-10 h-[380px] w-[380px] rounded-full opacity-60 blur-3xl filter" />
+      <div className="[data-theme='dark']_&:opacity-10 pointer-events-none absolute right-[-5%] bottom-[20%] -z-10 h-[420px] w-[420px] rounded-full bg-amber-50 opacity-50 blur-3xl filter" />
 
-      <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between border-b border-border-subtle pb-6 select-none">
+      <header className="border-border-subtle relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between border-b pb-6 select-none">
         <div className="flex items-center gap-2">
           <CoSplitIcon />
-          <span className="text-lg font-extrabold tracking-tight text-text-primary">
+          <span className="text-text-primary text-lg font-extrabold tracking-tight">
             Co-Split
           </span>
         </div>
@@ -75,7 +79,7 @@ export const HomePage: React.FC = () => {
       <main className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 py-12 lg:grid-cols-12 lg:gap-16 lg:py-16">
         <section className="animate-fade-in space-y-8 text-left lg:col-span-7">
           <div className="space-y-4">
-            <h1 className="text-4xl leading-tight font-extrabold tracking-tight text-text-primary sm:text-5xl md:text-5xl">
+            <h1 className="text-text-primary text-4xl leading-tight font-extrabold tracking-tight sm:text-5xl md:text-5xl">
               Group expenses,
               <br />
               <span className="text-primary-green relative inline-block">
@@ -95,7 +99,7 @@ export const HomePage: React.FC = () => {
                 </svg>
               </span>
             </h1>
-            <p className="max-w-xl pt-2 text-sm leading-relaxed font-medium text-text-secondary sm:text-base">
+            <p className="text-text-secondary max-w-xl pt-2 text-sm leading-relaxed font-medium sm:text-base">
               Frictionless shared expense ledger sheets. Sign in with one click
               to organize bills with your workspace team, roommates, or study
               group in real-time.
@@ -110,10 +114,10 @@ export const HomePage: React.FC = () => {
               <div className="border-primary-green/20 group-hover:border-primary-green/45 pointer-events-none absolute right-2.5 bottom-2.5 h-2 w-2 border-r border-b transition-colors" />
 
               <div className="mb-6 text-left">
-                <h2 className="text-base font-bold tracking-tight text-text-primary">
+                <h2 className="text-text-primary text-base font-bold tracking-tight">
                   Access your workspace
                 </h2>
-                <p className="mt-1 text-[11px] leading-relaxed text-text-muted">
+                <p className="text-text-muted mt-1 text-[11px] leading-relaxed">
                   Sign in with Google to create secure bill ledgers, collaborate
                   in real-time, and split expenses instantly with your group.
                 </p>
@@ -131,7 +135,7 @@ export const HomePage: React.FC = () => {
 
       <div className="relative mx-auto flex w-full max-w-6xl items-center py-4 select-none">
         <div className="border-border-subtle grow border-t border-dashed"></div>
-        <span className="shadow-3xs mx-4 shrink rounded-full border border-border-subtle bg-surface px-3 py-1 text-[9px] font-extrabold tracking-widest text-text-muted uppercase">
+        <span className="shadow-3xs border-border-subtle bg-surface text-text-muted mx-4 shrink rounded-full border px-3 py-1 text-[9px] font-extrabold tracking-widest uppercase">
           Built for teams
         </span>
         <div className="border-border-subtle grow border-t border-dashed"></div>
@@ -142,10 +146,10 @@ export const HomePage: React.FC = () => {
           <div className="bg-primary-green-light text-primary-green shadow-3xs flex h-10 w-10 items-center justify-center rounded-xl">
             <BoltIcon className="h-5 w-5" />
           </div>
-          <h3 className="text-sm font-extrabold tracking-tight text-text-primary">
+          <h3 className="text-text-primary text-sm font-extrabold tracking-tight">
             Real-Time Collaboration
           </h3>
-          <p className="text-xs leading-relaxed text-text-secondary">
+          <p className="text-text-secondary text-xs leading-relaxed">
             Every transaction and settlement propagates instantly to all active
             member screens.
           </p>
@@ -155,10 +159,10 @@ export const HomePage: React.FC = () => {
           <div className="bg-primary-green-light text-primary-green shadow-3xs flex h-10 w-10 items-center justify-center rounded-xl">
             <UserPlusIcon className="h-5 w-5" />
           </div>
-          <h3 className="text-sm font-extrabold tracking-tight text-text-primary">
+          <h3 className="text-text-primary text-sm font-extrabold tracking-tight">
             Seamless Group Invites
           </h3>
-          <p className="text-xs leading-relaxed text-text-secondary">
+          <p className="text-text-secondary text-xs leading-relaxed">
             Invite members immediately with a simple workspace ID key, a direct
             invitation link, or a template message.
           </p>
@@ -168,10 +172,10 @@ export const HomePage: React.FC = () => {
           <div className="bg-primary-green-light text-primary-green shadow-3xs flex h-10 w-10 items-center justify-center rounded-xl">
             <CalculatorIcon className="h-5 w-5" />
           </div>
-          <h3 className="text-sm font-extrabold tracking-tight text-text-primary">
+          <h3 className="text-text-primary text-sm font-extrabold tracking-tight">
             Automated Settlement Engine
           </h3>
-          <p className="text-xs leading-relaxed text-text-secondary">
+          <p className="text-text-secondary text-xs leading-relaxed">
             Automatically calculates net member balances and optimizes
             transactions so group bills are settled in the fewest transfers.
           </p>

@@ -24,4 +24,3 @@ export const deleteExpense = async (
 ): Promise<void> => {
   return deleteExpenseFromWorkspace(expenseId);
 };
-

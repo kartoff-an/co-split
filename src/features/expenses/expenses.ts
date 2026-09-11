@@ -68,4 +68,3 @@ export const deleteExpenseFromWorkspace = async (
 
   if (error) throw error;
 };
-

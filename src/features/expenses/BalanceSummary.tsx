@@ -40,49 +40,50 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
     if (!activeUserId) return settlements.length > 0;
     const currentMember = members.find((m) => m.id === activeUserId);
     return settlements.some(
-      (s) => s.from_id === activeUserId || s.from === currentMember?.display_name
+      (s) =>
+        s.from_id === activeUserId || s.from === currentMember?.display_name
     );
   }, [settlements, activeUserId, members]);
 
   return (
-    <div className={`divide-y divide-border-subtle ${className}`}>
+    <div className={`divide-border-subtle divide-y ${className}`}>
       {/* Balances Section */}
       <div className="p-4 sm:p-5">
         <div className="mb-3.5 flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 [data-theme='dark']_&:text-emerald-400">
+          <div className="[data-theme='dark']_&:text-emerald-400 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
             <ChartBarIcon className="h-4 w-4" />
           </div>
-          <h3 className="text-sm font-bold tracking-tight text-text-primary">
+          <h3 className="text-text-primary text-sm font-bold tracking-tight">
             Balances
           </h3>
         </div>
 
         {/* 3-Column Metrics Segment Bar (Total spent, Avg / Head, Settles) */}
         <div className="mb-4">
-          <div className="grid grid-cols-3 divide-x divide-border-subtle overflow-hidden rounded-xl border border-border-subtle bg-surface-subtle">
+          <div className="divide-border-subtle border-border-subtle bg-surface-subtle grid grid-cols-3 divide-x overflow-hidden rounded-xl border">
             <div className="flex flex-col justify-between p-2.5">
-              <span className="text-[9px] font-bold text-text-muted">
+              <span className="text-text-muted text-[9px]">
                 Total spent
               </span>
-              <p className="mt-1 text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
+              <p className="text-text-primary mt-1 text-xs md:text-sm">
                 {formatCurrency(totalWorkspaceCost, currency)}
               </p>
             </div>
 
             <div className="flex flex-col justify-between p-2.5">
-              <span className="text-[9px] font-bold text-text-muted">
+              <span className="text-text-muted text-[9px]">
                 Avg / Head
               </span>
-              <p className="mt-1 text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
+              <p className="text-text-primary mt-1 text-xs md:text-sm">
                 {formatCurrency(averageCostPerPerson, currency)}
               </p>
             </div>
 
             <div className="flex flex-col justify-between p-2.5">
-              <span className="text-[9px] font-bold text-text-muted">
+              <span className="text-text-muted text-[9px]">
                 Settles
               </span>
-              <p className="mt-1 text-xs font-extrabold tracking-tight text-text-primary md:text-sm">
+              <p className="text-text-primary mt-1 text-xs md:text-sm">
                 {settlements.length}
               </p>
             </div>
@@ -105,9 +106,9 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
               <div key={balance.member_id} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span
-                    className={`flex items-center gap-1.5 font-semibold text-text-secondary ${
+                    className={`text-text-secondary flex items-center gap-1.5 ${
                       isCurrentUser
-                        ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
+                        ? '[data-theme="dark"]_&:text-emerald-400 text-emerald-600'
                         : ''
                     }`}
                   >
@@ -120,10 +121,10 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                           )?.avatar_url || ''
                         }
                         alt=""
-                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-border-subtle"
+                        className="border-border-subtle h-3.5 w-3.5 shrink-0 rounded-full border"
                       />
                     ) : (
-                      <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-surface-subtle text-[8px] font-bold text-text-muted">
+                      <span className="bg-surface-subtle text-text-muted flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold">
                         {balance.member_name.slice(0, 1).toUpperCase()}
                       </span>
                     )}
@@ -132,11 +133,11 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                     </span>
                   </span>
                   <span
-                    className={`font-extrabold tracking-tight ${
+                    className={`${
                       isPositive
-                        ? 'text-emerald-600 [data-theme="dark"]_&:text-emerald-400'
+                        ? '[data-theme="dark"]_&:text-emerald-400 text-emerald-600'
                         : isNegative
-                          ? 'text-rose-600 [data-theme="dark"]_&:text-rose-400'
+                          ? '[data-theme="dark"]_&:text-rose-400 text-rose-600'
                           : 'text-text-muted'
                     }`}
                   >
@@ -146,7 +147,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                 </div>
 
                 {/* Visual Balance Bar */}
-                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-surface-subtle">
+                <div className="bg-surface-subtle relative h-1.5 w-full overflow-hidden rounded-full">
                   {isPositive && (
                     <div
                       className="absolute left-1/2 h-full origin-left rounded-r-full bg-emerald-500 transition-all duration-500"
@@ -160,7 +161,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                     />
                   )}
                   {/* Center Line Indicator */}
-                  <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-border-strong" />
+                  <div className="bg-border-strong absolute top-0 bottom-0 left-1/2 w-px" />
                 </div>
               </div>
             );
@@ -172,10 +173,10 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
       <div className="p-4 sm:p-5">
         <div className="mb-3.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600 [data-theme='dark']_&:text-teal-400">
+            <div className="[data-theme='dark']_&:text-teal-400 flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600">
               <CheckCircleIcon className="h-4 w-4" />
             </div>
-            <h3 className="text-sm font-bold tracking-tight text-text-primary">
+            <h3 className="text-text-primary text-sm font-bold tracking-tight">
               Settlement Plan
             </h3>
           </div>
@@ -191,12 +192,14 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
         </div>
 
         {settlements.length === 0 ? (
-          <div className="py-3 text-center text-text-muted">
+          <div className="text-text-muted py-3 text-center">
             <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
               <CheckIcon className="h-4 w-4" />
             </div>
-            <p className="text-xs font-bold text-text-primary">All settled up!</p>
-            <p className="mt-0.5 text-[10px] text-text-muted">
+            <p className="text-text-primary text-xs">
+              All settled up!
+            </p>
+            <p className="text-text-muted mt-0.5 text-[10px]">
               No transactions or all balances are balanced.
             </p>
           </div>
@@ -205,26 +208,26 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             {settlements.map((settlement, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between rounded-xl border border-border-subtle bg-surface-subtle p-2 transition-colors duration-200 hover:bg-surface"
+                className="border-border-subtle bg-surface-subtle hover:bg-surface flex items-center justify-between rounded-xl border p-2 transition-colors duration-200"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   {/* Debtor */}
-                  <span className="max-w-[80px] truncate rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-rose-600 md:max-w-[100px] [data-theme='dark']_&:text-rose-400">
+                  <span className="[data-theme='dark']_&:text-rose-400 max-w-20 truncate rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[10px] text-rose-600 md:max-w-25">
                     {settlement.from}
                   </span>
 
                   {/* Arrow transfer animation */}
-                  <div className="mx-0.5 flex shrink-0 items-center text-text-muted">
+                  <div className="text-text-muted mx-0.5 flex shrink-0 items-center">
                     <ArrowRightIcon className="h-3.5 w-3.5 animate-pulse" />
                   </div>
 
                   {/* Creditor */}
-                  <span className="max-w-[80px] truncate rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 md:max-w-[100px] [data-theme='dark']_&:text-emerald-400">
+                  <span className="[data-theme='dark']_&:text-emerald-400 max-w-20 truncate rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-600 md:max-w-25">
                     {settlement.to}
                   </span>
                 </div>
 
-                <span className="shrink-0 text-xs font-extrabold tracking-tight text-text-primary">
+                <span className="text-text-primary shrink-0 text-xs">
                   {formatCurrency(settlement.amount, currency)}
                 </span>
               </div>
