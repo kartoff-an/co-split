@@ -57,7 +57,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
 
         <div className="space-y-4">
           <div>
-            <label className="text-text-muted mb-1 block text-xs font-bold">
+            <label className="text-text-muted mb-1 block text-xs">
               Workspace ID
             </label>
             <div className="flex gap-2">
@@ -65,7 +65,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
                 type="text"
                 readOnly
                 value={workspaceId}
-                className="border-border-subtle bg-surface-subtle text-text-primary w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-hidden"
+                className="border-border-subtle bg-surface-subtle text-text-primary w-full rounded-xl border px-3 py-2 text-xs outline-hiddeno"
               />
               <button
                 onClick={() => {
@@ -86,7 +86,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           </div>
 
           <div>
-            <label className="text-text-muted mb-1 block text-xs font-bold">
+            <label className="text-text-muted mb-1 block text-xs">
               Invite Link
             </label>
             <div className="flex gap-2">
@@ -94,7 +94,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
                 type="text"
                 readOnly
                 value={inviteUrl}
-                className="border-border-subtle bg-surface-subtle text-text-primary w-full truncate rounded-xl border px-3 py-2 text-xs font-semibold outline-hidden"
+                className="border-border-subtle bg-surface-subtle text-text-primary w-full truncate rounded-xl border px-3 py-2 text-xs outline-hidden"
               />
               <button
                 onClick={() => {
@@ -115,7 +115,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           </div>
 
           <div>
-            <label className="text-text-muted mb-1 block text-xs font-bold">
+            <label className="text-text-muted mb-1 block text-xs">
               Share Message
             </label>
             <div className="relative">
@@ -123,7 +123,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
                 readOnly
                 rows={4}
                 value={inviteMessage}
-                className="border-border-subtle bg-surface-subtle text-text-primary w-full resize-none rounded-xl border px-3 py-2 text-xs font-medium outline-hidden"
+                className="border-border-subtle bg-surface-subtle text-text-primary w-full resize-none rounded-xl border px-3 py-2 text-xs outline-hidden"
               />
               <button
                 onClick={() => {
@@ -145,9 +145,6 @@ export const InviteModal: React.FC<InviteModalProps> = ({
 
           {isOwner && onRegenerateInvite && (
             <div className="border-border-subtle mt-6 space-y-2 border-t pt-4 text-left">
-              <h5 className="text-text-muted text-[10px] font-bold tracking-wider uppercase">
-                Invite Link Security
-              </h5>
               <p className="text-text-muted text-[10px] leading-snug">
                 If your invite link is leaked, you can regenerate the secret
                 code. This will invalidate all previous invite links

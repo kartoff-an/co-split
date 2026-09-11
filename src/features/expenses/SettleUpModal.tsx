@@ -165,7 +165,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </div>
           ) : (
             <div>
-              <label className="text-text-muted mb-2 block text-xs font-bold">
+              <label className="text-text-muted mb-2 block text-xs">
                 Select Debt to Pay:
               </label>
               <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
@@ -190,19 +190,19 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                           onChange={() => handleSelectSettlement(idx)}
                           className="h-4 w-4 shrink-0 cursor-pointer text-emerald-600 focus:ring-emerald-500"
                         />
-                        <div className="text-text-primary flex min-w-0 items-center gap-1.5 text-xs font-semibold">
-                          <span className="max-w-[90px] truncate sm:max-w-[120px]">
+                        <div className="text-text-primary flex min-w-0 items-center gap-1.5 text-xs">
+                          <span className="max-w-22.5 truncate sm:max-w-30">
                             {settlement.from} (You)
                           </span>
                           <ArrowRightIcon className="text-text-muted h-3 w-3 shrink-0" />
-                          <span className="max-w-[90px] truncate sm:max-w-[120px]">
+                          <span className="max-w-22.5 truncate sm:max-w-30">
                             {settlement.to}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex shrink-0 items-center gap-2">
-                        <span className="[data-theme='dark']_&:text-rose-400 rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-600">
+                        <span className="[data-theme='dark']_&:text-rose-400 rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] text-rose-600">
                           You owe
                         </span>
                         <span className="text-text-primary text-xs font-extrabold">
@@ -218,11 +218,11 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
           {selectedSettlement && (
             <div>
-              <label className="text-text-primary mb-1.5 block text-xs font-bold">
+              <label className="text-text-primary mb-1.5 block text-xs">
                 Payment Amount
               </label>
               <div className="relative">
-                <span className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2 text-sm font-bold">
+                <span className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2 text-sm">
                   {symbol}
                 </span>
                 <input
@@ -232,7 +232,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border py-2.5 pr-4 pl-8 text-sm font-bold focus:ring-2 focus:outline-none"
+                  className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border py-2.5 pr-4 pl-8 text-sm focus:ring-2 focus:outline-none"
                   required
                 />
               </div>

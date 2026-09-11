@@ -142,7 +142,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
             <h3 className="text-text-primary text-lg font-extrabold tracking-tight">
               Workspace Settings
             </h3>
-            <p className="text-text-muted text-[10px] font-medium">
+            <p className="text-text-muted text-[10px]">
               Configure ledger controls and manage members
             </p>
           </div>
@@ -174,26 +174,26 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
             </h4>
 
             <div>
-              <label className="text-text-muted mb-1 block text-[10px] font-bold">
+              <label className="text-text-muted mb-1 block text-[10px]">
                 Workspace Name
               </label>
               <input
                 type="text"
                 value={workspaceName}
                 onChange={(event) => setWorkspaceName(event.target.value)}
-                className="focus:ring-primary-green/15 focus:border-primary-green border-border-subtle bg-surface-subtle text-text-primary focus:bg-surface w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-hidden transition-all focus:ring-2"
+                className="focus:ring-primary-green/15 focus:border-primary-green border-border-subtle bg-surface-subtle text-text-primary focus:bg-surface w-full rounded-xl border px-3 py-2 text-xs outline-hidden transition-all focus:ring-2"
                 required
               />
             </div>
 
             <div>
-              <label className="text-text-muted mb-1 block text-[10px] font-bold">
+              <label className="text-text-muted mb-1 block text-[10px]">
                 Workspace Currency
               </label>
               <select
                 value={currency}
                 onChange={(event) => setCurrency(event.target.value)}
-                className="focus:ring-primary-green/15 focus:border-primary-green border-border-subtle bg-surface-subtle text-text-primary focus:bg-surface w-full rounded-xl border px-2.5 py-2 text-xs font-semibold outline-hidden transition-all focus:ring-2"
+                className="focus:ring-primary-green/15 focus:border-primary-green border-border-subtle bg-surface-subtle text-text-primary focus:bg-surface w-full rounded-xl border px-2.5 py-2 text-xs outline-hidden transition-all focus:ring-2"
                 required
               >
                 {SUPPORTED_CURRENCIES.map((c) => (
@@ -205,7 +205,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
             </div>
 
             <div>
-              <label className="text-text-muted mb-1 block text-[10px] font-bold">
+              <label className="text-text-muted mb-1 block text-[10px]">
                 Max Allowed Members
               </label>
               <div className="space-y-1.5">
@@ -216,7 +216,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
                   onChange={(event) =>
                     setAllowedMembers(parseInt(event.target.value) || 1)
                   }
-                  className={`focus:ring-primary-green/15 focus:border-primary-green focus:bg-surface w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-hidden transition-all focus:ring-2 ${
+                  className={`focus:ring-primary-green/15 focus:border-primary-green focus:bg-surface w-full rounded-xl border px-3 py-2 text-xs outline-hidden transition-all focus:ring-2 ${
                     isLimitInvalid
                       ? 'border-rose-300 bg-rose-50/50 ring-rose-100'
                       : 'border-border-subtle bg-surface-subtle text-text-primary'
@@ -271,7 +271,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
               <h4 className="text-text-muted text-xs font-bold">
                 Manage Members
               </h4>
-              <span className="bg-surface-subtle text-text-secondary rounded-md px-2 py-0.5 text-[9px] font-bold">
+              <span className="bg-surface-subtle text-text-secondary rounded-md px-2 py-0.5 text-[9px]">
                 {currentMemberCount} / {allowedMembers}
               </span>
             </div>

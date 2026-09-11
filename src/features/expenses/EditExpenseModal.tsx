@@ -146,7 +146,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-text-muted mb-1 block text-xs font-bold">
+            <label className="text-text-muted mb-1 block text-xs">
               Description
             </label>
             <input
@@ -154,7 +154,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               placeholder="Expense description..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="border-border-subtle bg-surface-subtle text-text-primary placeholder:text-text-muted focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border px-3 py-2 text-xs font-medium outline-hidden transition-all focus:ring-2"
+              className="border-border-subtle bg-surface-subtle text-text-primary placeholder:text-text-muted focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border px-3 py-2 text-xs outline-hidden transition-all focus:ring-2"
               disabled={isLoading}
               required
             />
@@ -162,11 +162,11 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-text-muted mb-1 block text-xs font-bold">
+              <label className="text-text-muted mb-1 block text-xs">
                 Amount ({currency})
               </label>
               <div className="relative">
-                <span className="text-text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-medium">
+                <span className="text-text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs">
                   {symbol}
                 </span>
                 <input
@@ -174,7 +174,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="border-border-subtle bg-surface-subtle text-text-primary placeholder:text-text-muted focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border py-2 pr-3 pl-7 text-xs font-semibold outline-hidden transition-all focus:ring-2"
+                  className="border-border-subtle bg-surface-subtle text-text-primary placeholder:text-text-muted focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border py-2 pr-3 pl-7 text-xs outline-hidden transition-all focus:ring-2"
                   disabled={isLoading}
                   min="0.01"
                   step="0.01"
@@ -184,13 +184,13 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="text-text-muted mb-1 block text-xs font-bold">
+              <label className="text-text-muted mb-1 block text-xs">
                 Payer
               </label>
               <select
                 value={paidBy}
                 onChange={(e) => setPaidBy(e.target.value)}
-                className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border px-2.5 py-2 text-xs font-medium outline-hidden transition-all focus:ring-2"
+                className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 w-full rounded-xl border px-2.5 py-2 text-xs outline-hidden transition-all focus:ring-2"
                 disabled={isLoading}
                 required
               >
@@ -221,7 +221,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             />
             <label
               htmlFor="edit-unequal-split"
-              className="text-text-muted cursor-pointer text-xs font-bold select-none"
+              className="text-text-muted cursor-pointer text-xs select-none"
             >
               Split unequally
             </label>
@@ -229,13 +229,13 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
           {isUnequalSplit && (
             <div className="relative mt-2" ref={bubbleRef}>
-              <label className="text-text-muted mb-1 block text-xs font-bold">
+              <label className="text-text-muted mb-1 block text-xs">
                 Split Members
               </label>
               <button
                 type="button"
                 onClick={() => setIsBubbleOpen((prev) => !prev)}
-                className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 flex w-full cursor-pointer items-center justify-between rounded-xl border px-3 py-2 text-left text-xs font-semibold outline-hidden transition-all focus:ring-2"
+                className="border-border-subtle bg-surface-subtle text-text-primary focus:border-primary-green focus:bg-surface focus:ring-primary-green/20 flex w-full cursor-pointer items-center justify-between rounded-xl border px-3 py-2 text-left text-xs outline-hidden transition-all focus:ring-2"
                 disabled={isLoading}
               >
                 <span>
@@ -243,14 +243,14 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                     ? 'All members'
                     : `${selectedSplitMembers.length} of ${members.length} selected`}
                 </span>
-                <span className="text-text-muted text-xs font-bold">
+                <span className="text-text-muted text-xs">
                   Configure…
                 </span>
               </button>
 
               {isBubbleOpen && (
                 <div className="animate-scale-up border-border-subtle bg-surface absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border p-4 shadow-xl">
-                  <h4 className="text-text-primary mb-2 text-xs font-extrabold">
+                  <h4 className="text-text-primary mb-2 text-xs">
                     Include in Split:
                   </h4>
                   <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
@@ -261,7 +261,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                       return (
                         <label
                           key={member.id}
-                          className="text-text-secondary hover:bg-surface-subtle flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-xs font-semibold transition-colors"
+                          className="text-text-secondary hover:bg-surface-subtle flex cursor-pointer items-center gap-2 rounded-lg p-1.5 text-xs transition-colors"
                         >
                           <input
                             type="checkbox"
