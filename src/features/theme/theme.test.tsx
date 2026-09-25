@@ -66,4 +66,25 @@ describe('Theme Context & Hook', () => {
     expect(result.current.resolvedTheme).toBe('light');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
+
+  it('should ignore invalid persisted theme values and default to system', () => {
+    localStorage.setItem('co-split:theme', 'purple');
+
+    const { result } = renderHook(() => useTheme(), { wrapper });
+
+    expect(result.current.theme).toBe('system');
+    expect(result.current.resolvedTheme).toBe('light');
+    expect(localStorage.getItem('co-split:theme')).toBe('purple');
+  });
+
+  it('should reject invalid runtime theme writes', () => {
+    const { result } = renderHook(() => useTheme(), { wrapper });
+
+    act(() => {
+      (result.current.setTheme as (theme: string) => void)('purple');
+    });
+
+    expect(result.current.theme).toBe('system');
+    expect(localStorage.getItem('co-split:theme')).toBeNull();
+  });
 });
