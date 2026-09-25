@@ -2,6 +2,7 @@ import type React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import type { Expense, Member } from '../../types';
 import { PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Button } from '../../components/Button';
 import { getCurrencySymbol } from '../../lib/currency';
 
 interface EditExpenseModalProps {
@@ -26,39 +27,27 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   currency = 'PHP',
   onSave,
 }) => {
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [paidBy, setPaidBy] = useState('');
+  const [description, setDescription] = useState(expense?.description ?? '');
+  const [amount, setAmount] = useState(
+    expense ? expense.amount.toString() : ''
+  );
+  const [paidBy, setPaidBy] = useState(expense?.paid_by ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isUnequalSplit, setIsUnequalSplit] = useState(false);
-  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(
-    []
+  const [isUnequalSplit, setIsUnequalSplit] = useState(
+    Boolean(expense?.split_members && expense.split_members.length > 0)
+  );
+  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(() =>
+    expense?.split_members && expense.split_members.length > 0
+      ? members
+          .map((member) => member.id)
+          .filter((id) => !expense.split_members?.includes(id))
+      : []
   );
   const [isBubbleOpen, setIsBubbleOpen] = useState(false);
 
   const bubbleRef = useRef<HTMLDivElement>(null);
   const symbol = getCurrencySymbol(currency);
-
-  useEffect(() => {
-    if (expense) {
-      setDescription(expense.description);
-      setAmount(expense.amount.toString());
-      setPaidBy(expense.paid_by);
-      setError(null);
-
-      if (expense.split_members && expense.split_members.length > 0) {
-        setIsUnequalSplit(true);
-        const excluded = members
-          .map((m) => m.id)
-          .filter((id) => !expense.split_members?.includes(id));
-        setExcludedSplitMembers(excluded);
-      } else {
-        setIsUnequalSplit(false);
-        setExcludedSplitMembers([]);
-      }
-    }
-  }, [expense, members]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -304,46 +293,25 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
           )}
 
           <div className="flex gap-2 pt-2">
-            <button
+            <Button
               type="button"
               onClick={onClose}
-              className="border-border-subtle bg-surface text-text-secondary hover:bg-surface-subtle w-1/2 cursor-pointer rounded-xl border py-2.5 text-xs font-semibold transition-colors"
+              variant="secondary"
+              size="lg"
+              className="w-1/2"
               disabled={isLoading}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="flex w-1/2 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-emerald-700 disabled:opacity-50"
+              variant="primary"
+              size="lg"
+              isLoading={isLoading}
+              className="w-1/2 bg-emerald-600 hover:bg-emerald-700"
             >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="h-4 w-4 animate-spin text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <span>Save Changes</span>
-              )}
-            </button>
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </Button>
           </div>
         </form>
       </div>
