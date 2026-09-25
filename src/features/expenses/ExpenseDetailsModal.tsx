@@ -58,13 +58,11 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
     !!activeUserId &&
     (isPayment
       ? expense.paid_by === activeUserId
-      : createdBy
-        ? createdBy === activeUserId
-        : expense.paid_by === activeUserId);
+      : createdBy === activeUserId || expense.paid_by === activeUserId);
   const canEdit =
     !isPayment &&
     !!activeUserId &&
-    (createdBy ? createdBy === activeUserId : expense.paid_by === activeUserId);
+    (createdBy === activeUserId || expense.paid_by === activeUserId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
