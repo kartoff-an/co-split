@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { Balance, Settlement } from '../../types';
 import { supabase } from '../../lib/supabase';
 
@@ -17,18 +17,10 @@ interface DBCalculationResult {
 }
 
 export const useBalance = (workspaceId: string, expensesTrigger?: unknown) => {
-  const [balances, setBalances] = useState<Balance[]>([]);
-  const [settlements, setSettlements] = useState<Settlement[]>([]);
-  const [totalWorkspaceCost, setTotalWorkspaceCost] = useState(0);
-  const [averageCostPerPerson, setAverageCostPerPerson] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchCalculations = useCallback(async () => {
-    if (!workspaceId) return;
-    try {
-      setLoading(true);
-      setError(null);
+  const query = useQuery({
+    queryKey: ['workspace-balance', workspaceId, expensesTrigger],
+    enabled: !!workspaceId,
+    queryFn: async () => {
       const client = supabase as unknown as SupabaseRpc;
       const { data, error: rpcError } = await client.rpc(
         'calculate_workspace_balances',
@@ -38,35 +30,31 @@ export const useBalance = (workspaceId: string, expensesTrigger?: unknown) => {
       );
       if (rpcError) throw rpcError;
 
-      if (data) {
-        const result = data as DBCalculationResult;
-        setBalances(result.balances || []);
-        setSettlements(result.settlements || []);
-        setTotalWorkspaceCost(Number(result.total_workspace_cost) || 0);
-        setAverageCostPerPerson(Number(result.average_cost_per_person) || 0);
-      }
-    } catch (err) {
-      console.error('Error fetching backend calculations:', err);
-      setError(
-        err instanceof Error ? err.message : 'Failed to calculate balances'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [workspaceId]);
+      const result = (data ?? {
+        balances: [],
+        settlements: [],
+        total_workspace_cost: 0,
+        average_cost_per_person: 0,
+      }) as DBCalculationResult;
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchCalculations();
-  }, [fetchCalculations, expensesTrigger]);
+      return {
+        balances: result.balances || [],
+        settlements: result.settlements || [],
+        totalWorkspaceCost: Number(result.total_workspace_cost) || 0,
+        averageCostPerPerson: Number(result.average_cost_per_person) || 0,
+      };
+    },
+    staleTime: 1000 * 30,
+    gcTime: 1000 * 60 * 5,
+  });
 
   return {
-    balances,
-    settlements,
-    totalWorkspaceCost,
-    averageCostPerPerson,
-    loading,
-    error,
-    refetch: fetchCalculations,
+    balances: query.data?.balances ?? [],
+    settlements: query.data?.settlements ?? [],
+    totalWorkspaceCost: query.data?.totalWorkspaceCost ?? 0,
+    averageCostPerPerson: query.data?.averageCostPerPerson ?? 0,
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
+    refetch: query.refetch,
   };
 };
