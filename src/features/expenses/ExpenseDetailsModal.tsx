@@ -56,11 +56,8 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
   const createdBy = (expense as { created_by?: string | null }).created_by;
   const canDelete =
     !!activeUserId &&
-    (isPayment
-      ? expense.paid_by === activeUserId
-      : createdBy === activeUserId || expense.paid_by === activeUserId);
+    (createdBy === activeUserId || expense.paid_by === activeUserId);
   const canEdit =
-    !isPayment &&
     !!activeUserId &&
     (createdBy === activeUserId || expense.paid_by === activeUserId);
 
