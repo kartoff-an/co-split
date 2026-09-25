@@ -1,30 +1,25 @@
 import type React from 'react';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Expense, Member } from '../../types';
 import {
   ClipboardDocumentIcon,
-  MagnifyingGlassIcon,
-  PencilSquareIcon,
-  TrashIcon,
   ExclamationTriangleIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { Avatar } from '../../components/Avatar';
+import { Button } from '../../components/Button';
+import { InputField } from '../../components/InputField';
 import { formatCurrency } from '../../lib/currency';
 import { EditExpenseModal } from './EditExpenseModal';
+import { ExpenseDetailsModal } from './ExpenseDetailsModal';
 
 const formatRelativeTime = (timestamp: string) => {
   const date = new Date(timestamp);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const diffInSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 5) {
-    return 'just now';
-  }
+  if (diffInSeconds < 60) return 'just now';
 
   const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 1) {
-    return 'just now';
-  }
   if (diffInMinutes < 60) {
     return `${diffInMinutes} min${diffInMinutes === 1 ? '' : 's'} ago`;
   }
@@ -74,6 +69,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [selectedExpenseDetails, setSelectedExpenseDetails] =
+    useState<Expense | null>(null);
   const [deletingExpenseId, setDeletingExpenseId] = useState<number | null>(
     null
   );
@@ -87,15 +84,14 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
   };
 
   const filteredExpenses = useMemo(() => {
-    return expenses.filter((expense) => {
-      const matchesSearch =
-        expense.description.toLowerCase().includes(search.toLowerCase()) ||
+    const normalizedSearch = search.toLowerCase();
+    return expenses.filter(
+      (expense) =>
+        expense.description.toLowerCase().includes(normalizedSearch) ||
         getMemberName(expense.paid_by)
           .toLowerCase()
-          .includes(search.toLowerCase());
-
-      return matchesSearch;
-    });
+          .includes(normalizedSearch)
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenses, search, members, activeUserId]);
 
@@ -105,8 +101,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
     try {
       await onDeleteExpense(deletingExpenseId);
       setDeletingExpenseId(null);
-    } catch (err) {
-      console.error('Failed to delete expense:', err);
+    } catch (error) {
+      console.error('Failed to delete expense:', error);
     } finally {
       setIsDeleting(false);
     }
@@ -118,9 +114,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         <div className="bg-surface-subtle text-text-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
           <ClipboardDocumentIcon className="h-8 w-8" />
         </div>
-        <h4 className="text-text-primary text-base">
-          No transactions recorded
-        </h4>
+        <h4 className="text-text-primary text-base">No transactions recorded</h4>
         <p className="text-text-muted mx-auto mt-1 max-w-xs text-sm">
           Add expenses to begin balancing your workspace budget.
         </p>
@@ -138,21 +132,19 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                 Ledger transactions
               </h3>
               <p className="text-text-muted mt-0.5 text-[10px]">
-                {expenses.length} expense{expenses.length === 1 ? '' : 's'}{' '}
-                logged in total
+                {expenses.length} expense{expenses.length === 1 ? '' : 's'} logged in total
               </p>
             </div>
 
             <div className="relative w-full max-w-xs">
               <span className="text-text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <MagnifyingGlassesOrSearch className="h-3.5 w-3.5" />
+                <MagnifyingGlassIcon className="h-3.5 w-3.5" />
               </span>
-              <input
-                type="text"
+              <InputField
                 placeholder="Search expenses..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="border-border-subtle bg-surface text-text-primary placeholder:text-text-muted focus:border-primary-green focus:ring-primary-green/20 w-full rounded-xl border py-1.5 pr-3 pl-8 text-xs outline-hidden transition-all focus:ring-2"
+                className="py-1.5 pr-3 pl-8"
               />
             </div>
           </div>
@@ -161,13 +153,10 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         <div className="divide-border-subtle max-h-125 divide-y overflow-y-auto">
           {filteredExpenses.length === 0 ? (
             <div className="text-text-muted p-8 text-center">
-              <p className="text-xs">
-                No transactions match your search criteria.
-              </p>
+              <p className="text-xs">No transactions match your search criteria.</p>
               <button
-                onClick={() => {
-                  setSearch('');
-                }}
+                type="button"
+                onClick={() => setSearch('')}
                 className="[data-theme='dark']_&:text-emerald-400 mt-2.5 cursor-pointer text-xs text-emerald-600 underline hover:text-emerald-800"
               >
                 Clear search
@@ -176,35 +165,13 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
           ) : (
             <>
               {filteredExpenses.map((expense, index) => {
-                const payer = members.find(
-                  (member) => member.id === expense.paid_by
-                );
-                const isPayerYou = expense.paid_by === activeUserId;
-                const payerName = isPayerYou
+                const payer = members.find((member) => member.id === expense.paid_by);
+                const payerName = expense.paid_by === activeUserId
                   ? 'you'
                   : payer?.display_name || 'Unknown';
-
                 const isPayment =
                   expense.category === 'Payment' ||
                   expense.category === 'Settlement';
-
-                // Only debtor (expense.paid_by) can delete their settlement; for regular expenses, logger or payer can delete
-                const canDelete =
-                  !!activeUserId &&
-                  (isPayment
-                    ? expense.paid_by === activeUserId
-                    : (expense as { created_by?: string | null }).created_by
-                      ? (expense as { created_by?: string | null })
-                          .created_by === activeUserId
-                      : expense.paid_by === activeUserId);
-
-                const canEdit =
-                  !isPayment &&
-                  !!activeUserId &&
-                  ((expense as { created_by?: string | null }).created_by
-                    ? (expense as { created_by?: string | null }).created_by ===
-                      activeUserId
-                    : expense.paid_by === activeUserId);
 
                 return (
                   <div
@@ -219,15 +186,20 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
 
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <p className="text-text-primary truncate text-xs md:text-sm">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedExpenseDetails(expense)}
+                              className="text-text-primary cursor-pointer truncate text-left text-xs font-semibold transition-colors hover:text-emerald-600 md:text-sm"
+                            >
                               {expense.description}
-                            </p>
+                            </button>
                             {isPayment && (
                               <span className="[data-theme='dark']_&:text-emerald-400 inline-flex shrink-0 items-center rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600">
                                 Payment
                               </span>
                             )}
                           </div>
+
                           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                             <span className="text-text-muted flex items-center gap-1 text-[10px] font-medium">
                               <Avatar
@@ -246,76 +218,41 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
                             <span className="text-text-muted text-[10px] font-medium">
                               {formatRelativeTime(expense.timestamp)}
                             </span>
-                            {expense.split_members &&
-                              expense.split_members.length > 0 && (
-                                <>
-                                  <span className="bg-border-strong hidden h-1 w-1 rounded-full sm:inline" />
-                                  <span
-                                    className="border-border-subtle bg-surface-subtle text-text-muted hover:bg-surface inline-flex cursor-help items-center rounded-md border px-1.5 py-0.5 text-[9px] transition-colors"
-                                    title={expense.split_members
-                                      .map(
-                                        (memberId) =>
-                                          members.find(
-                                            (member) => member.id === memberId
-                                          )?.display_name || 'Unknown'
-                                      )
-                                      .join(', ')}
-                                  >
-                                    Split with {expense.split_members.length}{' '}
-                                    member
-                                    {expense.split_members.length === 1
-                                      ? ''
-                                      : 's'}
-                                  </span>
-                                </>
-                              )}
+                            {expense.split_members && expense.split_members.length > 0 && (
+                              <>
+                                <span className="bg-border-strong hidden h-1 w-1 rounded-full sm:inline" />
+                                <span
+                                  className="border-border-subtle bg-surface-subtle text-text-muted hover:bg-surface inline-flex cursor-help items-center rounded-md border px-1.5 py-0.5 text-[9px] transition-colors"
+                                  title={expense.split_members
+                                    .map(
+                                      (memberId) =>
+                                        members.find(
+                                          (member) => member.id === memberId
+                                        )?.display_name || 'Unknown'
+                                    )
+                                    .join(', ')}
+                                >
+                                  Split with {expense.split_members.length} member
+                                  {expense.split_members.length === 1 ? '' : 's'}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-text-primary text-xs md:text-sm">
-                          {formatCurrency(expense.amount, currency)}
-                        </span>
-
-                        {(canEdit || canDelete) && (
-                          <div className="flex items-center gap-1 opacity-90 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                            {onUpdateExpense && canEdit && (
-                              <button
-                                type="button"
-                                onClick={() => setEditingExpense(expense)}
-                                className="text-text-muted [data-theme='dark']_&:hover:text-emerald-400 cursor-pointer rounded-lg p-1.5 transition-colors hover:text-emerald-600"
-                                title="Edit Expense"
-                              >
-                                <PencilSquareIcon className="h-4 w-4" />
-                              </button>
-                            )}
-                            {onDeleteExpense && canDelete && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setDeletingExpenseId(Number(expense.id))
-                                }
-                                className="text-text-muted cursor-pointer rounded-lg p-1.5 transition-colors hover:text-rose-600"
-                                title={
-                                  isPayment
-                                    ? 'Delete Settlement Payment'
-                                    : 'Delete Expense'
-                                }
-                              >
-                                <TrashIcon className="h-4 w-4" />
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-text-primary shrink-0 text-xs md:text-sm">
+                        {formatCurrency(expense.amount, currency)}
+                      </span>
                     </div>
                   </div>
                 );
               })}
+
               {hasMore && (
                 <div className="border-border-subtle bg-surface-subtle/50 border-t p-3 text-center">
                   <button
+                    type="button"
                     onClick={onLoadMore}
                     disabled={loadingMore}
                     className="[data-theme='dark']_&:text-emerald-400 inline-flex cursor-pointer items-center gap-1.5 text-xs text-emerald-600 transition-colors hover:text-emerald-800 disabled:opacity-50"
@@ -331,8 +268,27 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         </div>
       </div>
 
+      {selectedExpenseDetails && (
+        <ExpenseDetailsModal
+          expense={selectedExpenseDetails}
+          members={members}
+          activeUserId={activeUserId}
+          currency={currency}
+          onClose={() => setSelectedExpenseDetails(null)}
+          onEdit={() => {
+            setEditingExpense(selectedExpenseDetails);
+            setSelectedExpenseDetails(null);
+          }}
+          onDelete={() => {
+            setDeletingExpenseId(Number(selectedExpenseDetails.id));
+            setSelectedExpenseDetails(null);
+          }}
+        />
+      )}
+
       {editingExpense && onUpdateExpense && (
         <EditExpenseModal
+          key={editingExpense.id}
           isOpen={!!editingExpense}
           onClose={() => setEditingExpense(null)}
           expense={editingExpense}
@@ -343,58 +299,56 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
         />
       )}
 
-      {deletingExpenseId !== null &&
-        (() => {
-          const targetExpense = expenses.find(
-            (e) => Number(e.id) === deletingExpenseId
-          );
-          const isPayment =
-            targetExpense?.category === 'Payment' ||
-            targetExpense?.category === 'Settlement';
+      {deletingExpenseId !== null && (() => {
+        const targetExpense = expenses.find(
+          (expense) => Number(expense.id) === deletingExpenseId
+        );
+        const isPayment =
+          targetExpense?.category === 'Payment' ||
+          targetExpense?.category === 'Settlement';
 
-          return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-              <div className="animate-scale-up border-border-subtle bg-surface relative w-full max-w-sm space-y-4 rounded-2xl border p-6 text-center shadow-xl">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
-                  <ExclamationTriangleIcon className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-text-primary text-base font-bold">
-                    {isPayment ? 'Delete Settlement?' : 'Delete Expense?'}
-                  </h3>
-                  <p className="text-text-muted mt-1 text-xs">
-                    {isPayment
-                      ? 'Are you sure you want to delete this settlement payment? The unsettled debt will be restored to your balance.'
-                      : 'Are you sure you want to delete this transaction? This action will update workspace balances and cannot be undone.'}
-                  </p>
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setDeletingExpenseId(null)}
-                    disabled={isDeleting}
-                    className="border-border-subtle bg-surface text-text-secondary hover:bg-surface-subtle w-1/2 cursor-pointer rounded-xl border py-2.5 text-xs font-semibold"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeleteConfirm}
-                    disabled={isDeleting}
-                    className="flex w-1/2 cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-rose-600 py-2.5 text-xs font-semibold text-white hover:bg-rose-700 disabled:opacity-50"
-                  >
-                    {isDeleting ? (
-                      <span>Deleting...</span>
-                    ) : (
-                      <span>Delete</span>
-                    )}
-                  </button>
-                </div>
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+            <div className="animate-scale-up border-border-subtle bg-surface relative w-full max-w-sm space-y-4 rounded-2xl border p-6 text-center shadow-xl">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
+                <ExclamationTriangleIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-text-primary text-base font-bold">
+                  {isPayment ? 'Delete Settlement?' : 'Delete Expense?'}
+                </h3>
+                <p className="text-text-muted mt-1 text-xs">
+                  {isPayment
+                    ? 'Are you sure you want to delete this settlement payment? The unsettled debt will be restored to your balance.'
+                    : 'Are you sure you want to delete this transaction? This action will update workspace balances and cannot be undone.'}
+                </p>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button
+                  type="button"
+                  onClick={() => setDeletingExpenseId(null)}
+                  disabled={isDeleting}
+                  variant="secondary"
+                  size="lg"
+                  className="w-1/2"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleDeleteConfirm}
+                  variant="danger"
+                  size="lg"
+                  isLoading={isDeleting}
+                  className="w-1/2"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </Button>
               </div>
             </div>
-          );
-        })()}
+          </div>
+        );
+      })()}
     </>
   );
 };
-const MagnifyingGlassesOrSearch = MagnifyingGlassIcon;
