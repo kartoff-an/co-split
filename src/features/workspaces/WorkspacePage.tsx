@@ -413,6 +413,7 @@ export const WorkspacePage: React.FC = () => {
       />
 
       <SettleUpModal
+        key={isSettleUpOpen ? 'open' : 'closed'}
         isOpen={isSettleUpOpen}
         onClose={() => setIsSettleUpOpen(false)}
         settlements={settlements}

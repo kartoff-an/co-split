@@ -36,12 +36,15 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
     return Math.max(...values, 1);
   }, [balances]);
 
-  const hasUserDebts = useMemo(() => {
+  const hasUserSettlements = useMemo(() => {
     if (!activeUserId) return settlements.length > 0;
-    const currentMember = members.find((m) => m.id === activeUserId);
+    const currentMember = members.find((member) => member.id === activeUserId);
     return settlements.some(
-      (s) =>
-        s.from_id === activeUserId || s.from === currentMember?.display_name
+      (settlement) =>
+        settlement.from_id === activeUserId ||
+        settlement.to_id === activeUserId ||
+        settlement.from === currentMember?.display_name ||
+        settlement.to === currentMember?.display_name
     );
   }, [settlements, activeUserId, members]);
 
@@ -175,7 +178,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             </h3>
           </div>
 
-          {onSettleUp && hasUserDebts && (
+          {onSettleUp && hasUserSettlements && (
             <button
               onClick={onSettleUp}
               className="cursor-pointer rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs transition-all hover:bg-emerald-700 active:scale-95"

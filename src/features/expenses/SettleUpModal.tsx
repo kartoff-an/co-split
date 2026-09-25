@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { Settlement, Member } from '../../types';
 import {
   XMarkIcon,
@@ -33,35 +33,32 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
   currency = 'PHP',
   onConfirmSettlement,
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [amount, setAmount] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Only settlements where the active user is the debtor (the one who owes money)
-  const payableDebts = useMemo(() => {
+  // Either side of an outstanding debt can open and record its settlement.
+  const availableSettlements = useMemo(() => {
     if (!activeUserId) return settlements;
-    const currentMember = members.find((m) => m.id === activeUserId);
+    const currentMember = members.find((member) => member.id === activeUserId);
     return settlements.filter(
-      (s) =>
-        s.from_id === activeUserId || s.from === currentMember?.display_name
+      (settlement) =>
+        settlement.from_id === activeUserId ||
+        settlement.to_id === activeUserId ||
+        settlement.from === currentMember?.display_name ||
+        settlement.to === currentMember?.display_name
     );
   }, [settlements, activeUserId, members]);
 
-  const selectedSettlement = payableDebts[selectedIndex] || null;
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [amount, setAmount] = useState<string>(
+    availableSettlements[0]?.amount.toString() || ''
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && payableDebts.length > 0) {
-      setSelectedIndex(0);
-      setAmount(payableDebts[0].amount.toString());
-      setError(null);
-    }
-  }, [isOpen, payableDebts]);
+  const selectedSettlement = availableSettlements[selectedIndex] || null;
 
   const handleSelectSettlement = (index: number) => {
     setSelectedIndex(index);
-    if (payableDebts[index]) {
-      setAmount(payableDebts[index].amount.toString());
+    if (availableSettlements[index]) {
+      setAmount(availableSettlements[index].amount.toString());
     }
     setError(null);
   };
@@ -70,19 +67,27 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
   const symbol = getCurrencySymbol(currency);
 
-  const creditorMember = selectedSettlement
+  const debtorMember = selectedSettlement
     ? members.find(
-        (m) =>
-          m.id === selectedSettlement.to_id ||
-          m.display_name === selectedSettlement.to
+        (member) =>
+          member.id === selectedSettlement.from_id ||
+          member.display_name === selectedSettlement.from
       )
     : null;
 
-  const payerId = activeUserId || selectedSettlement?.from_id || '';
+  const creditorMember = selectedSettlement
+    ? members.find(
+        (member) =>
+          member.id === selectedSettlement.to_id ||
+          member.display_name === selectedSettlement.to
+      )
+    : null;
+
+  const payerId = debtorMember?.id || selectedSettlement?.from_id || '';
   const payeeId = creditorMember?.id || selectedSettlement?.to_id || '';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError(null);
 
     if (!selectedSettlement) {
@@ -105,10 +110,10 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
       setIsSubmitting(true);
       await onConfirmSettlement(payerId, payeeId, parsedAmount);
       onClose();
-    } catch (err) {
+    } catch (error) {
       setError(
-        err instanceof Error
-          ? err.message
+        error instanceof Error
+          ? error.message
           : 'Failed to record settlement payment.'
       );
     } finally {
@@ -151,7 +156,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </div>
           )}
 
-          {payableDebts.length === 0 ? (
+          {availableSettlements.length === 0 ? (
             <div className="text-text-muted py-8 text-center">
               <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
                 <CheckIcon className="h-5 w-5" />
@@ -160,17 +165,22 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                 No debts to settle!
               </p>
               <p className="text-text-muted mt-1 text-[11px]">
-                You do not owe any money in this workspace.
+                There are no outstanding debts involving you.
               </p>
             </div>
           ) : (
             <div>
               <label className="text-text-muted mb-2 block text-xs">
-                Select Debt to Pay:
+                Select Debt to Settle:
               </label>
               <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
-                {payableDebts.map((settlement, idx) => {
+                {availableSettlements.map((settlement, idx) => {
                   const isSelected = selectedIndex === idx;
+                  const isDebtor =
+                    settlement.from_id === activeUserId ||
+                    settlement.from ===
+                      members.find((member) => member.id === activeUserId)
+                        ?.display_name;
 
                   return (
                     <label
@@ -192,7 +202,8 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                         />
                         <div className="text-text-primary flex min-w-0 items-center gap-1.5 text-xs">
                           <span className="max-w-22.5 truncate sm:max-w-30">
-                            {settlement.from} (You)
+                            {settlement.from}
+                            {isDebtor ? ' (You)' : ''}
                           </span>
                           <ArrowRightIcon className="text-text-muted h-3 w-3 shrink-0" />
                           <span className="max-w-22.5 truncate sm:max-w-30">
@@ -203,7 +214,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
                       <div className="flex shrink-0 items-center gap-2">
                         <span className="[data-theme='dark']_&:text-rose-400 rounded-md border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 text-[9px] text-rose-600">
-                          You owe
+                          {isDebtor ? 'You owe' : 'You are owed'}
                         </span>
                         <span className="text-text-primary text-xs font-extrabold">
                           {formatCurrency(settlement.amount, currency)}
@@ -249,7 +260,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || payableDebts.length === 0}
+              disabled={isSubmitting || availableSettlements.length === 0}
               className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
               {isSubmitting ? (
