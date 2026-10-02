@@ -230,6 +230,10 @@ export type Database = {
           user_net_balance: number;
         }[];
       };
+      get_workspace_invite_preview: {
+        Args: { invite_uuid: string };
+        Returns: string;
+      };
       is_project_member: {
         Args: { project_id: string; user_id: string };
         Returns: boolean;

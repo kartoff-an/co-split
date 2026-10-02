@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import * as workspaceService from './workspaceService';
 import { Spinner } from '../../components/Spinner';
@@ -15,11 +15,16 @@ import { ThemeToggle } from '../../components/ThemeToggle';
 export const JoinPage: React.FC = () => {
   const { inviteCode } = useParams<{ inviteCode: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const ledgerName = searchParams.get('ledger');
-  const inviterName = searchParams.get('inviter');
   const { user, loading: authLoading } = useAuth();
 
+  const [invitePreview, setInvitePreview] = useState<{
+    inviteCode: string;
+    ledgerName: string | null;
+  } | null>(null);
+  const ledgerName =
+    invitePreview?.inviteCode === inviteCode
+      ? invitePreview?.ledgerName
+      : null;
   const [joinError, setJoinError] = useState<{
     inviteCode: string;
     message: string;
@@ -36,6 +41,24 @@ export const JoinPage: React.FC = () => {
     url: inviteCode ? `${origin}/join/${inviteCode}` : origin,
     image: `${origin}/icons/co-split-icon.png`,
   });
+
+  useEffect(() => {
+    if (authLoading || user || !inviteCode) return;
+
+    let active = true;
+    workspaceService
+      .getWorkspaceInvitePreview(inviteCode)
+      .then((name) => {
+        if (active) setInvitePreview({ inviteCode, ledgerName: name });
+      })
+      .catch(() => {
+        if (active) setInvitePreview({ inviteCode, ledgerName: null });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [authLoading, user, inviteCode]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -133,7 +156,7 @@ export const JoinPage: React.FC = () => {
               {ledgerName ? `Join ${ledgerName}` : 'Join your group on Co-Split'}
             </h1>
             <p className="text-text-secondary mx-auto mt-3 max-w-sm text-sm leading-relaxed">
-              {inviterName ? `${inviterName} invited you to join ` : 'You are invited to join '}
+              You are invited to join{' '}
               {ledgerName ? <strong>{ledgerName}</strong> : 'a shared expense ledger'}
               . Sign in to accept the invite and start sharing expenses. After
               you sign in, we'll return you to this invite.

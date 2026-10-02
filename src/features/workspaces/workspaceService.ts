@@ -90,6 +90,18 @@ export const joinWorkspaceWithCode = async (
   return data as string;
 };
 
+export const getWorkspaceInvitePreview = async (
+  inviteCode: string
+): Promise<string | null> => {
+  const client = supabase as unknown as SupabaseRpc;
+  const { data, error } = await client.rpc('get_workspace_invite_preview', {
+    invite_uuid: inviteCode,
+  });
+
+  if (error) throw error;
+  return typeof data === 'string' ? data : null;
+};
+
 export const regenerateInviteCode = async (
   workspaceId: string
 ): Promise<string> => {

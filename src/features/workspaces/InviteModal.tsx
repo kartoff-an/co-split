@@ -43,10 +43,6 @@ export const InviteModal: React.FC<InviteModalProps> = ({
         window.location.origin
       )
     : new URL('/dashboard', window.location.origin);
-  if (inviteCode) {
-    inviteUrl.searchParams.set('ledger', workspaceName || 'Sheet');
-    inviteUrl.searchParams.set('inviter', inviterName || 'A group member');
-  }
   const inviteLink = inviteUrl.toString();
   const inviteMessage = `${inviterName || 'A group member'} invited you to join "${workspaceName || 'Sheet'}" on Co-Split.\nLink: ${inviteLink}`;
 
