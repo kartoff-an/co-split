@@ -63,9 +63,6 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="text-text-primary relative flex min-h-screen flex-col justify-between overflow-hidden px-4 py-10 font-sans md:px-8">
-      <div className="bg-primary-green-light/45 [data-theme='dark']_&:opacity-20 pointer-events-none absolute top-[8%] left-[-5%] -z-10 h-[380px] w-[380px] rounded-full opacity-60 blur-3xl filter" />
-      <div className="[data-theme='dark']_&:opacity-10 pointer-events-none absolute right-[-5%] bottom-[20%] -z-10 h-[420px] w-[420px] rounded-full bg-amber-50 opacity-50 blur-3xl filter" />
-
       <header className="border-border-subtle relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between border-b pb-6 select-none">
         <div className="flex items-center gap-2">
           <CoSplitIcon />
