@@ -82,7 +82,7 @@ export const HomePage: React.FC = () => {
               <span className="text-primary-green relative inline-block">
                 Simplified.
                 <svg
-                  className="text-accent-coral/65 absolute bottom-[-6px] left-0 h-[8px] w-full"
+                  className="text-accent-coral/65 absolute bottom-1.5 left-0 h-2 w-full"
                   viewBox="0 0 100 10"
                   preserveAspectRatio="none"
                 >

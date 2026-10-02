@@ -10,6 +10,15 @@ export const AuthCallback: React.FC = () => {
     const checkSession = async () => {
       const session = await authService.getSession();
       if (session) {
+        const pendingInviteCode = sessionStorage.getItem(
+          'co-split:pendingInviteCode'
+        );
+        if (pendingInviteCode) {
+          sessionStorage.removeItem('co-split:pendingInviteCode');
+          navigate(`/join/${pendingInviteCode}`, { replace: true });
+          return;
+        }
+
         const pendingWorkspaceId = sessionStorage.getItem(
           'co-split:pendingWorkspaceId'
         );
@@ -25,6 +34,16 @@ export const AuthCallback: React.FC = () => {
       // Fallback: listen for auth changes
       const subscription = authService.onAuthStateChange((event, session) => {
         if (session) {
+          const pendingInviteCode = sessionStorage.getItem(
+            'co-split:pendingInviteCode'
+          );
+          if (pendingInviteCode) {
+            sessionStorage.removeItem('co-split:pendingInviteCode');
+            navigate(`/join/${pendingInviteCode}`, { replace: true });
+            subscription.unsubscribe();
+            return;
+          }
+
           const pendingWorkspaceId = sessionStorage.getItem(
             'co-split:pendingWorkspaceId'
           );

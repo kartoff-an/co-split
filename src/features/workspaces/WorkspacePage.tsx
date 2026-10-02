@@ -407,6 +407,7 @@ export const WorkspacePage: React.FC = () => {
         onClose={() => setIsInviteOpen(false)}
         workspaceId={workspaceId || ''}
         workspaceName={workspace?.name || ''}
+        inviterName={profile?.display_name || ''}
         inviteCode={workspace?.invite_code}
         isOwner={isOwner}
         onRegenerateInvite={regenerateInvite}

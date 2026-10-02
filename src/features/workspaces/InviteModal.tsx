@@ -12,6 +12,7 @@ interface InviteModalProps {
   onClose: () => void;
   workspaceId: string;
   workspaceName: string;
+  inviterName: string;
   inviteCode?: string;
   isOwner?: boolean;
   onRegenerateInvite?: () => Promise<string | null>;
@@ -22,6 +23,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
   onClose,
   workspaceId,
   workspaceName,
+  inviterName,
   inviteCode,
   isOwner = false,
   onRegenerateInvite,
@@ -36,9 +38,17 @@ export const InviteModal: React.FC<InviteModalProps> = ({
   if (!isOpen) return null;
 
   const inviteUrl = inviteCode
-    ? `${window.location.origin}/join/${inviteCode}`
-    : `${window.location.origin}/dashboard`;
-  const inviteMessage = `Hey! Join my workspace ledger "${workspaceName || 'Sheet'}" on Co-Split.\nLink: ${inviteUrl}`;
+    ? new URL(
+        `/join/${encodeURIComponent(inviteCode)}`,
+        window.location.origin
+      )
+    : new URL('/dashboard', window.location.origin);
+  if (inviteCode) {
+    inviteUrl.searchParams.set('ledger', workspaceName || 'Sheet');
+    inviteUrl.searchParams.set('inviter', inviterName || 'A group member');
+  }
+  const inviteLink = inviteUrl.toString();
+  const inviteMessage = `${inviterName || 'A group member'} invited you to join "${workspaceName || 'Sheet'}" on Co-Split.\nLink: ${inviteLink}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
@@ -93,12 +103,12 @@ export const InviteModal: React.FC<InviteModalProps> = ({
               <input
                 type="text"
                 readOnly
-                value={inviteUrl}
+                value={inviteLink}
                 className="border-border-subtle bg-surface-subtle text-text-primary w-full truncate rounded-xl border px-3 py-2 text-xs outline-hidden"
               />
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(inviteUrl);
+                  navigator.clipboard.writeText(inviteLink);
                   setCopiedUrl(true);
                   setTimeout(() => setCopiedUrl(false), 2000);
                 }}
