@@ -19,12 +19,16 @@ describe('expense email helpers', () => {
       amount: 25.5,
       currency: 'USD',
       workspaceUrl: 'https://cosplit.site/workspace/abc?x=1&y=2',
+      logoUrl: 'https://cosplit.site/icons/co-split-icon.png',
     });
 
     expect(email.subject).toContain('<Flatmates>');
     expect(email.text).toContain('$25.50');
     expect(email.html).toContain('&lt;Flatmates&gt;');
     expect(email.html).toContain('x=1&amp;y=2');
+    expect(email.html).toContain('src="https://cosplit.site/icons/co-split-icon.png"');
+    expect(email.html).toContain('Open workspace');
+    expect(email.html).toContain('<table role="presentation"');
   });
 
   it('removes line breaks from the email subject', () => {
@@ -34,6 +38,7 @@ describe('expense email helpers', () => {
       amount: 10,
       currency: 'USD',
       workspaceUrl: 'https://cosplit.site/workspace/abc',
+      logoUrl: 'https://cosplit.site/icons/co-split-icon.png',
     });
 
     expect(email.subject).toBe('New expense in Roommates Updates: Dinner New subject');

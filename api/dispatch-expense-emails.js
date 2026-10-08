@@ -22,16 +22,17 @@ export const getRetryDelayMs = (attemptCount) =>
 const subjectPart = (value) => String(value).replace(/[\r\n]+/g, ' ').slice(0, 120);
 
 export const buildExpenseEmail = ({
-
   workspaceName,
   description,
   amount,
   currency,
   workspaceUrl,
+  logoUrl,
 }) => {
   const safeWorkspaceName = escapeHtml(workspaceName);
   const safeDescription = escapeHtml(description);
   const safeWorkspaceUrl = escapeHtml(workspaceUrl);
+  const safeLogoUrl = escapeHtml(logoUrl);
   const formattedAmount = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -39,8 +40,63 @@ export const buildExpenseEmail = ({
 
   return {
     subject: `New expense in ${subjectPart(workspaceName)}: ${subjectPart(description)}`,
-    text: `${workspaceName}: ${description} (${formattedAmount}) was added. View it at ${workspaceUrl}`,
-    html: `<p>A new expense was added to <strong>${safeWorkspaceName}</strong>.</p><p><strong>${safeDescription}</strong><br />${formattedAmount}</p><p><a href="${safeWorkspaceUrl}">Open workspace</a></p>`,
+    text: `A new expense was added to ${workspaceName}.\n\n${description}\n${formattedAmount}\n\nOpen workspace: ${workspaceUrl}\n\nCo-Split`,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>New expense in ${safeWorkspaceName}</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f3f6f4;font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">A new expense was added to ${safeWorkspaceName}.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f3f6f4;">
+      <tr>
+        <td align="center" style="padding:36px 16px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background-color:#ffffff;border:1px solid #e2e8e5;border-radius:16px;">
+            <tr>
+              <td style="padding:28px 32px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="vertical-align:middle;padding-right:10px;">
+                      <img src="${safeLogoUrl}" width="36" height="36" alt="Co-Split" style="display:block;width:36px;height:36px;border:0;border-radius:10px;" />
+                    </td>
+                    <td style="vertical-align:middle;font-size:18px;font-weight:700;letter-spacing:-0.3px;color:#2e5c45;">Co-Split</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:8px 32px 32px;">
+                <p style="margin:0 0 8px;font-size:14px;line-height:20px;color:#64748b;">A new expense was added to</p>
+                <h1 style="margin:0 0 24px;font-size:25px;line-height:32px;letter-spacing:-0.5px;color:#1e293b;">${safeWorkspaceName}</h1>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f5f8f6;border:1px solid #e5ece7;border-radius:12px;">
+                  <tr>
+                    <td style="padding:20px 22px;">
+                      <p style="margin:0 0 8px;font-size:12px;line-height:18px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#64748b;">Expense</p>
+                      <p style="margin:0 0 12px;font-size:17px;line-height:24px;font-weight:600;color:#1e293b;">${safeDescription}</p>
+                      <p style="margin:0;font-size:27px;line-height:34px;font-weight:700;color:#2e5c45;">${formattedAmount}</p>
+                    </td>
+                  </tr>
+                </table>
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:26px;">
+                  <tr>
+                    <td align="center" style="background-color:#2e5c45;border-radius:9px;">
+                      <a href="${safeWorkspaceUrl}" style="display:inline-block;padding:13px 21px;font-size:15px;line-height:20px;font-weight:700;color:#ffffff;text-decoration:none;">Open workspace</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:28px 0 0;font-size:13px;line-height:20px;color:#64748b;">Shared expenses, made simple.</p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:18px 0 0;font-size:12px;line-height:18px;color:#94a3b8;">You received this email because you’re a member of ${safeWorkspaceName} on Co-Split.</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`,
   };
 };
 
@@ -160,6 +216,7 @@ const sendExpenseEmail = async (config, job) => {
     amount: expense.amount,
     currency: workspace.currency,
     workspaceUrl,
+    logoUrl: new URL('/icons/co-split-icon.png', config.appUrl).toString(),
   });
 
   const response = await fetch('https://api.resend.com/emails', {
