@@ -12,5 +12,11 @@
             "source": "/(.*)",
             "destination": "/index.html"
         }
+    ],
+    "crons": [
+        {
+            "path": "/api/dispatch-expense-emails",
+            "schedule": "*/5 * * * *"
+        }
     ]
 }
