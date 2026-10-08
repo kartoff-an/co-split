@@ -22,6 +22,15 @@ jobs:
             exit 1
           fi
 
-          curl --fail-with-body --silent --show-error --max-time 60 \
+          response_file="${RUNNER_TEMP}/expense-email-worker-response"
+          trap 'rm -f "$response_file"' EXIT
+          http_status=$(curl --silent --show-error --max-time 60 \
+            --output "$response_file" \
+            --write-out '%{http_code}' \
             --header "Authorization: Bearer ${CRON_SECRET}" \
-            "${APP_URL%/}/api/dispatch-expense-emails"
+            "${APP_URL%/}/api/dispatch-expense-emails")
+          cat "$response_file"
+          if [[ "$http_status" != "200" ]]; then
+            echo "::error::Expense email worker returned HTTP ${http_status}."
+            exit 1
+          fi
