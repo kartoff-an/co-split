@@ -26,14 +26,9 @@ export const Dashboard: React.FC = () => {
   const [workspaceName, setWorkspaceName] = useState('');
   const [workspaceIdToJoin, setWorkspaceIdToJoin] = useState('');
 
-  const {
-    workspaces,
-    loadingWorkspaces,
-    actionLoading,
-    message,
-    createWorkspace,
-    joinWorkspace,
-  } = useDashboard(user?.id);
+  const { workspaces, loadingWorkspaces, actionLoading, message, createWorkspace, joinWorkspace } = useDashboard(
+    user?.id
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -41,9 +36,7 @@ export const Dashboard: React.FC = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const handleCreateWorkspace = async (
-    event: React.SubmitEvent<HTMLFormElement>
-  ) => {
+  const handleCreateWorkspace = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newId = await createWorkspace(workspaceName);
     if (newId) {
@@ -52,9 +45,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const handleJoinWorkspace = async (
-    event: React.SubmitEvent<HTMLFormElement>
-  ) => {
+  const handleJoinWorkspace = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const sharedId = await joinWorkspace(workspaceIdToJoin);
     if (sharedId) {
@@ -77,9 +68,7 @@ export const Dashboard: React.FC = () => {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <CoSplitIcon />
-            <span className="text-text-primary text-base font-extrabold tracking-tight">
-              Co-Split
-            </span>
+            <span className="text-text-primary text-base font-extrabold tracking-tight">Co-Split</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -96,12 +85,8 @@ export const Dashboard: React.FC = () => {
                 </div>
               )}
               <div className="flex flex-col text-left">
-                <span className="text-text-muted text-[9px] leading-none font-bold">
-                  Signed in as
-                </span>
-                <span className="text-text-primary mt-0.5 text-xs font-bold">
-                  {profile.display_name}
-                </span>
+                <span className="text-text-muted text-[9px] leading-none font-bold">Signed in as</span>
+                <span className="text-text-primary mt-0.5 text-xs font-bold">{profile.display_name}</span>
               </div>
             </div>
             <ThemeToggle />
@@ -124,9 +109,7 @@ export const Dashboard: React.FC = () => {
             Welcome back, {profile.display_name.split(' ')[0]}
             <span className="text-primary-green">.</span>
           </h1>
-          <p className="text-text-muted mt-1 text-xs">
-            Manage and split your group expenses across workspaces.
-          </p>
+          <p className="text-text-muted mt-1 text-xs">Manage and split your group expenses across workspaces.</p>
         </div>
 
         {message && (
@@ -180,24 +163,17 @@ export const Dashboard: React.FC = () => {
                       {activeTab === 'create' ? (
                         <div>
                           <div className="mb-3.5">
-                            <h2 className="text-text-primary text-sm font-bold tracking-tight">
-                              Start a new ledger
-                            </h2>
+                            <h2 className="text-text-primary text-sm font-bold tracking-tight">Start a new ledger</h2>
                             <p className="text-text-muted mt-0.5 text-[10px] leading-snug">
                               Create a real-time split ledger for your group.
                             </p>
                           </div>
 
-                          <form
-                            onSubmit={handleCreateWorkspace}
-                            className="space-y-2.5"
-                          >
+                          <form onSubmit={handleCreateWorkspace} className="space-y-2.5">
                             <InputField
                               placeholder="Ledger title (e.g. Summer Trip)"
                               value={workspaceName}
-                              onChange={(event) =>
-                                setWorkspaceName(event.target.value)
-                              }
+                              onChange={(event) => setWorkspaceName(event.target.value)}
                               disabled={actionLoading}
                               required
                             />
@@ -208,33 +184,24 @@ export const Dashboard: React.FC = () => {
                               disabled={!workspaceName.trim()}
                             >
                               <PlusIcon className="h-4 w-4" />
-                              {actionLoading
-                                ? 'Launching...'
-                                : 'Start a new ledger'}
+                              {actionLoading ? 'Launching...' : 'Start a new ledger'}
                             </Button>
                           </form>
                         </div>
                       ) : (
                         <div>
                           <div className="mb-3.5">
-                            <h2 className="text-text-primary text-sm font-bold tracking-tight">
-                              Join a ledger
-                            </h2>
+                            <h2 className="text-text-primary text-sm font-bold tracking-tight">Join a ledger</h2>
                             <p className="text-text-muted mt-0.5 text-[10px] leading-snug">
                               Collaborate using a shared invite link.
                             </p>
                           </div>
 
-                          <form
-                            onSubmit={handleJoinWorkspace}
-                            className="space-y-2.5"
-                          >
+                          <form onSubmit={handleJoinWorkspace} className="space-y-2.5">
                             <InputField
                               placeholder="Paste invite link or code..."
                               value={workspaceIdToJoin}
-                              onChange={(event) =>
-                                setWorkspaceIdToJoin(event.target.value)
-                              }
+                              onChange={(event) => setWorkspaceIdToJoin(event.target.value)}
                               disabled={actionLoading}
                               required
                             />
@@ -260,12 +227,8 @@ export const Dashboard: React.FC = () => {
           <div className="min-w-0 flex-1">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h2 className="text-text-primary text-base font-extrabold tracking-tight">
-                  Your workspaces
-                </h2>
-                <p className="text-text-muted mt-0.5 text-[10px]">
-                  Click any workspace to open its ledger
-                </p>
+                <h2 className="text-text-primary text-base font-extrabold tracking-tight">Your workspaces</h2>
+                <p className="text-text-muted mt-0.5 text-[10px]">Click any workspace to open its ledger</p>
               </div>
               <span className="border-border-subtle text-text-secondary rounded-lg border px-2.5 py-1 text-[10px] font-bold">
                 {workspaces.length} sheet{workspaces.length === 1 ? '' : 's'}
@@ -275,9 +238,7 @@ export const Dashboard: React.FC = () => {
             {loadingWorkspaces ? (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
                 <Spinner className="text-primary-green h-8 w-8 opacity-60" />
-                <p className="text-text-muted animate-pulse text-xs font-semibold">
-                  Syncing ledger database...
-                </p>
+                <p className="text-text-muted animate-pulse text-xs font-semibold">Syncing ledger database...</p>
               </div>
             ) : workspaces.length === 0 ? (
               <div className="glass-card flex flex-col items-center gap-4 rounded-2xl p-12 text-center shadow-xs">
@@ -285,12 +246,9 @@ export const Dashboard: React.FC = () => {
                   <InboxIcon className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-text-primary text-xs font-bold">
-                    No active workspaces
-                  </p>
+                  <p className="text-text-primary text-xs font-bold">No active workspaces</p>
                   <p className="text-text-muted mt-1 max-w-xs text-[10px]">
-                    Start a new ledger or paste a shared ID key on the left to
-                    begin splitting expenses.
+                    Start a new ledger or paste a shared ID key on the left to begin splitting expenses.
                   </p>
                 </div>
               </div>
@@ -328,17 +286,12 @@ export const Dashboard: React.FC = () => {
                           <div className="px-3 py-2">
                             <p className="text-text-muted text-[9px]">Total</p>
                             <p className="text-text-primary mt-0.5 text-xs">
-                              {formatCurrency(
-                                workspace.total_expenses,
-                                workspace.currency
-                              )}
+                              {formatCurrency(workspace.total_expenses, workspace.currency)}
                             </p>
                           </div>
 
                           <div className="bg-surface-subtle px-3 py-2">
-                            <p className="text-text-muted text-[9px]">
-                              Your balance
-                            </p>
+                            <p className="text-text-muted text-[9px]">Your balance</p>
                             <div className="mt-0.5 flex items-center gap-1">
                               {!isSettled &&
                                 (isPositive ? (
@@ -368,28 +321,20 @@ export const Dashboard: React.FC = () => {
                         <div className="flex items-center gap-1">
                           <UsersIcon className="h-3 w-3" />
                           <span>
-                            <strong className="text-text-secondary">
-                              {workspace.member_count}
-                            </strong>{' '}
-                            member{workspace.member_count === 1 ? '' : 's'}
+                            <strong className="text-text-secondary">{workspace.member_count}</strong> member
+                            {workspace.member_count === 1 ? '' : 's'}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-text-muted">
-                            By{' '}
-                            <strong className="text-text-secondary">
-                              {workspace.owner_name}
-                            </strong>
+                            By <strong className="text-text-secondary">{workspace.owner_name}</strong>
                           </span>
                           <span className="text-border-strong">·</span>
                           <span>
-                            {new Date(workspace.created_at).toLocaleDateString(
-                              undefined,
-                              {
-                                month: 'short',
-                                day: 'numeric',
-                              }
-                            )}
+                            {new Date(workspace.created_at).toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
                           </span>
                         </div>
                       </div>

@@ -1,11 +1,6 @@
 import React, { useMemo } from 'react';
 import type { Balance, Settlement, Member } from '../../types';
-import {
-  ChartBarIcon,
-  CheckCircleIcon,
-  CheckIcon,
-  ArrowRightIcon,
-} from '@heroicons/react/24/outline';
+import { ChartBarIcon, CheckCircleIcon, CheckIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { formatCurrency } from '../../lib/currency';
 
 interface BalanceSummaryProps {
@@ -56,9 +51,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
           <div className="[data-theme='dark']_&:text-emerald-400 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
             <ChartBarIcon className="h-4 w-4" />
           </div>
-          <h3 className="text-text-primary text-sm font-bold tracking-tight">
-            Balances
-          </h3>
+          <h3 className="text-text-primary text-sm font-bold tracking-tight">Balances</h3>
         </div>
 
         {/* 3-Column Metrics Segment Bar (Total spent, Avg / Head, Settles) */}
@@ -80,9 +73,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
 
             <div className="flex flex-col justify-between p-2.5">
               <span className="text-text-muted text-[9px]">Settles</span>
-              <p className="text-text-primary mt-1 text-xs md:text-sm">
-                {settlements.length}
-              </p>
+              <p className="text-text-primary mt-1 text-xs md:text-sm">{settlements.length}</p>
             </div>
           </div>
         </div>
@@ -93,10 +84,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             const isPositive = balance.net_balance > 0;
             const isNegative = balance.net_balance < 0;
             const absoluteBalance = Math.abs(balance.net_balance);
-            const barWidth = Math.min(
-              (absoluteBalance / maxAbsBalance) * 100,
-              100
-            );
+            const barWidth = Math.min((absoluteBalance / maxAbsBalance) * 100, 100);
             const isCurrentUser = balance.member_id === activeUserId;
 
             return (
@@ -104,19 +92,12 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
                 <div className="flex items-center justify-between text-xs">
                   <span
                     className={`text-text-secondary flex items-center gap-1.5 ${
-                      isCurrentUser
-                        ? '[data-theme="dark"]_&:text-emerald-400 text-emerald-600'
-                        : ''
+                      isCurrentUser ? '[data-theme="dark"]_&:text-emerald-400 text-emerald-600' : ''
                     }`}
                   >
-                    {members.find((member) => member.id === balance.member_id)
-                      ?.avatar_url ? (
+                    {members.find((member) => member.id === balance.member_id)?.avatar_url ? (
                       <img
-                        src={
-                          members.find(
-                            (member) => member.id === balance.member_id
-                          )?.avatar_url || ''
-                        }
+                        src={members.find((member) => member.id === balance.member_id)?.avatar_url || ''}
                         alt=""
                         className="border-border-subtle h-3.5 w-3.5 shrink-0 rounded-full border"
                       />
@@ -173,9 +154,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
             <div className="[data-theme='dark']_&:text-teal-400 flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/15 text-teal-600">
               <CheckCircleIcon className="h-4 w-4" />
             </div>
-            <h3 className="text-text-primary text-sm font-bold tracking-tight">
-              Settlement Plan
-            </h3>
+            <h3 className="text-text-primary text-sm font-bold tracking-tight">Settlement Plan</h3>
           </div>
 
           {onSettleUp && hasUserSettlements && (
@@ -194,9 +173,7 @@ export const BalanceSummary: React.FC<BalanceSummaryProps> = ({
               <CheckIcon className="h-4 w-4" />
             </div>
             <p className="text-text-primary text-xs">All settled up!</p>
-            <p className="text-text-muted mt-0.5 text-[10px]">
-              No transactions or all balances are balanced.
-            </p>
+            <p className="text-text-muted mt-0.5 text-[10px]">No transactions or all balances are balanced.</p>
           </div>
         ) : (
           <div className="space-y-2">

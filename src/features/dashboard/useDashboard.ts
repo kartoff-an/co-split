@@ -13,10 +13,7 @@ export const useDashboard = (userId: string | undefined) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<DashboardMessage | null>(null);
 
-  const {
-    data: workspaces = [] as WorkspaceItem[],
-    isLoading: loadingWorkspaces,
-  } = useQuery({
+  const { data: workspaces = [] as WorkspaceItem[], isLoading: loadingWorkspaces } = useQuery({
     queryKey: ['workspaces', userId],
     queryFn: () => workspaceService.getUserWorkspaces(userId!),
     enabled: !!userId,
@@ -28,10 +25,7 @@ export const useDashboard = (userId: string | undefined) => {
     setActionLoading(true);
     setMessage(null);
     try {
-      const workspaceId = await workspaceService.createWorkspaceWithMember(
-        name.trim(),
-        userId
-      );
+      const workspaceId = await workspaceService.createWorkspaceWithMember(name.trim(), userId);
       queryClient.invalidateQueries({ queryKey: ['workspaces', userId] });
       return workspaceId;
     } catch (err) {

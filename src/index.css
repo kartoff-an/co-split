@@ -2,6 +2,10 @@
 @import 'tailwindcss';
 @import './tokens.css';
 
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
+
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -94,6 +98,11 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
 .bg-mesh-light,
 .bg-mesh {
   background-color: var(--bg-app);
@@ -159,4 +168,54 @@ h6 {
 .cream-card {
   background: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transition:
+    opacity 650ms ease,
+    transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal--up {
+  transform: translateY(24px);
+}
+
+.scroll-reveal--left {
+  transform: translateX(-24px);
+}
+
+.scroll-reveal--right {
+  transform: translateX(24px);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal--up,
+  .scroll-reveal--left,
+  .scroll-reveal--right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

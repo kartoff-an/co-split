@@ -4,10 +4,7 @@ import { useAuth } from '../auth/useAuth';
 import * as workspaceService from './workspaceService';
 import { Spinner } from '../../components/Spinner';
 import { CoSplitIcon } from '../../components/CoSplitIcon';
-import {
-  ExclamationTriangleIcon,
-  UserGroupIcon,
-} from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
 import { GoogleLogin } from '../auth/GoogleLogin';
 import { ThemeToggle } from '../../components/ThemeToggle';
@@ -21,19 +18,13 @@ export const JoinPage: React.FC = () => {
     inviteCode: string;
     ledgerName: string | null;
   } | null>(null);
-  const ledgerName =
-    invitePreview?.inviteCode === inviteCode
-      ? invitePreview?.ledgerName
-      : null;
+  const ledgerName = invitePreview?.inviteCode === inviteCode ? invitePreview?.ledgerName : null;
   const [joinError, setJoinError] = useState<{
     inviteCode: string;
     message: string;
   } | null>(null);
 
-  const origin =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : 'https://cosplit.site/';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
   useDocumentMetadata({
     title: 'Join Expense Ledger - Co-Split',
     description:
@@ -75,8 +66,7 @@ export const JoinPage: React.FC = () => {
     let active = true;
     const performJoin = async () => {
       try {
-        const workspaceId =
-          await workspaceService.joinWorkspaceWithCode(inviteCode);
+        const workspaceId = await workspaceService.joinWorkspaceWithCode(inviteCode);
         if (active) {
           navigate(`/workspace/${workspaceId}`, { replace: true });
         }
@@ -112,9 +102,7 @@ export const JoinPage: React.FC = () => {
         <div className="flex flex-col items-center gap-4 text-center select-none">
           <CoSplitIcon className="animate-pulse" />
           <Spinner className="text-primary-green h-12 w-12" />
-          <p className="text-text-muted text-sm font-semibold">
-            Joining ledger sheet...
-          </p>
+          <p className="text-text-muted text-sm font-semibold">Joining ledger sheet...</p>
         </div>
       </div>
     );
@@ -126,9 +114,7 @@ export const JoinPage: React.FC = () => {
         <div className="flex flex-col items-center gap-4 text-center select-none">
           <CoSplitIcon className="animate-pulse" />
           <Spinner className="text-primary-green h-12 w-12" />
-          <p className="text-text-muted text-sm font-semibold">
-            Joining ledger sheet...
-          </p>
+          <p className="text-text-muted text-sm font-semibold">Joining ledger sheet...</p>
         </div>
       </div>
     );
@@ -156,10 +142,8 @@ export const JoinPage: React.FC = () => {
               {ledgerName ? `Join ${ledgerName}` : 'Join your group on Co-Split'}
             </h1>
             <p className="text-text-secondary mx-auto mt-3 max-w-sm text-sm leading-relaxed">
-              You are invited to join{' '}
-              {ledgerName ? <strong>{ledgerName}</strong> : 'a shared expense ledger'}
-              . Sign in to accept the invite and start sharing expenses. After
-              you sign in, we'll return you to this invite.
+              You are invited to join {ledgerName ? <strong>{ledgerName}</strong> : 'a shared expense ledger'}. Sign in
+              to accept the invite and start sharing expenses. After you sign in, we'll return you to this invite.
             </p>
             <div className="border-border-subtle mt-6 border-t pt-6">
               <GoogleLogin />
@@ -183,12 +167,8 @@ export const JoinPage: React.FC = () => {
         <div className="[data-theme='dark']_&:text-rose-400 mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
           <ExclamationTriangleIcon className="h-7 w-7" />
         </div>
-        <h2 className="text-text-primary text-lg font-bold">
-          Cannot Join Ledger
-        </h2>
-        <p className="text-text-muted mt-2 text-xs leading-relaxed font-medium">
-          {currentJoinError}
-        </p>
+        <h2 className="text-text-primary text-lg font-bold">Cannot Join Ledger</h2>
+        <p className="text-text-muted mt-2 text-xs leading-relaxed font-medium">{currentJoinError}</p>
         <button
           onClick={() => navigate('/dashboard')}
           className="bg-primary-green hover:bg-primary-green-hover border-primary-green/10 mt-6 cursor-pointer rounded-xl border px-5 py-2.5 text-xs font-bold text-white transition-all hover:shadow-xs active:scale-[0.98]"

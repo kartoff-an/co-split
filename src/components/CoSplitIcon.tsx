@@ -4,16 +4,9 @@ interface CoSplitIconProps {
   className?: string;
 }
 
-export const CoSplitIcon: React.FC<CoSplitIconProps> = ({
-  className = 'h-8 w-8 shrink-0',
-}) => {
+export const CoSplitIcon: React.FC<CoSplitIconProps> = ({ className = 'h-8 w-8 shrink-0' }) => {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg className={className} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Background Square with rounded corners (rounded-xl roughly equals rx="10") */}
       <rect width="32" height="32" rx="10" fill="#2e5c45" />
 

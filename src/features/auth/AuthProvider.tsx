@@ -6,9 +6,7 @@ import type { UserProfile } from '../../types';
 import * as authService from './authService';
 import { AuthContext } from './AuthContext';
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -24,14 +22,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setAuthInitLoading(false);
     });
 
-    const subscription = authService.onAuthStateChange(
-      (_event, currentSession) => {
-        if (!mounted) return;
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        setAuthInitLoading(false);
-      }
-    );
+    const subscription = authService.onAuthStateChange((_event, currentSession) => {
+      if (!mounted) return;
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setAuthInitLoading(false);
+    });
 
     return () => {
       mounted = false;
@@ -53,10 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Fallback to metadata if DB row not available
       return {
         id: user.id,
-        display_name:
-          user.user_metadata?.full_name ||
-          user.user_metadata?.name ||
-          'New User',
+        display_name: user.user_metadata?.full_name || user.user_metadata?.name || 'New User',
         avatar_url: user.user_metadata?.avatar_url || null,
         email: user.email || '',
         created_at: user.created_at,
@@ -76,9 +69,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loading = authInitLoading || (!!user && profileLoading && !profile);
 
-  return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>{children}</AuthContext.Provider>;
 };

@@ -10,12 +10,7 @@ import { BalanceSummary } from '../expenses/BalanceSummary';
 import { SettleUpModal } from '../expenses/SettleUpModal';
 import type { Expense } from '../../types';
 import { InviteModal } from './InviteModal';
-import {
-  ExclamationTriangleIcon,
-  ArrowLeftIcon,
-  UserPlusIcon,
-  Cog6ToothIcon,
-} from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon, ArrowLeftIcon, UserPlusIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { Spinner } from '../../components/Spinner';
 import { Footer } from '../../components/Footer';
 import { ThemeToggle } from '../../components/ThemeToggle';
@@ -70,14 +65,9 @@ export const WorkspacePage: React.FC = () => {
     refetch,
   } = useWorkspace(workspaceId || '');
 
-  const origin =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : 'https://cosplit.site/';
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site/';
   useDocumentMetadata({
-    title: workspace
-      ? `${workspace.name} - Co-Split Ledger`
-      : 'Workspace - Co-Split',
+    title: workspace ? `${workspace.name} - Co-Split Ledger` : 'Workspace - Co-Split',
     description: workspace
       ? `Shared expense ledger for ${workspace.name}. Add expenses, track balances, and settle up bills instantly.`
       : 'Collaborative shared expense ledger sheet on Co-Split.',
@@ -94,15 +84,9 @@ export const WorkspacePage: React.FC = () => {
     return false;
   };
 
-  const handleConfirmSettlement = async (
-    paidBy: string,
-    paidTo: string,
-    amount: number
-  ) => {
-    const payerName =
-      members.find((member) => member.id === paidBy)?.display_name || 'Member';
-    const payeeName =
-      members.find((member) => member.id === paidTo)?.display_name || 'Member';
+  const handleConfirmSettlement = async (paidBy: string, paidTo: string, amount: number) => {
+    const payerName = members.find((member) => member.id === paidBy)?.display_name || 'Member';
+    const payeeName = members.find((member) => member.id === paidTo)?.display_name || 'Member';
 
     await addExpense({
       description: `Payment: ${payerName} paid ${payeeName}`,
@@ -116,26 +100,17 @@ export const WorkspacePage: React.FC = () => {
 
   const isOwner = !!(user && workspace && workspace.owner_id === user.id);
 
-  const { balances, settlements, totalWorkspaceCost, averageCostPerPerson } =
-    useBalance(workspaceId || '', expenses.length);
+  const { balances, settlements, totalWorkspaceCost, averageCostPerPerson } = useBalance(
+    workspaceId || '',
+    expenses.length
+  );
 
-  const isMember =
-    user && members.length > 0
-      ? members.some((member) => member.id === user.id)
-      : false;
+  const isMember = user && members.length > 0 ? members.some((member) => member.id === user.id) : false;
 
   // Secure auto-join invite logic: if the user is logged in, visits a workspace url,
   // is not yet a member, and has provided a 'code' query parameter, execute the join RPC.
   useEffect(() => {
-    if (
-      !user ||
-      authLoading ||
-      !workspaceId ||
-      !inviteCode ||
-      joined ||
-      joining
-    )
-      return;
+    if (!user || authLoading || !workspaceId || !inviteCode || joined || joining) return;
     if (isMember) return;
 
     const performJoin = async () => {
@@ -147,9 +122,7 @@ export const WorkspacePage: React.FC = () => {
         refetch();
       } catch (err) {
         console.error('Failed to join workspace with code:', err);
-        setJoinError(
-          err instanceof Error ? err.message : 'Invalid or expired invite link.'
-        );
+        setJoinError(err instanceof Error ? err.message : 'Invalid or expired invite link.');
       } finally {
         setJoining(false);
       }
@@ -158,21 +131,9 @@ export const WorkspacePage: React.FC = () => {
     if (!workspaceLoading) {
       performJoin();
     }
-  }, [
-    user,
-    authLoading,
-    workspaceId,
-    inviteCode,
-    isMember,
-    workspaceLoading,
-    joined,
-    joining,
-    refetch,
-  ]);
+  }, [user, authLoading, workspaceId, inviteCode, isMember, workspaceLoading, joined, joining, refetch]);
 
-  const handleAddExpense = async (
-    expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>
-  ) => {
+  const handleAddExpense = async (expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>) => {
     try {
       await addExpense(expense);
     } catch (err) {
@@ -196,9 +157,7 @@ export const WorkspacePage: React.FC = () => {
             <ExclamationTriangleIcon className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="text-text-primary text-lg font-bold">
-              Connection Interrupted
-            </h3>
+            <h3 className="text-text-primary text-lg font-bold">Connection Interrupted</h3>
             <p className="text-text-muted mt-1 text-sm">{error}</p>
           </div>
           <button
@@ -259,11 +218,7 @@ export const WorkspacePage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              isLoading={joining}
-              onClick={() => setIsInviteOpen(true)}
-            >
+            <Button type="button" isLoading={joining} onClick={() => setIsInviteOpen(true)}>
               <UserPlusIcon className="h-4 w-4" />
               <span>Invite</span>
             </Button>
@@ -293,12 +248,8 @@ export const WorkspacePage: React.FC = () => {
                 </div>
               )}
               <div className="hidden flex-col text-left md:flex">
-                <span className="text-text-muted text-[9px] leading-none font-bold">
-                  Signed in as
-                </span>
-                <span className="text-text-primary mt-0.5 text-xs font-bold">
-                  {profile?.display_name}
-                </span>
+                <span className="text-text-muted text-[9px] leading-none font-bold">Signed in as</span>
+                <span className="text-text-primary mt-0.5 text-xs font-bold">{profile?.display_name}</span>
               </div>
               <button
                 onClick={signOut}

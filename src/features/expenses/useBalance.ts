@@ -3,10 +3,7 @@ import type { Balance, Settlement } from '../../types';
 import { supabase } from '../../lib/supabase';
 
 interface SupabaseRpc {
-  rpc(
-    fn: string,
-    args: Record<string, unknown>
-  ): Promise<{ data: unknown; error: unknown }>;
+  rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: unknown }>;
 }
 
 interface DBCalculationResult {
@@ -22,12 +19,9 @@ export const useBalance = (workspaceId: string, expensesTrigger?: unknown) => {
     enabled: !!workspaceId,
     queryFn: async () => {
       const client = supabase as unknown as SupabaseRpc;
-      const { data, error: rpcError } = await client.rpc(
-        'calculate_workspace_balances',
-        {
-          w_id: workspaceId,
-        }
-      );
+      const { data, error: rpcError } = await client.rpc('calculate_workspace_balances', {
+        w_id: workspaceId,
+      });
       if (rpcError) throw rpcError;
 
       const result = (data ?? {

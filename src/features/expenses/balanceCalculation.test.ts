@@ -14,10 +14,7 @@ interface MockExpense {
 }
 
 // Simulates PostgreSQL calculate_workspace_balances
-function calculateLedgerBalances(
-  members: MockMember[],
-  expenses: MockExpense[]
-) {
+function calculateLedgerBalances(members: MockMember[], expenses: MockExpense[]) {
   const memberCount = members.length;
   let totalCost = 0;
   const balancesMap: Record<string, number> = {};
@@ -32,10 +29,7 @@ function calculateLedgerBalances(
       totalCost += e.amount;
     }
 
-    const splitCount =
-      e.split_members && e.split_members.length > 0
-        ? e.split_members.length
-        : memberCount;
+    const splitCount = e.split_members && e.split_members.length > 0 ? e.split_members.length : memberCount;
 
     const amountPerPerson = e.amount / splitCount;
 
@@ -67,17 +61,12 @@ function calculateLedgerBalances(
   return {
     balances,
     total_workspace_cost: Number(totalCost.toFixed(2)),
-    average_cost_per_person:
-      memberCount > 0 ? Number((totalCost / memberCount).toFixed(2)) : 0,
+    average_cost_per_person: memberCount > 0 ? Number((totalCost / memberCount).toFixed(2)) : 0,
   };
 }
 
 // Simulates PostgreSQL get_user_workspaces for a single user
-function calculateDashboardWorkspaceSummary(
-  userId: string,
-  members: MockMember[],
-  expenses: MockExpense[]
-) {
+function calculateDashboardWorkspaceSummary(userId: string, members: MockMember[], expenses: MockExpense[]) {
   const memberCount = members.length;
 
   const totalCost = expenses
@@ -86,10 +75,7 @@ function calculateDashboardWorkspaceSummary(
 
   let userNetBal = 0;
   for (const e of expenses) {
-    const splitCount =
-      e.split_members && e.split_members.length > 0
-        ? e.split_members.length
-        : memberCount;
+    const splitCount = e.split_members && e.split_members.length > 0 ? e.split_members.length : memberCount;
 
     const credit = e.paid_by === userId ? e.amount : 0;
     let debit = 0;
@@ -133,30 +119,16 @@ describe('Balance calculation parity between Ledger and Dashboard', () => {
     const ledger = calculateLedgerBalances(members, expenses);
     const aliceLedger = ledger.balances.find((b) => b.member_id === alice.id)!;
     const bobLedger = ledger.balances.find((b) => b.member_id === bob.id)!;
-    const charlieLedger = ledger.balances.find(
-      (b) => b.member_id === charlie.id
-    )!;
+    const charlieLedger = ledger.balances.find((b) => b.member_id === charlie.id)!;
 
     expect(aliceLedger.net_balance).toBe(60); // Paid 90 - Share 30 = +60
     expect(bobLedger.net_balance).toBe(-30);
     expect(charlieLedger.net_balance).toBe(-30);
     expect(ledger.total_workspace_cost).toBe(90);
 
-    const aliceDash = calculateDashboardWorkspaceSummary(
-      alice.id,
-      members,
-      expenses
-    );
-    const bobDash = calculateDashboardWorkspaceSummary(
-      bob.id,
-      members,
-      expenses
-    );
-    const charlieDash = calculateDashboardWorkspaceSummary(
-      charlie.id,
-      members,
-      expenses
-    );
+    const aliceDash = calculateDashboardWorkspaceSummary(alice.id, members, expenses);
+    const bobDash = calculateDashboardWorkspaceSummary(bob.id, members, expenses);
+    const charlieDash = calculateDashboardWorkspaceSummary(charlie.id, members, expenses);
 
     expect(aliceDash.user_net_balance).toBe(aliceLedger.net_balance);
     expect(bobDash.user_net_balance).toBe(bobLedger.net_balance);
@@ -187,9 +159,7 @@ describe('Balance calculation parity between Ledger and Dashboard', () => {
     const ledger = calculateLedgerBalances(members, expenses);
     const aliceLedger = ledger.balances.find((b) => b.member_id === alice.id)!;
     const bobLedger = ledger.balances.find((b) => b.member_id === bob.id)!;
-    const charlieLedger = ledger.balances.find(
-      (b) => b.member_id === charlie.id
-    )!;
+    const charlieLedger = ledger.balances.find((b) => b.member_id === charlie.id)!;
 
     // Alice: was +60, received 30 -> now +30 (Charlie still owes 30)
     expect(aliceLedger.net_balance).toBe(30);
@@ -200,21 +170,9 @@ describe('Balance calculation parity between Ledger and Dashboard', () => {
     // Total expense should remain 90, excluding the 30 payment
     expect(ledger.total_workspace_cost).toBe(90);
 
-    const aliceDash = calculateDashboardWorkspaceSummary(
-      alice.id,
-      members,
-      expenses
-    );
-    const bobDash = calculateDashboardWorkspaceSummary(
-      bob.id,
-      members,
-      expenses
-    );
-    const charlieDash = calculateDashboardWorkspaceSummary(
-      charlie.id,
-      members,
-      expenses
-    );
+    const aliceDash = calculateDashboardWorkspaceSummary(alice.id, members, expenses);
+    const bobDash = calculateDashboardWorkspaceSummary(bob.id, members, expenses);
+    const charlieDash = calculateDashboardWorkspaceSummary(charlie.id, members, expenses);
 
     expect(aliceDash.user_net_balance).toBe(30);
     expect(aliceDash.user_net_balance).toBe(aliceLedger.net_balance);
@@ -244,29 +202,15 @@ describe('Balance calculation parity between Ledger and Dashboard', () => {
     const ledger = calculateLedgerBalances(members, expenses);
     const aliceLedger = ledger.balances.find((b) => b.member_id === alice.id)!;
     const bobLedger = ledger.balances.find((b) => b.member_id === bob.id)!;
-    const charlieLedger = ledger.balances.find(
-      (b) => b.member_id === charlie.id
-    )!;
+    const charlieLedger = ledger.balances.find((b) => b.member_id === charlie.id)!;
 
     expect(aliceLedger.net_balance).toBe(100);
     expect(bobLedger.net_balance).toBe(-50);
     expect(charlieLedger.net_balance).toBe(-50);
 
-    const aliceDash = calculateDashboardWorkspaceSummary(
-      alice.id,
-      members,
-      expenses
-    );
-    const bobDash = calculateDashboardWorkspaceSummary(
-      bob.id,
-      members,
-      expenses
-    );
-    const charlieDash = calculateDashboardWorkspaceSummary(
-      charlie.id,
-      members,
-      expenses
-    );
+    const aliceDash = calculateDashboardWorkspaceSummary(alice.id, members, expenses);
+    const bobDash = calculateDashboardWorkspaceSummary(bob.id, members, expenses);
+    const charlieDash = calculateDashboardWorkspaceSummary(charlie.id, members, expenses);
 
     expect(aliceDash.user_net_balance).toBe(100);
     expect(aliceDash.user_net_balance).toBe(aliceLedger.net_balance);
@@ -302,16 +246,8 @@ describe('Balance calculation parity between Ledger and Dashboard', () => {
     expect(bobLedger.net_balance).toBe(0);
     expect(ledger.total_workspace_cost).toBe(60);
 
-    const aliceDash = calculateDashboardWorkspaceSummary(
-      alice.id,
-      [alice, bob],
-      expenses
-    );
-    const bobDash = calculateDashboardWorkspaceSummary(
-      bob.id,
-      [alice, bob],
-      expenses
-    );
+    const aliceDash = calculateDashboardWorkspaceSummary(alice.id, [alice, bob], expenses);
+    const bobDash = calculateDashboardWorkspaceSummary(bob.id, [alice, bob], expenses);
 
     expect(aliceDash.user_net_balance).toBe(0);
     expect(bobDash.user_net_balance).toBe(0);

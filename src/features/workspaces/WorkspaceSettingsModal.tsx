@@ -27,9 +27,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
   currentUserId,
 }) => {
   const [workspaceName, setWorkspaceName] = useState(workspace.name);
-  const [allowedMembers, setAllowedMembers] = useState(
-    workspace.allowed_members ?? 10
-  );
+  const [allowedMembers, setAllowedMembers] = useState(workspace.allowed_members ?? 10);
   const [currency, setCurrency] = useState(workspace.currency ?? 'PHP');
   const [saving, setSaving] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -55,9 +53,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
   const handleSave = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isLimitInvalid) {
-      setErrorMessage(
-        `Allowed members limit cannot be less than the current member count (${currentMemberCount}).`
-      );
+      setErrorMessage(`Allowed members limit cannot be less than the current member count (${currentMemberCount}).`);
       return;
     }
     if (!workspaceName.trim()) {
@@ -87,11 +83,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
   const handleRemoveMember = async (userId: string) => {
     if (userId === workspace.owner_id) return;
 
-    if (
-      !window.confirm(
-        'Are you sure you want to remove this member? This will delete them from the workspace.'
-      )
-    ) {
+    if (!window.confirm('Are you sure you want to remove this member? This will delete them from the workspace.')) {
       return;
     }
 
@@ -116,9 +108,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
     );
     if (!confirm1) return;
 
-    const workspaceNameInput = window.prompt(
-      `To confirm deletion, type the workspace name: "${workspace.name}"`
-    );
+    const workspaceNameInput = window.prompt(`To confirm deletion, type the workspace name: "${workspace.name}"`);
     if (workspaceNameInput !== workspace.name) {
       alert("Workspace name didn't match. Deletion cancelled.");
       return;
@@ -139,12 +129,8 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
       <div className="animate-scale-up border-border-subtle bg-surface text-text-primary relative w-full max-w-lg rounded-3xl border p-6 shadow-2xl md:p-8">
         <div className="border-border-subtle mb-6 flex items-center justify-between border-b pb-4">
           <div>
-            <h3 className="text-text-primary text-lg font-extrabold tracking-tight">
-              Workspace Settings
-            </h3>
-            <p className="text-text-muted text-[10px]">
-              Configure ledger controls and manage members
-            </p>
+            <h3 className="text-text-primary text-lg font-extrabold tracking-tight">Workspace Settings</h3>
+            <p className="text-text-muted text-[10px]">Configure ledger controls and manage members</p>
           </div>
           <button
             onClick={onClose}
@@ -169,14 +155,10 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
         <div className="md:divide-border-subtle grid grid-cols-1 gap-6 md:grid-cols-2 md:divide-x">
           {/* Form settings */}
           <form onSubmit={handleSave} className="space-y-4 md:pr-6">
-            <h4 className="text-text-muted text-xs font-bold">
-              Ledger Settings
-            </h4>
+            <h4 className="text-text-muted text-xs font-bold">Ledger Settings</h4>
 
             <div>
-              <label className="text-text-muted mb-1 block text-[10px]">
-                Workspace Name
-              </label>
+              <label className="text-text-muted mb-1 block text-[10px]">Workspace Name</label>
               <input
                 type="text"
                 value={workspaceName}
@@ -187,9 +169,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
             </div>
 
             <div>
-              <label className="text-text-muted mb-1 block text-[10px]">
-                Workspace Currency
-              </label>
+              <label className="text-text-muted mb-1 block text-[10px]">Workspace Currency</label>
               <select
                 value={currency}
                 onChange={(event) => setCurrency(event.target.value)}
@@ -205,17 +185,13 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
             </div>
 
             <div>
-              <label className="text-text-muted mb-1 block text-[10px]">
-                Max Allowed Members
-              </label>
+              <label className="text-text-muted mb-1 block text-[10px]">Max Allowed Members</label>
               <div className="space-y-1.5">
                 <input
                   type="number"
                   min={1}
                   value={allowedMembers}
-                  onChange={(event) =>
-                    setAllowedMembers(parseInt(event.target.value) || 1)
-                  }
+                  onChange={(event) => setAllowedMembers(parseInt(event.target.value) || 1)}
                   className={`focus:ring-primary-green/15 focus:border-primary-green focus:bg-surface w-full rounded-xl border px-3 py-2 text-xs outline-hidden transition-all focus:ring-2 ${
                     isLimitInvalid
                       ? 'border-rose-300 bg-rose-50/50 ring-rose-100'
@@ -225,8 +201,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
                 />
                 {isLimitInvalid && (
                   <p className="text-[9px] font-bold text-rose-500">
-                    Cannot be less than current member count (
-                    {currentMemberCount}).
+                    Cannot be less than current member count ({currentMemberCount}).
                   </p>
                 )}
               </div>
@@ -237,21 +212,14 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
               disabled={saving || isLimitInvalid}
               className="bg-primary-green hover:bg-primary-green-hover flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-all duration-200 disabled:pointer-events-none disabled:opacity-50"
             >
-              {saving ? (
-                <Spinner className="h-4 w-4 animate-spin text-white" />
-              ) : (
-                'Save Changes'
-              )}
+              {saving ? <Spinner className="h-4 w-4 animate-spin text-white" /> : 'Save Changes'}
             </button>
 
             {currentUserId === workspace.owner_id && (
               <div className="mt-6 border-t border-rose-500/20 pt-4">
-                <h5 className="[data-theme='dark']_&:text-rose-400 text-xs font-bold text-rose-600">
-                  Danger Zone
-                </h5>
+                <h5 className="[data-theme='dark']_&:text-rose-400 text-xs font-bold text-rose-600">Danger Zone</h5>
                 <p className="text-text-muted mt-1 text-[10px] leading-snug">
-                  Deleting this workspace will permanently erase all ledger
-                  data, expenses, and memberships.
+                  Deleting this workspace will permanently erase all ledger data, expenses, and memberships.
                 </p>
                 <button
                   type="button"
@@ -268,9 +236,7 @@ export const WorkspaceSettingsModal: React.FC<WorkspaceSettingsModalProps> = ({
           {/* Manage members list */}
           <div className="space-y-4 md:pl-6">
             <div className="flex items-center justify-between">
-              <h4 className="text-text-muted text-xs font-bold">
-                Manage Members
-              </h4>
+              <h4 className="text-text-muted text-xs font-bold">Manage Members</h4>
               <span className="bg-surface-subtle text-text-secondary rounded-md px-2 py-0.5 text-[9px]">
                 {currentMemberCount} / {allowedMembers}
               </span>

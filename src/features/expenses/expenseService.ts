@@ -1,8 +1,4 @@
-import {
-  addExpenseToWorkspace,
-  updateExpenseInWorkspace,
-  deleteExpenseFromWorkspace,
-} from './expenses';
+import { addExpenseToWorkspace, updateExpenseInWorkspace, deleteExpenseFromWorkspace } from './expenses';
 import type { Expense } from '../../types';
 
 export const addExpense = async (
@@ -19,8 +15,6 @@ export const updateExpense = async (
   return updateExpenseInWorkspace(expenseId, updates);
 };
 
-export const deleteExpense = async (
-  expenseId: number | string
-): Promise<void> => {
+export const deleteExpense = async (expenseId: number | string): Promise<void> => {
   return deleteExpenseFromWorkspace(expenseId);
 };

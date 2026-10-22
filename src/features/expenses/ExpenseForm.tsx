@@ -8,9 +8,7 @@ import { InputField } from '../../components/InputField';
 
 interface ExpenseFormProps {
   members: Member[];
-  onAddExpense: (
-    expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>
-  ) => Promise<void>;
+  onAddExpense: (expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>) => Promise<void>;
   activeUserId?: string | null;
   currency?: string;
   className?: string;
@@ -28,9 +26,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const [paidBy, setPaidBy] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isUnequalSplit, setIsUnequalSplit] = useState(false);
-  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(
-    []
-  );
+  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>([]);
   const [isBubbleOpen, setIsBubbleOpen] = useState(false);
 
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -53,10 +49,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        bubbleRef.current &&
-        !bubbleRef.current.contains(event.target as Node)
-      ) {
+      if (bubbleRef.current && !bubbleRef.current.contains(event.target as Node)) {
         setIsBubbleOpen(false);
       }
     };
@@ -71,13 +64,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     const parsedAmount = parseFloat(amount);
-    if (
-      !description.trim() ||
-      isNaN(parsedAmount) ||
-      parsedAmount <= 0 ||
-      !paidBy
-    )
-      return;
+    if (!description.trim() || isNaN(parsedAmount) || parsedAmount <= 0 || !paidBy) return;
 
     setIsLoading(true);
     try {
@@ -108,16 +95,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         <div className="[data-theme='dark']_&:text-emerald-400 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
           <PlusIcon className="h-4 w-4" />
         </div>
-        <h3 className="text-text-primary text-sm font-bold tracking-tight">
-          Add Expense
-        </h3>
+        <h3 className="text-text-primary text-sm font-bold tracking-tight">Add Expense</h3>
       </div>
 
       <div className="space-y-3.5">
         <div>
-          <label className="text-text-muted mb-1 block text-[10px]">
-            Description
-          </label>
+          <label className="text-text-muted mb-1 block text-[10px]">Description</label>
           <InputField
             placeholder="Enter description here..."
             value={description}
@@ -129,9 +112,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
         <div className="grid grid-cols-2 gap-3.5">
           <div>
-            <label className="text-text-muted mb-1 block text-[10px]">
-              Amount ({currency})
-            </label>
+            <label className="text-text-muted mb-1 block text-[10px]">Amount ({currency})</label>
             <div className="relative">
               <span className="text-text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs">
                 {symbol}
@@ -149,9 +130,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </div>
 
           <div>
-            <label className="text-text-muted mb-1 block text-[10px]">
-              Payer
-            </label>
+            <label className="text-text-muted mb-1 block text-[10px]">Payer</label>
             <select
               value={paidBy}
               onChange={(event) => setPaidBy(event.target.value)}
@@ -162,8 +141,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
               <option value="">Who paid?</option>
               {members.map((member) => (
                 <option key={member.id} value={member.id}>
-                  {member.display_name}{' '}
-                  {member.id === activeUserId ? '(You)' : ''}
+                  {member.display_name} {member.id === activeUserId ? '(You)' : ''}
                 </option>
               ))}
             </select>
@@ -184,19 +162,14 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             className="border-border-strong h-3.5 w-3.5 cursor-pointer rounded text-emerald-600 focus:ring-emerald-500"
             disabled={isLoading}
           />
-          <label
-            htmlFor="unequal-split"
-            className="text-text-muted cursor-pointer text-[10px] select-none"
-          >
+          <label htmlFor="unequal-split" className="text-text-muted cursor-pointer text-[10px] select-none">
             Split unequally
           </label>
         </div>
 
         {isUnequalSplit && (
           <div className="relative mt-2" ref={bubbleRef}>
-            <label className="text-text-muted mb-1 block text-[10px] font-bold">
-              Split Members
-            </label>
+            <label className="text-text-muted mb-1 block text-[10px] font-bold">Split Members</label>
             <button
               type="button"
               onClick={() => setIsBubbleOpen((previousState) => !previousState)}
@@ -208,16 +181,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                   ? 'All members'
                   : `${selectedSplitMembers.length} of ${members.length} selected`}
               </span>
-              <span className="text-text-muted text-[10px] font-bold">
-                Configure…
-              </span>
+              <span className="text-text-muted text-[10px] font-bold">Configure…</span>
             </button>
 
             {isBubbleOpen && (
               <div className="animate-scale-up border-border-subtle bg-surface absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border p-4 shadow-xl">
-                <h4 className="text-text-primary mb-2 text-xs font-extrabold">
-                  Include in Split:
-                </h4>
+                <h4 className="text-text-primary mb-2 text-xs font-extrabold">Include in Split:</h4>
                 <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
                   {members.map((member) => {
                     const isSelected = selectedSplitMembers.includes(member.id);
@@ -232,16 +201,11 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                           onChange={() => {
                             if (isSelected) {
                               if (selectedSplitMembers.length > 1) {
-                                setExcludedSplitMembers([
-                                  ...excludedSplitMembers,
-                                  member.id,
-                                ]);
+                                setExcludedSplitMembers([...excludedSplitMembers, member.id]);
                               }
                             } else {
                               setExcludedSplitMembers(
-                                excludedSplitMembers.filter(
-                                  (memberId) => memberId !== member.id
-                                )
+                                excludedSplitMembers.filter((memberId) => memberId !== member.id)
                               );
                             }
                           }}
@@ -270,9 +234,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           type="submit"
           isLoading={isLoading}
           className="w-full"
-          disabled={
-            members.length === 0 || !description.trim() || !amount || !paidBy
-          }
+          disabled={members.length === 0 || !description.trim() || !amount || !paidBy}
         >
           <PlusIcon className="h-4 w-4" />
           <span>Add Transaction</span>

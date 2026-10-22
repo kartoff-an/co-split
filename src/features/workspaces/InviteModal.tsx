@@ -1,10 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import {
-  XMarkIcon,
-  ClipboardDocumentIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline';
+import { XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { Spinner } from '../../components/Spinner';
 
 interface InviteModalProps {
@@ -38,10 +34,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
   if (!isOpen) return null;
 
   const inviteUrl = inviteCode
-    ? new URL(
-        `/join/${encodeURIComponent(inviteCode)}`,
-        window.location.origin
-      )
+    ? new URL(`/join/${encodeURIComponent(inviteCode)}`, window.location.origin)
     : new URL('/dashboard', window.location.origin);
   const inviteLink = inviteUrl.toString();
   const inviteMessage = `${inviterName || 'A group member'} invited you to join "${workspaceName || 'Sheet'}" on Co-Split.\nLink: ${inviteLink}`;
@@ -50,9 +43,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
       <div className="animate-scale-up border-border-subtle bg-surface text-text-primary relative w-full max-w-md rounded-2xl border p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-text-primary text-lg font-bold">
-            Invite Members
-          </h3>
+          <h3 className="text-text-primary text-lg font-bold">Invite Members</h3>
           <button
             onClick={onClose}
             className="text-text-muted hover:bg-surface-subtle hover:text-text-primary cursor-pointer rounded-lg p-1"
@@ -63,15 +54,13 @@ export const InviteModal: React.FC<InviteModalProps> = ({
 
         <div className="space-y-4">
           <div>
-            <label className="text-text-muted mb-1 block text-xs">
-              Workspace ID
-            </label>
+            <label className="text-text-muted mb-1 block text-xs">Workspace ID</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 readOnly
                 value={workspaceId}
-                className="border-border-subtle bg-surface-subtle text-text-primary w-full rounded-xl border px-3 py-2 text-xs outline-hiddeno"
+                className="border-border-subtle bg-surface-subtle text-text-primary outline-hiddeno w-full rounded-xl border px-3 py-2 text-xs"
               />
               <button
                 onClick={() => {
@@ -92,9 +81,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           </div>
 
           <div>
-            <label className="text-text-muted mb-1 block text-xs">
-              Invite Link
-            </label>
+            <label className="text-text-muted mb-1 block text-xs">Invite Link</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -121,9 +108,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           </div>
 
           <div>
-            <label className="text-text-muted mb-1 block text-xs">
-              Share Message
-            </label>
+            <label className="text-text-muted mb-1 block text-xs">Share Message</label>
             <div className="relative">
               <textarea
                 readOnly
@@ -152,20 +137,15 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           {isOwner && onRegenerateInvite && (
             <div className="border-border-subtle mt-6 space-y-2 border-t pt-4 text-left">
               <p className="text-text-muted text-[10px] leading-snug">
-                If your invite link is leaked, you can regenerate the secret
-                code. This will invalidate all previous invite links
-                immediately.
+                If your invite link is leaked, you can regenerate the secret code. This will invalidate all previous
+                invite links immediately.
               </p>
               {successMessage && (
                 <p className="[data-theme='dark']_&:text-emerald-400 text-[10px] font-semibold text-emerald-600">
                   {successMessage}
                 </p>
               )}
-              {errorMessage && (
-                <p className="text-[10px] font-semibold text-rose-500">
-                  {errorMessage}
-                </p>
-              )}
+              {errorMessage && <p className="text-[10px] font-semibold text-rose-500">{errorMessage}</p>}
               <button
                 type="button"
                 onClick={async () => {
@@ -180,9 +160,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
                     const newCode = await onRegenerateInvite();
                     setRegenerating(false);
                     if (newCode) {
-                      setSuccessMessage(
-                        'Invite link regenerated successfully!'
-                      );
+                      setSuccessMessage('Invite link regenerated successfully!');
                       setTimeout(() => setSuccessMessage(null), 3000);
                     } else {
                       setErrorMessage('Failed to regenerate invite link.');
@@ -192,11 +170,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
                 disabled={regenerating}
                 className="border-border-subtle bg-surface-subtle text-text-secondary hover:bg-surface flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all disabled:pointer-events-none disabled:opacity-50"
               >
-                {regenerating ? (
-                  <Spinner className="text-text-muted h-4 w-4 animate-spin" />
-                ) : (
-                  'Regenerate Invite Link'
-                )}
+                {regenerating ? <Spinner className="text-text-muted h-4 w-4 animate-spin" /> : 'Regenerate Invite Link'}
               </button>
             </div>
           )}

@@ -1,24 +1,11 @@
 import { supabase } from '../../lib/supabase';
-import {
-  fetchWorkspaceMembers,
-  addMemberToWorkspace,
-  removeMemberFromWorkspace,
-  fetchMemberCount,
-} from './members';
-import {
-  fetchWorkspace,
-  createWorkspace,
-  updateWorkspace,
-  deleteWorkspace as dbDeleteWorkspace,
-} from './workspaces';
+import { fetchWorkspaceMembers, addMemberToWorkspace, removeMemberFromWorkspace, fetchMemberCount } from './members';
+import { fetchWorkspace, createWorkspace, updateWorkspace, deleteWorkspace as dbDeleteWorkspace } from './workspaces';
 import { fetchUserProfile } from '../auth/profiles';
 import type { Workspace, Member, WorkspaceItem } from '../../types';
 
 interface SupabaseRpc {
-  rpc(
-    fn: string,
-    args: Record<string, unknown>
-  ): Promise<{ data: unknown; error: unknown }>;
+  rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: unknown }>;
 }
 
 interface DBWorkspaceItem {
@@ -44,9 +31,7 @@ interface DBMemberResult {
   } | null;
 }
 
-export const getUserWorkspaces = async (
-  userId: string
-): Promise<WorkspaceItem[]> => {
+export const getUserWorkspaces = async (userId: string): Promise<WorkspaceItem[]> => {
   const client = supabase as unknown as SupabaseRpc;
   const { data, error } = await client.rpc('get_user_workspaces', {
     u_id: userId,
@@ -69,18 +54,13 @@ export const getUserWorkspaces = async (
   }));
 };
 
-export const createWorkspaceWithMember = async (
-  name: string,
-  ownerId: string
-): Promise<string> => {
+export const createWorkspaceWithMember = async (name: string, ownerId: string): Promise<string> => {
   const workspace = await createWorkspace(name, ownerId);
   await addMemberToWorkspace(workspace.id, ownerId);
   return workspace.id;
 };
 
-export const joinWorkspaceWithCode = async (
-  inviteCode: string
-): Promise<string> => {
+export const joinWorkspaceWithCode = async (inviteCode: string): Promise<string> => {
   const client = supabase as unknown as SupabaseRpc;
   const { data, error } = await client.rpc('join_workspace_with_code', {
     invite_uuid: inviteCode,
@@ -90,9 +70,7 @@ export const joinWorkspaceWithCode = async (
   return data as string;
 };
 
-export const getWorkspaceInvitePreview = async (
-  inviteCode: string
-): Promise<string | null> => {
+export const getWorkspaceInvitePreview = async (inviteCode: string): Promise<string | null> => {
   const client = supabase as unknown as SupabaseRpc;
   const { data, error } = await client.rpc('get_workspace_invite_preview', {
     invite_uuid: inviteCode,
@@ -102,9 +80,7 @@ export const getWorkspaceInvitePreview = async (
   return typeof data === 'string' ? data : null;
 };
 
-export const regenerateInviteCode = async (
-  workspaceId: string
-): Promise<string> => {
+export const regenerateInviteCode = async (workspaceId: string): Promise<string> => {
   const client = supabase as unknown as SupabaseRpc;
   const { data, error } = await client.rpc('regenerate_workspace_invite_code', {
     w_id: workspaceId,
@@ -114,9 +90,7 @@ export const regenerateInviteCode = async (
   return data as string;
 };
 
-export const joinWorkspace = async (
-  pastedLinkOrId: string
-): Promise<string> => {
+export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => {
   const input = pastedLinkOrId.trim();
   let inviteCode: string | null = null;
 
@@ -146,9 +120,7 @@ export const joinWorkspace = async (
   }
 
   if (!inviteCode) {
-    throw new Error(
-      'An invite code or full invite link is required to join this ledger.'
-    );
+    throw new Error('An invite code or full invite link is required to join this ledger.');
   }
 
   return joinWorkspaceWithCode(inviteCode);
@@ -165,9 +137,7 @@ export const getWorkspaceDetails = async (
 
   const rawMembers = await fetchWorkspaceMembers(workspaceId);
 
-  const mappedMembers: Member[] = (
-    rawMembers as unknown as DBMemberResult[]
-  ).map((member) => ({
+  const mappedMembers: Member[] = (rawMembers as unknown as DBMemberResult[]).map((member) => ({
     id: member.user_id,
     membership_id: String(member.id),
     workspace_id: member.workspace_id,
@@ -179,10 +149,7 @@ export const getWorkspaceDetails = async (
   return { workspace, members: mappedMembers };
 };
 
-export const addMemberToWorkspaceWithCheck = async (
-  workspaceId: string,
-  userId: string
-): Promise<Member | null> => {
+export const addMemberToWorkspaceWithCheck = async (workspaceId: string, userId: string): Promise<Member | null> => {
   const workspace = await fetchWorkspace(workspaceId);
   if (!workspace) throw new Error('Workspace not found.');
 
@@ -209,10 +176,7 @@ export const addMemberToWorkspaceWithCheck = async (
   return null;
 };
 
-export const removeMember = async (
-  workspaceId: string,
-  userId: string
-): Promise<boolean> => {
+export const removeMember = async (workspaceId: string, userId: string): Promise<boolean> => {
   await removeMemberFromWorkspace(workspaceId, userId);
   return true;
 };

@@ -40,8 +40,6 @@ export const signInWithGoogle = async (): Promise<void> => {
   if (error) throw error;
 };
 
-export const getUserProfile = async (
-  userId: string
-): Promise<UserProfile | null> => {
+export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
   return fetchUserProfile(userId);
 };

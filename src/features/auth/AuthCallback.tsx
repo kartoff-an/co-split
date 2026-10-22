@@ -10,18 +10,14 @@ export const AuthCallback: React.FC = () => {
     const checkSession = async () => {
       const session = await authService.getSession();
       if (session) {
-        const pendingInviteCode = sessionStorage.getItem(
-          'co-split:pendingInviteCode'
-        );
+        const pendingInviteCode = sessionStorage.getItem('co-split:pendingInviteCode');
         if (pendingInviteCode) {
           sessionStorage.removeItem('co-split:pendingInviteCode');
           navigate(`/join/${pendingInviteCode}`, { replace: true });
           return;
         }
 
-        const pendingWorkspaceId = sessionStorage.getItem(
-          'co-split:pendingWorkspaceId'
-        );
+        const pendingWorkspaceId = sessionStorage.getItem('co-split:pendingWorkspaceId');
         if (pendingWorkspaceId) {
           sessionStorage.removeItem('co-split:pendingWorkspaceId');
           navigate(`/workspace/${pendingWorkspaceId}`, { replace: true });
@@ -34,9 +30,7 @@ export const AuthCallback: React.FC = () => {
       // Fallback: listen for auth changes
       const subscription = authService.onAuthStateChange((event, session) => {
         if (session) {
-          const pendingInviteCode = sessionStorage.getItem(
-            'co-split:pendingInviteCode'
-          );
+          const pendingInviteCode = sessionStorage.getItem('co-split:pendingInviteCode');
           if (pendingInviteCode) {
             sessionStorage.removeItem('co-split:pendingInviteCode');
             navigate(`/join/${pendingInviteCode}`, { replace: true });
@@ -44,9 +38,7 @@ export const AuthCallback: React.FC = () => {
             return;
           }
 
-          const pendingWorkspaceId = sessionStorage.getItem(
-            'co-split:pendingWorkspaceId'
-          );
+          const pendingWorkspaceId = sessionStorage.getItem('co-split:pendingWorkspaceId');
           if (pendingWorkspaceId) {
             sessionStorage.removeItem('co-split:pendingWorkspaceId');
             navigate(`/workspace/${pendingWorkspaceId}`, { replace: true });
@@ -71,9 +63,7 @@ export const AuthCallback: React.FC = () => {
           <div className="absolute inset-0 rounded-full border-4 border-slate-100" />
           <div className="border-t-primary-green absolute inset-0 animate-spin rounded-full border-4" />
         </div>
-        <p className="text-sm font-bold tracking-tight text-slate-700">
-          Authenticating your Google session...
-        </p>
+        <p className="text-sm font-bold tracking-tight text-slate-700">Authenticating your Google session...</p>
       </div>
     </div>
   );

@@ -17,9 +17,7 @@ export const fetchWorkspaceExpensesPaginated = async (
 
   if (error) throw error;
   const expenses = data || [];
-  const hasMore = count
-    ? from + expenses.length < count
-    : expenses.length === pageSize;
+  const hasMore = count ? from + expenses.length < count : expenses.length === pageSize;
   return { expenses, hasMore };
 };
 
@@ -47,24 +45,14 @@ export const updateExpenseInWorkspace = async (
   expenseId: number | string,
   updates: Partial<Omit<Expense, 'id' | 'workspace_id' | 'timestamp'>>
 ): Promise<Expense> => {
-  const { data, error } = await supabase
-    .from('expenses')
-    .update(updates)
-    .eq('id', Number(expenseId))
-    .select()
-    .single();
+  const { data, error } = await supabase.from('expenses').update(updates).eq('id', Number(expenseId)).select().single();
 
   if (error) throw error;
   return data;
 };
 
-export const deleteExpenseFromWorkspace = async (
-  expenseId: number | string
-): Promise<void> => {
-  const { error } = await supabase
-    .from('expenses')
-    .delete()
-    .eq('id', Number(expenseId));
+export const deleteExpenseFromWorkspace = async (expenseId: number | string): Promise<void> => {
+  const { error } = await supabase.from('expenses').delete().eq('id', Number(expenseId));
 
   if (error) throw error;
 };

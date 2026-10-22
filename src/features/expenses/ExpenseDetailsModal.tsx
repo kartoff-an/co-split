@@ -1,11 +1,7 @@
 import type React from 'react';
 import type { Expense, Member } from '../../types';
 import { Button } from '../../components/Button';
-import {
-  PencilSquareIcon,
-  TrashIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { formatCurrency } from '../../lib/currency';
 
 interface ExpenseDetailsModalProps {
@@ -29,18 +25,13 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
 }) => {
   const getMemberName = (id: string) => {
     if (id === activeUserId) return 'you';
-    return (
-      members.find((member) => member.id === id)?.display_name || 'Unknown'
-    );
+    return members.find((member) => member.id === id)?.display_name || 'Unknown';
   };
 
   const getLoggerName = (createdBy?: string | null) => {
     if (!createdBy) return 'Unknown';
     if (createdBy === activeUserId) return 'you';
-    return (
-      members.find((member) => member.id === createdBy)?.display_name ||
-      'Unknown'
-    );
+    return members.find((member) => member.id === createdBy)?.display_name || 'Unknown';
   };
 
   const formatDateTime = (timestamp: string) => {
@@ -51,15 +42,10 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
     }).format(date);
   };
 
-  const isPayment =
-    expense.category === 'Payment' || expense.category === 'Settlement';
+  const isPayment = expense.category === 'Payment' || expense.category === 'Settlement';
   const createdBy = (expense as { created_by?: string | null }).created_by;
-  const canDelete =
-    !!activeUserId &&
-    (createdBy === activeUserId || expense.paid_by === activeUserId);
-  const canEdit =
-    !!activeUserId &&
-    (createdBy === activeUserId || expense.paid_by === activeUserId);
+  const canDelete = !!activeUserId && (createdBy === activeUserId || expense.paid_by === activeUserId);
+  const canEdit = !!activeUserId && (createdBy === activeUserId || expense.paid_by === activeUserId);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
@@ -67,18 +53,14 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
         <div className="mb-5 flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex items-center gap-2">
-              <span className="text-text-muted text-[10px] font-semibold uppercase">
-                Expense details
-              </span>
+              <span className="text-text-muted text-[10px] font-semibold uppercase">Expense details</span>
               {isPayment && (
                 <span className="[data-theme='dark']_&:text-emerald-400 inline-flex items-center rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600">
                   Payment
                 </span>
               )}
             </div>
-            <h3 className="text-text-primary text-lg font-bold wrap-break-word">
-              {expense.description}
-            </h3>
+            <h3 className="text-text-primary text-lg font-bold wrap-break-word">{expense.description}</h3>
           </div>
 
           <button
@@ -93,46 +75,30 @@ export const ExpenseDetailsModal: React.FC<ExpenseDetailsModalProps> = ({
 
         <div className="space-y-3">
           <div className="border-border-subtle bg-surface-subtle rounded-xl border p-3">
-            <div className="text-text-muted mb-1 text-[10px] font-semibold">
-              Amount
-            </div>
-            <div className="text-text-primary text-base">
-              {formatCurrency(expense.amount, currency)}
-            </div>
+            <div className="text-text-muted mb-1 text-[10px] font-semibold">Amount</div>
+            <div className="text-text-primary text-base">{formatCurrency(expense.amount, currency)}</div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="border-border-subtle bg-surface-subtle rounded-xl border p-3">
-              <div className="text-text-muted mb-1 text-[10px] font-semibold">
-                Paid by
-              </div>
-              <div className="text-text-primary text-sm">
-                {getMemberName(expense.paid_by)}
-              </div>
+              <div className="text-text-muted mb-1 text-[10px] font-semibold">Paid by</div>
+              <div className="text-text-primary text-sm">{getMemberName(expense.paid_by)}</div>
             </div>
 
             <div className="border-border-subtle bg-surface-subtle rounded-xl border p-3">
-              <div className="text-text-muted mb-1 text-[10px] font-semibold">
-                Logged by
-              </div>
-              <div className="text-text-primary text-sm">
-                {getLoggerName(createdBy)}
-              </div>
+              <div className="text-text-muted mb-1 text-[10px] font-semibold">Logged by</div>
+              <div className="text-text-primary text-sm">{getLoggerName(createdBy)}</div>
             </div>
           </div>
 
           <div className="border-border-subtle bg-surface-subtle rounded-xl border p-3">
-            <div className="text-text-muted mb-1 text-[10px] font-semibold">
-              Logged on
-            </div>
-            <div className="text-text-primary text-sm">
-              {formatDateTime(expense.timestamp)}
-            </div>
+            <div className="text-text-muted mb-1 text-[10px] font-semibold">Logged on</div>
+            <div className="text-text-primary text-sm">{formatDateTime(expense.timestamp)}</div>
           </div>
 
           {expense.split_members && expense.split_members.length > 0 && (
             <div className="border-border-subtle bg-surface-subtle rounded-xl border p-3">
-              <div className="text-text-muted mb-2 text-[10px] font-semibold uppercase tracking-[0.12em]">
+              <div className="text-text-muted mb-2 text-[10px] font-semibold tracking-[0.12em] uppercase">
                 Split with
               </div>
               <div className="flex flex-wrap gap-2">

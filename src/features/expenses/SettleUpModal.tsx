@@ -1,12 +1,7 @@
 import type React from 'react';
 import { useState, useMemo } from 'react';
 import type { Settlement, Member } from '../../types';
-import {
-  XMarkIcon,
-  ArrowRightIcon,
-  BanknotesIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline';
+import { XMarkIcon, ArrowRightIcon, BanknotesIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { getCurrencySymbol, formatCurrency } from '../../lib/currency';
 import { Spinner } from '../../components/Spinner';
 
@@ -17,11 +12,7 @@ interface SettleUpModalProps {
   members: Member[];
   activeUserId?: string | null;
   currency?: string;
-  onConfirmSettlement: (
-    paidBy: string,
-    paidTo: string,
-    amount: number
-  ) => Promise<void>;
+  onConfirmSettlement: (paidBy: string, paidTo: string, amount: number) => Promise<void>;
 }
 
 export const SettleUpModal: React.FC<SettleUpModalProps> = ({
@@ -47,9 +38,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
   }, [settlements, activeUserId, members]);
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [amount, setAmount] = useState<string>(
-    availableSettlements[0]?.amount.toString() || ''
-  );
+  const [amount, setAmount] = useState<string>(availableSettlements[0]?.amount.toString() || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,18 +58,12 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
   const debtorMember = selectedSettlement
     ? members.find(
-        (member) =>
-          member.id === selectedSettlement.from_id ||
-          member.display_name === selectedSettlement.from
+        (member) => member.id === selectedSettlement.from_id || member.display_name === selectedSettlement.from
       )
     : null;
 
   const creditorMember = selectedSettlement
-    ? members.find(
-        (member) =>
-          member.id === selectedSettlement.to_id ||
-          member.display_name === selectedSettlement.to
-      )
+    ? members.find((member) => member.id === selectedSettlement.to_id || member.display_name === selectedSettlement.to)
     : null;
 
   const payerId = debtorMember?.id || selectedSettlement?.from_id || '';
@@ -111,11 +94,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
       await onConfirmSettlement(payerId, payeeId, parsedAmount);
       onClose();
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'Failed to record settlement payment.'
-      );
+      setError(error instanceof Error ? error.message : 'Failed to record settlement payment.');
     } finally {
       setIsSubmitting(false);
     }
@@ -123,10 +102,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={onClose} />
 
       <div className="border-border-subtle bg-surface text-text-primary relative w-full max-w-lg overflow-hidden rounded-2xl border shadow-2xl transition-all">
         <div className="border-border-subtle bg-surface-subtle/50 flex items-center justify-between border-b px-6 py-4">
@@ -135,9 +111,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
               <BanknotesIcon className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-text-primary text-base font-bold">
-                Settle Up
-              </h2>
+              <h2 className="text-text-primary text-base font-bold">Settle Up</h2>
               <p className="text-text-muted text-xs">Pay an outstanding debt</p>
             </div>
           </div>
@@ -161,26 +135,18 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
               <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-500">
                 <CheckIcon className="h-5 w-5" />
               </div>
-              <p className="text-text-primary text-xs font-bold">
-                No debts to settle!
-              </p>
-              <p className="text-text-muted mt-1 text-[11px]">
-                There are no outstanding debts involving you.
-              </p>
+              <p className="text-text-primary text-xs font-bold">No debts to settle!</p>
+              <p className="text-text-muted mt-1 text-[11px]">There are no outstanding debts involving you.</p>
             </div>
           ) : (
             <div>
-              <label className="text-text-muted mb-2 block text-xs">
-                Select Debt to Settle:
-              </label>
+              <label className="text-text-muted mb-2 block text-xs">Select Debt to Settle:</label>
               <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
                 {availableSettlements.map((settlement, idx) => {
                   const isSelected = selectedIndex === idx;
                   const isDebtor =
                     settlement.from_id === activeUserId ||
-                    settlement.from ===
-                      members.find((member) => member.id === activeUserId)
-                        ?.display_name;
+                    settlement.from === members.find((member) => member.id === activeUserId)?.display_name;
 
                   return (
                     <label
@@ -206,9 +172,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                             {isDebtor ? ' (You)' : ''}
                           </span>
                           <ArrowRightIcon className="text-text-muted h-3 w-3 shrink-0" />
-                          <span className="max-w-22.5 truncate sm:max-w-30">
-                            {settlement.to}
-                          </span>
+                          <span className="max-w-22.5 truncate sm:max-w-30">{settlement.to}</span>
                         </div>
                       </div>
 
@@ -229,13 +193,9 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
           {selectedSettlement && (
             <div>
-              <label className="text-text-primary mb-1.5 block text-xs">
-                Payment Amount
-              </label>
+              <label className="text-text-primary mb-1.5 block text-xs">Payment Amount</label>
               <div className="relative">
-                <span className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2 text-sm">
-                  {symbol}
-                </span>
+                <span className="text-text-muted absolute top-1/2 left-3 -translate-y-1/2 text-sm">{symbol}</span>
                 <input
                   type="number"
                   step="0.01"
@@ -263,11 +223,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
               disabled={isSubmitting || availableSettlements.length === 0}
               className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
-              {isSubmitting ? (
-                <Spinner className="h-4 w-4 text-white" />
-              ) : (
-                'Record Payment'
-              )}
+              {isSubmitting ? <Spinner className="h-4 w-4 text-white" /> : 'Record Payment'}
             </button>
           </div>
         </form>

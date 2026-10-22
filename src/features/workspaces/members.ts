@@ -23,21 +23,14 @@ export const fetchUserMemberships = async (userId: string): Promise<any[]> => {
   return data || [];
 };
 
-export const fetchWorkspaceMembers = async (
-  workspaceId: string
-): Promise<any[]> => {
-  const { data, error } = await supabase
-    .from('members')
-    .select('*, user_profiles(*)')
-    .eq('workspace_id', workspaceId);
+export const fetchWorkspaceMembers = async (workspaceId: string): Promise<any[]> => {
+  const { data, error } = await supabase.from('members').select('*, user_profiles(*)').eq('workspace_id', workspaceId);
 
   if (error) throw error;
   return data || [];
 };
 
-export const fetchMembersForWorkspaces = async (
-  workspaceIds: string[]
-): Promise<any[]> => {
+export const fetchMembersForWorkspaces = async (workspaceIds: string[]): Promise<any[]> => {
   const { data, error } = await supabase
     .from('members')
     .select('workspace_id, user_id')
@@ -47,10 +40,7 @@ export const fetchMembersForWorkspaces = async (
   return data || [];
 };
 
-export const checkMembershipExists = async (
-  workspaceId: string,
-  userId: string
-): Promise<any | null> => {
+export const checkMembershipExists = async (workspaceId: string, userId: string): Promise<any | null> => {
   const { data, error } = await supabase
     .from('members')
     .select('id')
@@ -62,10 +52,7 @@ export const checkMembershipExists = async (
   return data;
 };
 
-export const addMemberToWorkspace = async (
-  workspaceId: string,
-  userId: string
-): Promise<any> => {
+export const addMemberToWorkspace = async (workspaceId: string, userId: string): Promise<any> => {
   const { data, error } = await supabase
     .from('members')
     .insert([{ workspace_id: workspaceId, user_id: userId }])
@@ -76,22 +63,13 @@ export const addMemberToWorkspace = async (
   return data;
 };
 
-export const removeMemberFromWorkspace = async (
-  workspaceId: string,
-  userId: string
-): Promise<void> => {
-  const { error } = await supabase
-    .from('members')
-    .delete()
-    .eq('workspace_id', workspaceId)
-    .eq('user_id', userId);
+export const removeMemberFromWorkspace = async (workspaceId: string, userId: string): Promise<void> => {
+  const { error } = await supabase.from('members').delete().eq('workspace_id', workspaceId).eq('user_id', userId);
 
   if (error) throw error;
 };
 
-export const fetchMemberCount = async (
-  workspaceId: string
-): Promise<number> => {
+export const fetchMemberCount = async (workspaceId: string): Promise<number> => {
   const { count, error } = await supabase
     .from('members')
     .select('*', { count: 'exact', head: true })

@@ -1,14 +1,8 @@
 import { supabase } from '../../lib/supabase';
 import type { Workspace } from '../../types';
 
-export const fetchWorkspace = async (
-  workspaceId: string
-): Promise<Workspace | null> => {
-  const { data, error } = await supabase
-    .from('workspaces')
-    .select('*')
-    .eq('id', workspaceId)
-    .single();
+export const fetchWorkspace = async (workspaceId: string): Promise<Workspace | null> => {
+  const { data, error } = await supabase.from('workspaces').select('*').eq('id', workspaceId).single();
 
   if (error) {
     if (error.code === 'PGRST116') {
@@ -19,10 +13,7 @@ export const fetchWorkspace = async (
   return data;
 };
 
-export const createWorkspace = async (
-  name: string,
-  ownerId: string
-): Promise<Workspace> => {
+export const createWorkspace = async (name: string, ownerId: string): Promise<Workspace> => {
   const { data, error } = await supabase
     .from('workspaces')
     .insert([{ name, owner_id: ownerId }])
@@ -33,10 +24,7 @@ export const createWorkspace = async (
   return data;
 };
 
-export const updateWorkspace = async (
-  workspaceId: string,
-  updates: Partial<Workspace>
-): Promise<Workspace> => {
+export const updateWorkspace = async (workspaceId: string, updates: Partial<Workspace>): Promise<Workspace> => {
   const { data, error } = await supabase
     .from('workspaces')
     .update(updates as Omit<Partial<Workspace>, 'invite_code'>)
@@ -49,10 +37,7 @@ export const updateWorkspace = async (
 };
 
 export const deleteWorkspace = async (workspaceId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('workspaces')
-    .delete()
-    .eq('id', workspaceId);
+  const { error } = await supabase.from('workspaces').delete().eq('id', workspaceId);
 
   if (error) throw error;
 };

@@ -28,9 +28,7 @@ describe('Theme Context & Hook', () => {
     });
   });
 
-  const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ThemeProvider>{children}</ThemeProvider>
-  );
+  const wrapper = ({ children }: { children: React.ReactNode }) => <ThemeProvider>{children}</ThemeProvider>;
 
   it('should initialize with system/light theme by default', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });

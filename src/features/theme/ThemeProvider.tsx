@@ -10,22 +10,18 @@ const isValidTheme = (value: string | null): value is ThemeMode =>
   typeof value === 'string' && VALID_THEMES.includes(value as ThemeMode);
 
 const readStoredTheme = (): ThemeMode => {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return 'light';
 
   const storedTheme = localStorage.getItem(STORAGE_KEY);
-  return isValidTheme(storedTheme) ? storedTheme : 'system';
+  return isValidTheme(storedTheme) ? storedTheme : 'light';
 };
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => readStoredTheme());
 
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => {
     if (typeof window === 'undefined') return 'light';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
   useEffect(() => {
@@ -67,7 +63,5 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
     [theme, resolvedTheme, setTheme, toggleTheme]
   );
 
-  return (
-    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

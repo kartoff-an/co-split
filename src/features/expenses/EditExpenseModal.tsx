@@ -28,9 +28,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   onSave,
 }) => {
   const [description, setDescription] = useState(expense?.description ?? '');
-  const [amount, setAmount] = useState(
-    expense ? expense.amount.toString() : ''
-  );
+  const [amount, setAmount] = useState(expense ? expense.amount.toString() : '');
   const [paidBy, setPaidBy] = useState(expense?.paid_by ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,9 +37,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   );
   const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(() =>
     expense?.split_members && expense.split_members.length > 0
-      ? members
-          .map((member) => member.id)
-          .filter((id) => !expense.split_members?.includes(id))
+      ? members.map((member) => member.id).filter((id) => !expense.split_members?.includes(id))
       : []
   );
   const [isBubbleOpen, setIsBubbleOpen] = useState(false);
@@ -51,10 +47,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        bubbleRef.current &&
-        !bubbleRef.current.contains(event.target as Node)
-      ) {
+      if (bubbleRef.current && !bubbleRef.current.contains(event.target as Node)) {
         setIsBubbleOpen(false);
       }
     };
@@ -75,12 +68,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const parsedAmount = parseFloat(amount);
-    if (
-      !description.trim() ||
-      isNaN(parsedAmount) ||
-      parsedAmount <= 0 ||
-      !paidBy
-    ) {
+    if (!description.trim() || isNaN(parsedAmount) || parsedAmount <= 0 || !paidBy) {
       setError('Please fill in all required fields with valid values.');
       return;
     }
@@ -96,9 +84,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
       });
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to update expense.'
-      );
+      setError(err instanceof Error ? err.message : 'Failed to update expense.');
     } finally {
       setIsLoading(false);
     }
@@ -112,9 +98,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             <div className="[data-theme='dark']_&:text-emerald-400 flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
               <PencilSquareIcon className="h-4 w-4" />
             </div>
-            <h3 className="text-text-primary text-base font-bold">
-              Edit Expense
-            </h3>
+            <h3 className="text-text-primary text-base font-bold">Edit Expense</h3>
           </div>
           <button
             type="button"
@@ -133,9 +117,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-text-muted mb-1 block text-xs">
-              Description
-            </label>
+            <label className="text-text-muted mb-1 block text-xs">Description</label>
             <input
               type="text"
               placeholder="Expense description..."
@@ -149,9 +131,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-text-muted mb-1 block text-xs">
-                Amount ({currency})
-              </label>
+              <label className="text-text-muted mb-1 block text-xs">Amount ({currency})</label>
               <div className="relative">
                 <span className="text-text-muted pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs">
                   {symbol}
@@ -171,9 +151,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="text-text-muted mb-1 block text-xs">
-                Payer
-              </label>
+              <label className="text-text-muted mb-1 block text-xs">Payer</label>
               <select
                 value={paidBy}
                 onChange={(e) => setPaidBy(e.target.value)}
@@ -184,8 +162,7 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 <option value="">Who paid?</option>
                 {members.map((member) => (
                   <option key={member.id} value={member.id}>
-                    {member.display_name}{' '}
-                    {member.id === activeUserId ? '(You)' : ''}
+                    {member.display_name} {member.id === activeUserId ? '(You)' : ''}
                   </option>
                 ))}
               </select>
@@ -206,19 +183,14 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
               className="border-border-strong h-3.5 w-3.5 cursor-pointer rounded text-emerald-600 focus:ring-emerald-500"
               disabled={isLoading}
             />
-            <label
-              htmlFor="edit-unequal-split"
-              className="text-text-muted cursor-pointer text-xs select-none"
-            >
+            <label htmlFor="edit-unequal-split" className="text-text-muted cursor-pointer text-xs select-none">
               Split unequally
             </label>
           </div>
 
           {isUnequalSplit && (
             <div className="relative mt-2" ref={bubbleRef}>
-              <label className="text-text-muted mb-1 block text-xs">
-                Split Members
-              </label>
+              <label className="text-text-muted mb-1 block text-xs">Split Members</label>
               <button
                 type="button"
                 onClick={() => setIsBubbleOpen((prev) => !prev)}
@@ -230,21 +202,15 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                     ? 'All members'
                     : `${selectedSplitMembers.length} of ${members.length} selected`}
                 </span>
-                <span className="text-text-muted text-xs">
-                  Configure…
-                </span>
+                <span className="text-text-muted text-xs">Configure…</span>
               </button>
 
               {isBubbleOpen && (
                 <div className="animate-scale-up border-border-subtle bg-surface absolute top-full right-0 z-50 mt-2 w-64 rounded-2xl border p-4 shadow-xl">
-                  <h4 className="text-text-primary mb-2 text-xs">
-                    Include in Split:
-                  </h4>
+                  <h4 className="text-text-primary mb-2 text-xs">Include in Split:</h4>
                   <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
                     {members.map((member) => {
-                      const isSelected = selectedSplitMembers.includes(
-                        member.id
-                      );
+                      const isSelected = selectedSplitMembers.includes(member.id);
                       return (
                         <label
                           key={member.id}
@@ -256,16 +222,11 @@ export const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                             onChange={() => {
                               if (isSelected) {
                                 if (selectedSplitMembers.length > 1) {
-                                  setExcludedSplitMembers([
-                                    ...excludedSplitMembers,
-                                    member.id,
-                                  ]);
+                                  setExcludedSplitMembers([...excludedSplitMembers, member.id]);
                                 }
                               } else {
                                 setExcludedSplitMembers(
-                                  excludedSplitMembers.filter(
-                                    (memberId) => memberId !== member.id
-                                  )
+                                  excludedSplitMembers.filter((memberId) => memberId !== member.id)
                                 );
                               }
                             }}

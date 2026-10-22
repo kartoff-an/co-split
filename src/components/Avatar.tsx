@@ -6,11 +6,7 @@ interface AvatarProps {
   className?: string;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({
-  avatarUrl,
-  name,
-  className,
-}) => {
+export const Avatar: React.FC<AvatarProps> = ({ avatarUrl, name, className }) => {
   const initials = name.slice(0, 1).toUpperCase();
 
   if (avatarUrl) {

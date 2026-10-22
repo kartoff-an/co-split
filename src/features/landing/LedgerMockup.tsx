@@ -1,196 +1,134 @@
 import type React from 'react';
-import {
-  CommandLineIcon,
-  ChartBarIcon,
-  CheckCircleIcon,
-  ArrowRightIcon,
-} from '@heroicons/react/24/outline';
+import { ArrowRightIcon, ChartBarIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export const LedgerMockup: React.FC = () => {
+  const transactions = [
+    { name: 'Groceries', payer: 'Alex', amount: '₱450.00' },
+    { name: 'Internet bill', payer: 'You', amount: '₱1,200.00' },
+    { name: 'Dinner with everyone', payer: 'Jamie', amount: '₱780.00' },
+  ];
+
   return (
-    <div className="glass-card group relative space-y-4 overflow-hidden rounded-2xl p-4 shadow-md">
-      <div className="border-primary-green/20 pointer-events-none absolute top-2.5 left-2.5 h-2.5 w-2.5 rounded-tl-xs border-t-2 border-l-2" />
-      <div className="border-primary-green/20 pointer-events-none absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-tr-xs border-t-2 border-r-2" />
-      <div className="border-primary-green/20 pointer-events-none absolute bottom-2.5 left-2.5 h-2.5 w-2.5 rounded-bl-xs border-b-2 border-l-2" />
-      <div className="border-primary-green/20 pointer-events-none absolute right-2.5 bottom-2.5 h-2.5 w-2.5 rounded-br-xs border-r-2 border-b-2" />
+    <div className="border-border-subtle bg-surface w-full overflow-hidden rounded-2xl border shadow-lg shadow-slate-900/5">
+      {/* Header */}
+      <div className="border-border-subtle flex items-center justify-between border-b px-4 py-4">
+        <div>
+          <h3 className="text-text-primary text-sm font-bold">Weekend Expenses</h3>
+          <p className="text-text-muted mt-1 text-xs">3 members · Shared workspace</p>
+        </div>
 
-      <div className="border-border-subtle flex items-center justify-between border-b pb-2">
-        <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-          <span className="text-text-muted ml-1.5 text-[9px] font-bold">
-            IoT Smart Sensor
-          </span>
+        <div className="flex -space-x-2">
+          {[
+            { initials: 'S', color: 'bg-primary-green-light text-primary-green' },
+            { initials: 'A', color: 'bg-orange-100 text-orange-700' },
+            { initials: 'J', color: 'bg-blue-100 text-blue-700' },
+          ].map((member) => (
+            <div
+              key={member.initials}
+              className={`border-surface flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold ${member.color}`}
+            >
+              {member.initials}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="border-border-subtle bg-surface flex flex-col justify-between gap-2 rounded-xl border p-3 shadow-2xs md:flex-row md:items-center">
-        <div className="space-y-0.5 text-left">
-          <span className="text-text-muted text-[8px] font-bold">
-            Workspace ledger
-          </span>
-          <h2 className="text-text-primary text-xs leading-tight font-extrabold tracking-tight">
-            IoT Smart Sensor
-          </h2>
-        </div>
-        <div className="flex flex-wrap gap-1 md:justify-end">
-          <span className="border-accent-coral/45 text-accent-coral bg-surface flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold shadow-2xs">
-            <span>Sarah (You)</span>
-          </span>
-          <span className="border-border-subtle bg-surface text-text-secondary flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold">
-            <span>Alex</span>
-          </span>
-          <span className="border-border-subtle bg-surface text-text-secondary flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold">
-            <span>Jamie</span>
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        <div className="border-border-subtle bg-surface-subtle flex flex-col justify-between rounded-xl border p-2 text-left">
-          <span className="text-text-muted text-[8px] font-bold">
-            Total spent
-          </span>
-          <p className="text-text-primary text-xs font-extrabold">$90.00</p>
-        </div>
-        <div className="border-border-subtle bg-surface-subtle flex flex-col justify-between rounded-xl border p-2 text-left">
-          <span className="text-text-muted text-[8px] font-bold">
-            Avg / Head
-          </span>
-          <p className="text-text-primary text-xs font-extrabold">$30.00</p>
-        </div>
-        <div className="border-border-subtle bg-surface-subtle flex flex-col justify-between rounded-xl border p-2 text-left">
-          <span className="text-text-muted text-[8px] font-bold">Settles</span>
-          <p className="text-text-primary text-xs font-extrabold">1</p>
-        </div>
-      </div>
-
-      <div className="border-border-subtle bg-surface space-y-2 rounded-xl border p-3 text-left">
-        <div className="flex items-center gap-1">
-          <div className="[data-theme='dark']_&:text-emerald-400 flex h-5 w-5 items-center justify-center rounded bg-emerald-500/15 text-emerald-600">
-            <ChartBarIcon className="h-3 w-3" />
-          </div>
-          <h3 className="text-text-primary text-[10px] font-bold">Balances</h3>
-        </div>
-
-        <div className="space-y-2">
-          <div className="space-y-0.5">
-            <div className="flex items-center justify-between text-[9px] font-medium">
-              <span className="text-text-secondary">Sarah (You)</span>
-              <span className="[data-theme='dark']_&:text-emerald-400 font-bold text-emerald-600">
-                +$35.00
-              </span>
-            </div>
-            <div className="bg-surface-subtle relative h-1 w-full rounded-full">
-              <div
-                className="absolute left-1/2 h-full rounded-r bg-emerald-500"
-                style={{ width: '40%' }}
-              ></div>
-            </div>
+      <div className="space-y-5 p-4 sm:p-5">
+        {/* Summary */}
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <p className="text-text-muted text-[10px] sm:text-xs">Total spent</p>
+            <p className="text-text-primary mt-1 text-sm font-bold sm:text-base">₱2,430</p>
           </div>
 
-          <div className="space-y-0.5">
-            <div className="flex items-center justify-between text-[9px] font-medium">
-              <span className="text-text-secondary">Alex</span>
-              <span className="font-bold text-rose-500">-$5.00</span>
-            </div>
-            <div className="bg-surface-subtle relative h-1 w-full rounded-full">
-              <div
-                className="absolute right-1/2 h-full rounded-l bg-rose-500"
-                style={{ width: '10%' }}
-              ></div>
-            </div>
+          <div>
+            <p className="text-text-muted text-[10px] sm:text-xs">Avg / head</p>
+            <p className="text-text-primary mt-1 text-sm font-bold sm:text-base">₱810</p>
           </div>
 
-          <div className="space-y-0.5">
-            <div className="flex items-center justify-between text-[9px] font-medium">
-              <span className="text-text-secondary">Jamie</span>
-              <span className="font-bold text-rose-500">-$30.00</span>
-            </div>
-            <div className="bg-surface-subtle relative h-1 w-full rounded-full">
-              <div
-                className="absolute right-1/2 h-full rounded-l bg-rose-500"
-                style={{ width: '35%' }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <div className="border-border-subtle bg-surface space-y-2 rounded-xl border p-3 text-left">
-          <div className="flex items-center gap-1">
-            <div className="bg-surface-subtle text-text-secondary flex h-5 w-5 items-center justify-center rounded">
-              <CommandLineIcon className="h-3 w-3" />
-            </div>
-            <h3 className="text-text-primary text-[10px] font-bold">
-              Transactions
-            </h3>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[9px]">
-              <div className="min-w-0">
-                <p className="text-text-primary truncate font-semibold">
-                  Microcontrollers & Sensors
-                </p>
-                <p className="text-text-muted text-[8px]">Paid by Alex</p>
-              </div>
-              <span className="text-text-primary shrink-0 font-extrabold">
-                $25.00
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-[9px]">
-              <div className="min-w-0">
-                <p className="text-text-primary truncate font-semibold">
-                  PCB Fab & SMD Components
-                </p>
-                <p className="text-text-muted text-[8px]">Paid by you</p>
-              </div>
-              <span className="text-text-primary shrink-0 font-extrabold">
-                $65.00
-              </span>
-            </div>
+          <div>
+            <p className="text-text-muted text-[10px] sm:text-xs">Settlements</p>
+            <p className="text-text-primary mt-1 text-sm font-bold sm:text-base">2</p>
           </div>
         </div>
 
-        <div className="border-border-subtle bg-surface space-y-2 rounded-xl border p-3 text-left">
-          <div className="flex items-center gap-1">
-            <div className="[data-theme='dark']_&:text-teal-400 flex h-5 w-5 items-center justify-center rounded bg-teal-500/15 text-teal-600">
-              <CheckCircleIcon className="h-3 w-3" />
-            </div>
-            <h3 className="text-text-primary text-[10px] font-bold">
-              Settlements
-            </h3>
+        {/* Balances */}
+        <div className="border-border-subtle border-t pt-4">
+          <div className="mb-4 flex items-center gap-2">
+            <ChartBarIcon className="text-primary-green h-4 w-4" />
+            <h4 className="text-text-primary text-sm font-bold">Balances</h4>
           </div>
 
-          <div className="space-y-1">
-            <div className="bg-surface-subtle flex items-center justify-between rounded p-1 text-[8px]">
-              <div className="flex items-center gap-1">
-                <span className="[data-theme='dark']_&:text-rose-400 rounded border border-rose-500/20 bg-rose-500/10 px-1 text-rose-600">
-                  Jamie
-                </span>
-                <ArrowRightIcon className="text-text-muted h-2.5 w-2.5" />
-                <span className="[data-theme='dark']_&:text-emerald-400 rounded border border-emerald-500/20 bg-emerald-500/10 px-1 text-emerald-600">
-                  Sarah
+          {[
+            { name: 'Sarah (You)', amount: '+₱295.90', positive: true, width: '76%' },
+            { name: 'Alex', amount: '-₱275.14', positive: false, width: '70%' },
+            { name: 'Jamie', amount: '-₱20.76', positive: false, width: '12%' },
+          ].map((member) => (
+            <div key={member.name} className="mb-3 last:mb-0">
+              <div className="mb-1.5 flex items-center justify-between gap-2 text-xs">
+                <span className="text-text-secondary">{member.name}</span>
+                <span
+                  className={member.positive ? 'text-status-positive font-semibold' : 'font-semibold text-rose-500'}
+                >
+                  {member.amount}
                 </span>
               </div>
-              <span className="text-text-primary font-extrabold">$30.00</span>
-            </div>
-            <div className="bg-surface-subtle flex items-center justify-between rounded p-1 text-[8px]">
-              <div className="flex items-center gap-1">
-                <span className="[data-theme='dark']_&:text-rose-400 rounded border border-rose-500/20 bg-rose-500/10 px-1 text-rose-600">
-                  Alex
-                </span>
-                <ArrowRightIcon className="text-text-muted h-2.5 w-2.5" />
-                <span className="[data-theme='dark']_&:text-emerald-400 rounded border border-emerald-500/20 bg-emerald-500/10 px-1 text-emerald-600">
-                  Sarah
-                </span>
+
+              <div className="bg-surface-subtle h-1.5 overflow-hidden rounded-full">
+                <div
+                  className={`h-full rounded-full ${member.positive ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                  style={{ width: member.width }}
+                />
               </div>
-              <span className="text-text-primary font-extrabold">$5.00</span>
             </div>
+          ))}
+        </div>
+
+        {/* Transactions */}
+        <div className="border-border-subtle border-t pt-4">
+          <div className="mb-2 flex items-center justify-between">
+            <h4 className="text-text-primary text-sm font-bold">Recent transactions</h4>
+            <span className="text-text-muted text-xs">View all</span>
           </div>
+
+          <div className="divide-border-subtle divide-y">
+            {transactions.map((transaction) => (
+              <div key={transaction.name} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="text-text-primary truncate text-xs font-semibold">{transaction.name}</p>
+                  <p className="text-text-muted mt-1 text-[10px]">Paid by {transaction.payer}</p>
+                </div>
+
+                <span className="text-text-primary shrink-0 text-xs font-semibold">{transaction.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Settlements */}
+        <div className="border-border-subtle border-t pt-4">
+          <div className="mb-3 flex items-center gap-2">
+            <CheckCircleIcon className="text-primary-green h-4 w-4" />
+            <h4 className="text-text-primary text-sm font-bold">Settlement plan</h4>
+          </div>
+
+          {[
+            { from: 'Alex', to: 'Sarah', amount: '₱275.14' },
+            { from: 'Jamie', to: 'Sarah', amount: '₱20.76' },
+          ].map((settlement) => (
+            <div
+              key={settlement.from}
+              className="bg-surface-subtle mb-2 flex items-center justify-between gap-2 rounded-lg p-2.5 last:mb-0"
+            >
+              <div className="flex min-w-0 items-center gap-2 text-xs">
+                <span className="text-text-secondary truncate">{settlement.from}</span>
+                <ArrowRightIcon className="text-text-muted h-3.5 w-3.5 shrink-0" />
+                <span className="text-primary-green truncate font-medium">{settlement.to}</span>
+              </div>
+
+              <span className="text-text-primary shrink-0 text-xs font-semibold">{settlement.amount}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

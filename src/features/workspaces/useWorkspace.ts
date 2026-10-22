@@ -1,9 +1,5 @@
 import { useMemo, useState } from 'react';
-import {
-  useQuery,
-  useInfiniteQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { Expense, Member, Workspace } from '../../types';
 import * as workspaceService from './workspaceService';
 import * as expenseService from '../expenses/expenseService';
@@ -32,8 +28,7 @@ export const useWorkspace = (workspaceId: string) => {
     fetchNextPage,
   } = useInfiniteQuery({
     queryKey: ['workspace-expenses', workspaceId],
-    queryFn: ({ pageParam = 1 }) =>
-      fetchWorkspaceExpensesPaginated(workspaceId, pageParam, pageSize),
+    queryFn: ({ pageParam = 1 }) => fetchWorkspaceExpensesPaginated(workspaceId, pageParam, pageSize),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasMore ? allPages.length + 1 : undefined;
@@ -50,15 +45,11 @@ export const useWorkspace = (workspaceId: string) => {
     try {
       await fetchNextPage();
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to load more expenses'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to load more expenses');
     }
   };
 
-  const addExpense = async (
-    expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>
-  ) => {
+  const addExpense = async (expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>) => {
     try {
       const newExpense = await expenseService.addExpense(workspaceId, expense);
       if (!newExpense) throw new Error('Failed to add expense.');
@@ -77,10 +68,7 @@ export const useWorkspace = (workspaceId: string) => {
           const firstPage = old.pages[0];
           const newFirstPage = {
             ...firstPage,
-            expenses: [
-              newExpense,
-              ...firstPage.expenses.filter((e) => e.id !== newExpense.id),
-            ],
+            expenses: [newExpense, ...firstPage.expenses.filter((e) => e.id !== newExpense.id)],
           };
           return {
             ...old,
@@ -94,9 +82,7 @@ export const useWorkspace = (workspaceId: string) => {
 
       return newExpense;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to add expense'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to add expense');
       throw err;
     }
   };
@@ -106,10 +92,7 @@ export const useWorkspace = (workspaceId: string) => {
     updates: Partial<Omit<Expense, 'id' | 'workspace_id' | 'timestamp'>>
   ) => {
     try {
-      const updatedExpense = await expenseService.updateExpense(
-        expenseId,
-        updates
-      );
+      const updatedExpense = await expenseService.updateExpense(expenseId, updates);
       if (!updatedExpense) throw new Error('Failed to update expense.');
 
       queryClient.setQueryData(
@@ -127,9 +110,7 @@ export const useWorkspace = (workspaceId: string) => {
             ...old,
             pages: old.pages.map((page) => ({
               ...page,
-              expenses: page.expenses.map((e) =>
-                e.id === updatedExpense.id ? updatedExpense : e
-              ),
+              expenses: page.expenses.map((e) => (e.id === updatedExpense.id ? updatedExpense : e)),
             })),
           };
         }
@@ -140,9 +121,7 @@ export const useWorkspace = (workspaceId: string) => {
 
       return updatedExpense;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to update expense'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to update expense');
       throw err;
     }
   };
@@ -177,32 +156,22 @@ export const useWorkspace = (workspaceId: string) => {
 
       return true;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to delete expense'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to delete expense');
       throw err;
     }
   };
 
   const addMember = async (userId: string) => {
     try {
-      const newMember = await workspaceService.addMemberToWorkspaceWithCheck(
-        workspaceId,
-        userId
-      );
+      const newMember = await workspaceService.addMemberToWorkspaceWithCheck(workspaceId, userId);
       if (newMember) {
         queryClient.setQueryData(
           ['workspace', workspaceId],
-          (
-            old: { workspace: Workspace | null; members: Member[] } | undefined
-          ) => {
+          (old: { workspace: Workspace | null; members: Member[] } | undefined) => {
             if (!old) return old;
             return {
               ...old,
-              members: [
-                ...old.members.filter((m) => m.id !== userId),
-                newMember,
-              ],
+              members: [...old.members.filter((m) => m.id !== userId), newMember],
             };
           }
         );
@@ -210,9 +179,7 @@ export const useWorkspace = (workspaceId: string) => {
       }
       return newMember;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to add member'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to add member');
       return null;
     }
   };
@@ -223,9 +190,7 @@ export const useWorkspace = (workspaceId: string) => {
       if (success) {
         queryClient.setQueryData(
           ['workspace', workspaceId],
-          (
-            old: { workspace: Workspace | null; members: Member[] } | undefined
-          ) => {
+          (old: { workspace: Workspace | null; members: Member[] } | undefined) => {
             if (!old) return old;
             return {
               ...old,
@@ -237,25 +202,18 @@ export const useWorkspace = (workspaceId: string) => {
       }
       return success;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to remove member'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to remove member');
       return false;
     }
   };
 
   const updateWorkspace = async (updates: Partial<Workspace>) => {
     try {
-      const updated = await workspaceService.updateWorkspaceDetails(
-        workspaceId,
-        updates
-      );
+      const updated = await workspaceService.updateWorkspaceDetails(workspaceId, updates);
       if (updated) {
         queryClient.setQueryData(
           ['workspace', workspaceId],
-          (
-            old: { workspace: Workspace | null; members: Member[] } | undefined
-          ) => {
+          (old: { workspace: Workspace | null; members: Member[] } | undefined) => {
             if (!old) return old;
             return {
               ...old,
@@ -267,9 +225,7 @@ export const useWorkspace = (workspaceId: string) => {
       }
       return updated;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to update workspace'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to update workspace');
       return null;
     }
   };
@@ -284,9 +240,7 @@ export const useWorkspace = (workspaceId: string) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       return true;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to delete workspace'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to delete workspace');
       return false;
     }
   };
@@ -299,9 +253,7 @@ export const useWorkspace = (workspaceId: string) => {
       if (newCode) {
         queryClient.setQueryData(
           ['workspace', workspaceId],
-          (
-            old: { workspace: Workspace | null; members: Member[] } | undefined
-          ) => {
+          (old: { workspace: Workspace | null; members: Member[] } | undefined) => {
             if (!old || !old.workspace) return old;
             return {
               ...old,
@@ -315,20 +267,14 @@ export const useWorkspace = (workspaceId: string) => {
       }
       return newCode;
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : 'Failed to regenerate invite code'
-      );
+      setActionError(err instanceof Error ? err.message : 'Failed to regenerate invite code');
       return null;
     }
   };
 
   const error =
     actionError ||
-    (detailsError
-      ? detailsError instanceof Error
-        ? detailsError.message
-        : 'Failed to load workspace'
-      : null);
+    (detailsError ? (detailsError instanceof Error ? detailsError.message : 'Failed to load workspace') : null);
 
   return {
     workspace: workspaceDetails?.workspace ?? null,
