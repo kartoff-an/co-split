@@ -214,7 +214,7 @@ export const HomePage: React.FC = () => {
                 </a>{' '}
                 and{' '}
                 <a
-                  href="/privacy"
+                  href="/privacy.html"
                   className="text-text-secondary hover:text-primary-green underline underline-offset-2"
                 >
                   Privacy Policy

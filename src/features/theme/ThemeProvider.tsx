@@ -10,10 +10,10 @@ const isValidTheme = (value: string | null): value is ThemeMode =>
   typeof value === 'string' && VALID_THEMES.includes(value as ThemeMode);
 
 const readStoredTheme = (): ThemeMode => {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined') return 'system';
 
   const storedTheme = localStorage.getItem(STORAGE_KEY);
-  return isValidTheme(storedTheme) ? storedTheme : 'light';
+  return isValidTheme(storedTheme) ? storedTheme : 'system';
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
