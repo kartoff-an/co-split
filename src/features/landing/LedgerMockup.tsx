@@ -1,198 +1,98 @@
 import type React from 'react';
 import {
-  CommandLineIcon,
   ChartBarIcon,
   CheckCircleIcon,
   ArrowRightIcon,
+  ReceiptPercentIcon,
+  EllipsisHorizontalIcon,
 } from '@heroicons/react/24/outline';
 
-export const LedgerMockup: React.FC = () => {
-  return (
-    <div className="glass-card group relative space-y-4 overflow-hidden rounded-2xl p-4 shadow-md">
-      <div className="border-primary-green/20 pointer-events-none absolute top-2.5 left-2.5 h-2.5 w-2.5 rounded-tl-xs border-t-2 border-l-2" />
-      <div className="border-primary-green/20 pointer-events-none absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-tr-xs border-t-2 border-r-2" />
-      <div className="border-primary-green/20 pointer-events-none absolute bottom-2.5 left-2.5 h-2.5 w-2.5 rounded-bl-xs border-b-2 border-l-2" />
-      <div className="border-primary-green/20 pointer-events-none absolute right-2.5 bottom-2.5 h-2.5 w-2.5 rounded-br-xs border-r-2 border-b-2" />
+export const LedgerMockup: React.FC = () => (
+  <div className="overflow-hidden border border-border-subtle bg-surface shadow-[var(--shadow-card)]">
+    <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 sm:px-5">
+      <div className="flex items-center gap-2">
+        <span className="flex h-7 w-7 items-center justify-center bg-primary-green-subtle text-primary-green">
+          <ChartBarIcon className="h-4 w-4" strokeWidth={1.7} />
+        </span>
+        <div>
+          <p className="text-xs font-semibold tracking-tight">Co-Split</p>
+          <p className="text-[10px] text-text-muted">Workspace overview</p>
+        </div>
+      </div>
+      <EllipsisHorizontalIcon className="h-5 w-5 text-text-muted" />
+    </div>
 
-      <div className="border-border-subtle flex items-center justify-between border-b pb-2">
-        <div className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-          <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-          <span className="text-text-muted ml-1.5 text-[9px] font-bold">
-            IoT Smart Sensor
-          </span>
+    <div className="p-4 sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-semibold tracking-[0.12em] text-text-muted uppercase">Group expenses</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">₱12,450.00</p>
+          <p className="mt-1 text-xs text-text-secondary">Across 3 members</p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 border border-status-positive/20 bg-status-positive-bg px-2 py-1 text-[10px] font-semibold text-status-positive">
+          <span className="h-1.5 w-1.5 bg-status-positive" /> Workspace active
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-3 border-y border-border-subtle">
+        <div className="py-3 pr-2">
+          <p className="text-[10px] text-text-muted">Your balance</p>
+          <p className="mt-1 text-sm font-semibold text-status-positive sm:text-base">+₱850.00</p>
+        </div>
+        <div className="border-x border-border-subtle px-3 py-3">
+          <p className="text-[10px] text-text-muted">You owe</p>
+          <p className="mt-1 text-sm font-semibold sm:text-base">₱320.00</p>
+        </div>
+        <div className="py-3 pl-3">
+          <p className="text-[10px] text-text-muted">Settlements</p>
+          <p className="mt-1 text-sm font-semibold sm:text-base">2 pending</p>
         </div>
       </div>
 
-      <div className="border-border-subtle bg-surface flex flex-col justify-between gap-2 rounded-xl border p-3 shadow-2xs md:flex-row md:items-center">
-        <div className="space-y-0.5 text-left">
-          <span className="text-text-muted text-[8px] font-bold">
-            Workspace ledger
-          </span>
-          <h2 className="text-text-primary text-xs leading-tight font-extrabold tracking-tight">
-            IoT Smart Sensor
-          </h2>
+      <div className="mt-5">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-xs font-semibold">Recent expenses</h3>
+          <span className="text-[10px] font-medium text-primary-green">View all <ArrowRightIcon className="ml-0.5 inline h-3 w-3" /></span>
         </div>
-        <div className="flex flex-wrap gap-1 md:justify-end">
-          <span className="border-accent-coral/45 text-accent-coral bg-surface flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold shadow-2xs">
-            <span>Sarah (You)</span>
-          </span>
-          <span className="border-border-subtle bg-surface text-text-secondary flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold">
-            <span>Alex</span>
-          </span>
-          <span className="border-border-subtle bg-surface text-text-secondary flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-semibold">
-            <span>Jamie</span>
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        <div className="border-border-subtle bg-surface-subtle flex flex-col justify-between rounded-xl border p-2 text-left">
-          <span className="text-text-muted text-[8px] font-bold">
-            Total spent
-          </span>
-          <p className="text-text-primary text-xs font-extrabold">$90.00</p>
-        </div>
-        <div className="border-border-subtle bg-surface-subtle flex flex-col justify-between rounded-xl border p-2 text-left">
-          <span className="text-text-muted text-[8px] font-bold">
-            Avg / Head
-          </span>
-          <p className="text-text-primary text-xs font-extrabold">$30.00</p>
-        </div>
-        <div className="border-border-subtle bg-surface-subtle flex flex-col justify-between rounded-xl border p-2 text-left">
-          <span className="text-text-muted text-[8px] font-bold">Settles</span>
-          <p className="text-text-primary text-xs font-extrabold">1</p>
-        </div>
-      </div>
-
-      <div className="border-border-subtle bg-surface space-y-2 rounded-xl border p-3 text-left">
-        <div className="flex items-center gap-1">
-          <div className="[data-theme='dark']_&:text-emerald-400 flex h-5 w-5 items-center justify-center rounded bg-emerald-500/15 text-emerald-600">
-            <ChartBarIcon className="h-3 w-3" />
+        <div className="divide-y divide-border-subtle">
+          <div className="flex items-center gap-3 py-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-surface-subtle text-text-secondary">
+              <ReceiptPercentIcon className="h-4 w-4" strokeWidth={1.7} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold">Dinner with friends</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">Paid by Alex · 3 members</p>
+            </div>
+            <p className="shrink-0 text-xs font-semibold">₱2,400.00</p>
           </div>
-          <h3 className="text-text-primary text-[10px] font-bold">Balances</h3>
-        </div>
-
-        <div className="space-y-2">
-          <div className="space-y-0.5">
-            <div className="flex items-center justify-between text-[9px] font-medium">
-              <span className="text-text-secondary">Sarah (You)</span>
-              <span className="[data-theme='dark']_&:text-emerald-400 font-bold text-emerald-600">
-                +$35.00
-              </span>
+          <div className="flex items-center gap-3 py-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-surface-subtle text-text-secondary">
+              <ReceiptPercentIcon className="h-4 w-4" strokeWidth={1.7} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold">Apartment utilities</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">Paid by you · 3 members</p>
             </div>
-            <div className="bg-surface-subtle relative h-1 w-full rounded-full">
-              <div
-                className="absolute left-1/2 h-full rounded-r bg-emerald-500"
-                style={{ width: '40%' }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="space-y-0.5">
-            <div className="flex items-center justify-between text-[9px] font-medium">
-              <span className="text-text-secondary">Alex</span>
-              <span className="font-bold text-rose-500">-$5.00</span>
-            </div>
-            <div className="bg-surface-subtle relative h-1 w-full rounded-full">
-              <div
-                className="absolute right-1/2 h-full rounded-l bg-rose-500"
-                style={{ width: '10%' }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="space-y-0.5">
-            <div className="flex items-center justify-between text-[9px] font-medium">
-              <span className="text-text-secondary">Jamie</span>
-              <span className="font-bold text-rose-500">-$30.00</span>
-            </div>
-            <div className="bg-surface-subtle relative h-1 w-full rounded-full">
-              <div
-                className="absolute right-1/2 h-full rounded-l bg-rose-500"
-                style={{ width: '35%' }}
-              ></div>
-            </div>
+            <p className="shrink-0 text-xs font-semibold">₱1,800.00</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <div className="border-border-subtle bg-surface space-y-2 rounded-xl border p-3 text-left">
-          <div className="flex items-center gap-1">
-            <div className="bg-surface-subtle text-text-secondary flex h-5 w-5 items-center justify-center rounded">
-              <CommandLineIcon className="h-3 w-3" />
-            </div>
-            <h3 className="text-text-primary text-[10px] font-bold">
-              Transactions
-            </h3>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-[9px]">
-              <div className="min-w-0">
-                <p className="text-text-primary truncate font-semibold">
-                  Microcontrollers & Sensors
-                </p>
-                <p className="text-text-muted text-[8px]">Paid by Alex</p>
-              </div>
-              <span className="text-text-primary shrink-0 font-extrabold">
-                $25.00
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-[9px]">
-              <div className="min-w-0">
-                <p className="text-text-primary truncate font-semibold">
-                  PCB Fab & SMD Components
-                </p>
-                <p className="text-text-muted text-[8px]">Paid by you</p>
-              </div>
-              <span className="text-text-primary shrink-0 font-extrabold">
-                $65.00
-              </span>
+      <div className="mt-2 border border-border-subtle bg-app p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <CheckCircleIcon className="h-4 w-4 shrink-0 text-status-positive" />
+            <div>
+              <p className="text-xs font-semibold">Suggested settlement</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">Example calculation</p>
             </div>
           </div>
-        </div>
-
-        <div className="border-border-subtle bg-surface space-y-2 rounded-xl border p-3 text-left">
-          <div className="flex items-center gap-1">
-            <div className="[data-theme='dark']_&:text-teal-400 flex h-5 w-5 items-center justify-center rounded bg-teal-500/15 text-teal-600">
-              <CheckCircleIcon className="h-3 w-3" />
-            </div>
-            <h3 className="text-text-primary text-[10px] font-bold">
-              Settlements
-            </h3>
-          </div>
-
-          <div className="space-y-1">
-            <div className="bg-surface-subtle flex items-center justify-between rounded p-1 text-[8px]">
-              <div className="flex items-center gap-1">
-                <span className="[data-theme='dark']_&:text-rose-400 rounded border border-rose-500/20 bg-rose-500/10 px-1 text-rose-600">
-                  Jamie
-                </span>
-                <ArrowRightIcon className="text-text-muted h-2.5 w-2.5" />
-                <span className="[data-theme='dark']_&:text-emerald-400 rounded border border-emerald-500/20 bg-emerald-500/10 px-1 text-emerald-600">
-                  Sarah
-                </span>
-              </div>
-              <span className="text-text-primary font-extrabold">$30.00</span>
-            </div>
-            <div className="bg-surface-subtle flex items-center justify-between rounded p-1 text-[8px]">
-              <div className="flex items-center gap-1">
-                <span className="[data-theme='dark']_&:text-rose-400 rounded border border-rose-500/20 bg-rose-500/10 px-1 text-rose-600">
-                  Alex
-                </span>
-                <ArrowRightIcon className="text-text-muted h-2.5 w-2.5" />
-                <span className="[data-theme='dark']_&:text-emerald-400 rounded border border-emerald-500/20 bg-emerald-500/10 px-1 text-emerald-600">
-                  Sarah
-                </span>
-              </div>
-              <span className="text-text-primary font-extrabold">$5.00</span>
-            </div>
+          <div className="text-right">
+            <p className="text-sm font-semibold">₱450.00</p>
+            <p className="text-[10px] text-text-secondary">Alex → Jamie</p>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
