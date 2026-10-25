@@ -60,7 +60,7 @@ const LandingHeader: React.FC = () => (
           How it works
         </a>
         <ThemeToggle />
-        <a href="#get-started" className="inline-flex min-h-9 items-center gap-2 rounded-md bg-primary-green px-3.5 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-green-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-green">
+        <a href="#get-started" className="inline-flex min-h-9 items-center gap-2 rounded-md bg-primary-green px-3.5 text-sm font-semibold text-app transition-colors duration-150 hover:bg-primary-green-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-green">
           Get started
           <ArrowRightIcon className="h-4 w-4" />
         </a>
@@ -212,7 +212,7 @@ export const HomePage: React.FC = () => {
               <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Make shared spending easier.</h2>
               <p className="mt-2 text-sm leading-6 text-text-secondary">Bring your group’s expenses and balances into one clear workspace.</p>
             </div>
-            <a href="#get-started" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-md bg-primary-green px-4 text-sm font-semibold text-white transition-colors duration-150 hover:bg-primary-green-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-green">
+            <a href="#get-started" className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-md bg-primary-green px-4 text-sm font-semibold text-app transition-colors duration-150 hover:bg-primary-green-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-green">
               Get started <ArrowRightIcon className="h-4 w-4" />
             </a>
           </div>
