@@ -11,7 +11,7 @@ export const LedgerMockup: React.FC = () => (
   <div className="overflow-hidden border border-border-subtle bg-surface shadow-[var(--shadow-card)]">
     <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3 sm:px-5">
       <div className="flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center bg-primary-green-subtle text-primary-green">
+        <span className="flex h-7 w-7 items-center justify-center bg-primary-green-light text-primary-green">
           <ChartBarIcon className="h-4 w-4" strokeWidth={1.7} />
         </span>
         <div>
