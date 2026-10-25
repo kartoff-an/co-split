@@ -160,3 +160,41 @@ h6 {
   background: var(--bg-surface-subtle);
   border: 1px solid var(--border-subtle);
 }
+
+
+/* Landing page motion: subtle, consistent, and disabled for reduced-motion users. */
+.landing-reveal {
+  animation: landing-enter 480ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes landing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 3px;
+}
