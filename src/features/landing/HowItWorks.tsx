@@ -49,7 +49,7 @@ export const HowItWorks: React.FC = () => (
         {steps.map(({ number, icon: Icon, title, description }, index) => (
           <article
             key={number}
-            className={`landing-reveal relative p-5 sm:p-6 ${index < steps.length - 1 ? 'border-b border-border-subtle lg:border-r lg:border-b-0' : ''} ${index === 1 ? 'sm:border-r lg:border-r' : ''} ${index === 2 ? 'sm:border-b-0' : ''}`}
+            className={`landing-reveal relative p-5 sm:p-6 ${index < 3 ? 'border-b border-border-subtle' : ''} ${index % 2 === 0 && index < 3 ? 'sm:border-r' : ''} lg:border-b-0 ${index < 3 ? 'lg:border-r' : ''}`}
             style={{ animationDelay: `${index * 70}ms` }}
           >
             <div className="flex items-center justify-between">
