@@ -167,7 +167,7 @@ export function AppSidebar({ profile, workspaces, onSignOut }: AppSidebarProps) 
           </Avatar>
 
           <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-sm font-medium">{profile.display_name}</p>
+            <p className="truncate text-xs font-medium">{profile.display_name}</p>
             <p className="text-muted-foreground text-xs">Personal account</p>
           </div>
         </div>

@@ -3,8 +3,7 @@ import type { KeyboardEvent } from 'react';
 import type { WorkspaceItem } from '@/types';
 import { formatCurrency } from '@/lib/currency';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 import { ArrowUpRightIcon, UsersThreeIcon, TrendUpIcon, TrendDownIcon } from '@phosphor-icons/react';
@@ -18,9 +17,14 @@ interface WorkspaceCardProps {
 export function WorkspaceCard({ workspace, userId, onOpen }: WorkspaceCardProps) {
   const isOwner = workspace.owner_id === userId;
   const netBalance = workspace.user_net_balance;
-
   const isSettled = Math.abs(netBalance) < 0.01;
   const isPositive = netBalance >= 0;
+
+  const createdAt = new Date(workspace.created_at).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -29,92 +33,83 @@ export function WorkspaceCard({ workspace, userId, onOpen }: WorkspaceCardProps)
     }
   };
 
+  const balanceColor = isSettled
+    ? 'text-muted-foreground'
+    : isPositive
+      ? 'text-emerald-600 dark:text-emerald-400'
+      : 'text-rose-600 dark:text-rose-400';
+
+  const balanceText = isSettled
+    ? 'Settled'
+    : `${isPositive ? '+' : '-'}${formatCurrency(Math.abs(netBalance), workspace.currency)}`;
+
   return (
     <Card
-      className="group hover:border-primary/40 cursor-pointer overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs"
+      className="group bg-card border-border/80 hover:border-primary/35 focus-visible:ring-ring hover:bg-muted/30 cursor-pointer rounded-lg py-0 shadow-none transition-colors focus-visible:ring-2"
       onClick={() => onOpen(workspace.id)}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
+      aria-label={`Open ${workspace.name} workspace`}
     >
-      <CardHeader className="space-y-1.5 px-4 pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="group-hover:text-primary truncate text-sm font-semibold transition-colors">
-            {workspace.name}
-          </CardTitle>
-
-          <div className="flex shrink-0 items-center gap-1.5">
-            {isOwner && (
-              <Badge variant="secondary" className="px-2 py-0 text-[10px]">
-                Owner
-              </Badge>
-            )}
-
-            <ArrowUpRightIcon
-              size={16}
-              className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-            />
-          </div>
-        </div>
-
-        <CardDescription className="text-xs">Created by {workspace.owner_name}</CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-3 px-4 pb-4">
-        <div className="bg-muted/40 grid grid-cols-2 overflow-hidden rounded-lg border">
-          <div className="space-y-0.5 p-2.5">
-            <p className="text-muted-foreground text-[11px]">Total expenses</p>
-
-            <p className="text-sm font-semibold tabular-nums">
-              {formatCurrency(workspace.total_expenses, workspace.currency)}
-            </p>
+      <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-lg">
+            <UsersThreeIcon size={17} className="text-muted-foreground" />
           </div>
 
-          <div className="space-y-0.5 border-l p-2.5">
-            <p className="text-muted-foreground text-[11px]">Your balance</p>
-
-            <div className="flex items-center gap-1">
-              {!isSettled &&
-                (isPositive ? (
-                  <TrendUpIcon size={14} weight="bold" className="text-emerald-600 dark:text-emerald-400" />
-                ) : (
-                  <TrendDownIcon size={14} weight="bold" className="text-rose-600 dark:text-rose-400" />
-                ))}
-
-              <p
-                className={`text-sm font-semibold tabular-nums ${
-                  isSettled
-                    ? 'text-muted-foreground'
-                    : isPositive
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-rose-600 dark:text-rose-400'
-                }`}
-              >
-                {isSettled
-                  ? 'Settled'
-                  : `${isPositive ? '+' : '-'}${formatCurrency(Math.abs(netBalance), workspace.currency)}`}
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <p className="group-hover:text-primary truncate text-xs font-semibold transition-colors">
+                {workspace.name}
               </p>
+
+              {isOwner && (
+                <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[9px]">
+                  Owner
+                </Badge>
+              )}
+            </div>
+
+            <div className="text-muted-foreground flex items-center gap-2 text-[10px]">
+              <span className="truncate">Created by {workspace.owner_name}</span>
+
+              <span className="flex shrink-0 items-center gap-0.5">
+                <UsersThreeIcon size={12} />
+                {workspace.member_count}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="text-muted-foreground flex items-center justify-between gap-2 text-[11px]">
-          <div className="flex items-center gap-1">
-            <UsersThreeIcon size={14} />
-
-            <span>
-              {workspace.member_count} member
-              {workspace.member_count === 1 ? '' : 's'}
-            </span>
+        <div className="grid grid-cols-2 gap-3 sm:w-64 sm:shrink-0">
+          <div className="space-y-0.5">
+            <p className="text-muted-foreground text-[9px] font-medium tracking-wide uppercase">Total expenses</p>
+            <p className="text-xs font-semibold tabular-nums">
+              {formatCurrency(workspace.total_expenses, workspace.currency)}
+            </p>
           </div>
 
-          <span>
-            {new Date(workspace.created_at).toLocaleDateString(undefined, {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </span>
+          <div className="space-y-0.5">
+            <p className="text-muted-foreground text-[9px] font-medium tracking-wide uppercase">Your balance</p>
+
+            <div className="flex items-center gap-1">
+              {!isSettled &&
+                (isPositive ? (
+                  <TrendUpIcon size={12} weight="bold" className={balanceColor} />
+                ) : (
+                  <TrendDownIcon size={12} weight="bold" className={balanceColor} />
+                ))}
+
+              <p className={`text-xs font-semibold tabular-nums ${balanceColor}`}>{balanceText}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-muted-foreground flex items-center justify-between gap-3 border-t pt-2 text-[10px] sm:w-36 sm:shrink-0 sm:justify-end sm:border-t-0 sm:pt-0">
+          <span>{createdAt}</span>
+
+          <ArrowUpRightIcon size={14} className="group-hover:text-primary shrink-0 transition-colors" />
         </div>
       </CardContent>
     </Card>

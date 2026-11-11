@@ -15,8 +15,8 @@ export function DashboardOverview({ totalWorkspaces, ownedWorkspaces, loading }:
         </div>
 
         <div className="space-y-0.5">
-          <p className="text-muted-foreground text-sm">Total workspaces</p>
-          <p className="text-2xl font-semibold tabular-nums">{loading ? '—' : totalWorkspaces}</p>
+          <p className="text-muted-foreground text-xs">Total workspaces</p>
+          <p className="text-xl font-semibold tabular-nums">{loading ? '—' : totalWorkspaces}</p>
         </div>
       </div>
 
@@ -28,8 +28,8 @@ export function DashboardOverview({ totalWorkspaces, ownedWorkspaces, loading }:
         </div>
 
         <div className="space-y-0.5">
-          <p className="text-muted-foreground text-sm">Workspaces you own</p>
-          <p className="text-2xl font-semibold tabular-nums">{loading ? '—' : ownedWorkspaces}</p>
+          <p className="text-muted-foreground text-xs">Workspaces you own</p>
+          <p className="text-xl font-semibold tabular-nums">{loading ? '—' : ownedWorkspaces}</p>
         </div>
       </div>
     </section>
