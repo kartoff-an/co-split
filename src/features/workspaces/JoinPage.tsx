@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../auth/useAuth';
+import { useAuth } from '@/auth/useAuth';
 import * as workspaceService from './workspaceService';
 import { Spinner } from '../../components/Spinner';
 import { CoSplitIcon } from '../../components/CoSplitIcon';
 import { ExclamationTriangleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { useDocumentMetadata } from '../../hooks/useDocumentMetadata';
-import { GoogleLogin } from '../auth/GoogleLogin';
+import { GoogleLogin } from '@/auth/GoogleLogin';
 import { ThemeToggle } from '../../components/ThemeToggle';
 
 export const JoinPage: React.FC = () => {

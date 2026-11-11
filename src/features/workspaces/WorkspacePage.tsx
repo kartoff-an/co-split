@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useWorkspace } from './useWorkspace';
 import { useBalance } from '../expenses/useBalance';
-import { useAuth } from '../auth/useAuth';
+import { useAuth } from '@/auth/useAuth';
 import { ExpenseForm } from '../expenses/ExpenseForm';
 import { ExpenseList } from '../expenses/ExpenseList';
 import { BalanceSummary } from '../expenses/BalanceSummary';

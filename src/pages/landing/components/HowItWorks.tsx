@@ -1,6 +1,7 @@
 import { UserPlusIcon, ReceiptPercentIcon, CalculatorIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+
 import { motion } from 'motion/react';
-import { fadeUp, staggerContainer, cardReveal } from '../../lib/motionVariants';
+import { fadeUp, staggerContainer, cardReveal } from '@/lib/motionVariants';
 
 const steps = [
   {
@@ -39,13 +40,13 @@ export const HowItWorks: React.FC = () => {
         viewport={{ once: true, amount: 0.3 }}
         className="mx-auto mb-16 max-w-2xl text-center"
       >
-        <span className="text-primary-green text-xs font-bold tracking-[0.18em] uppercase">
-          Simple from start to finish
-        </span>
+        <span className="text-primary text-xs font-bold tracking-[0.18em] uppercase">Simple from start to finish</span>
 
-        <h2 className="text-text-primary mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">How it works</h2>
+        <h2 className="font-heading text-foreground mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+          How it works
+        </h2>
 
-        <p className="text-text-secondary mt-4 text-sm leading-7 sm:text-base">
+        <p className="text-muted-foreground mt-4 text-sm leading-7 sm:text-base">
           Manage shared expenses in four straightforward steps. No complicated spreadsheets or endless calculations.
         </p>
       </motion.div>
@@ -55,12 +56,13 @@ export const HowItWorks: React.FC = () => {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.15 }}
-        className="relative grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6"
+        className="relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
       >
         {steps.map(({ number, icon: Icon, title, description }, index) => (
-          <motion.article key={number} variants={cardReveal} className="relative">
+          <motion.article key={number} variants={cardReveal} className="group relative">
             {index < steps.length - 1 && (
               <>
+                {/* Mobile vertical connector */}
                 <motion.div
                   aria-hidden="true"
                   initial={{ scaleY: 0 }}
@@ -71,9 +73,10 @@ export const HowItWorks: React.FC = () => {
                     delay: 0.2,
                     ease: 'easeOut',
                   }}
-                  className="bg-border-subtle absolute top-14 left-6 h-[calc(100%+2.5rem)] w-px origin-top sm:hidden"
+                  className="bg-border absolute top-14 left-[1.375rem] h-[calc(100%+1.5rem)] w-px origin-top sm:hidden"
                 />
 
+                {/* Desktop horizontal connector */}
                 <motion.div
                   aria-hidden="true"
                   initial={{ scaleX: 0 }}
@@ -84,26 +87,28 @@ export const HowItWorks: React.FC = () => {
                     delay: 0.25,
                     ease: 'easeOut',
                   }}
-                  className="border-border-subtle absolute top-6 -right-6 left-[calc(50%+2rem)] hidden origin-left border-t border-dashed lg:block"
+                  className="border-border absolute top-7 -right-3 left-[calc(50%+2rem)] hidden origin-left border-t border-dashed lg:block"
                 />
               </>
             )}
 
-            <div className="relative flex gap-5 sm:flex-col sm:items-center sm:text-center">
+            <div className="hover:border-border hover:bg-card relative flex gap-5 rounded-xl border border-transparent p-4 transition-all duration-300 hover:shadow-sm sm:flex-col sm:items-center sm:text-center">
+              {/* Icon */}
               <motion.div
                 whileHover={{ scale: 1.06 }}
                 transition={{ duration: 0.2 }}
-                className="bg-surface-subtle text-text-secondary flex h-11 w-11 items-center justify-center rounded-lg"
+                className="border-primary/15 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors duration-300"
               >
                 <Icon className="h-5 w-5" strokeWidth={1.6} />
               </motion.div>
 
+              {/* Content */}
               <div className="relative z-10 flex-1 sm:mt-2">
-                <span className="text-primary-green text-xs font-bold tracking-widest">STEP {number}</span>
+                <span className="text-primary text-xs font-bold tracking-widest">STEP {number}</span>
 
-                <h3 className="text-text-primary mt-2 text-lg font-bold">{title}</h3>
+                <h3 className="font-heading text-card-foreground mt-2 text-lg font-bold">{title}</h3>
 
-                <p className="text-text-secondary mt-3 text-sm leading-6">{description}</p>
+                <p className="text-muted-foreground mt-3 text-sm leading-6">{description}</p>
               </div>
             </div>
           </motion.article>
