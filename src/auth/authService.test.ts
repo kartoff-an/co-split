@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../lib/supabase', () => ({
+vi.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
       getUser: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock('./profiles', () => ({
 }));
 
 import { getCurrentUser, signOut, getUserProfile } from './authService';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { fetchUserProfile } from './profiles';
 
 describe('authService', () => {

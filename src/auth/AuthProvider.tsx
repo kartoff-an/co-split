@@ -2,7 +2,7 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { UserProfile } from '../../types';
+import type { UserProfile } from '@/types';
 import * as authService from './authService';
 import { AuthContext } from './AuthContext';
 
