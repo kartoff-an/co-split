@@ -10,6 +10,9 @@ import { AuthCallback } from './auth/AuthCallback';
 import { JoinPage } from './pages/workspace/components/JoinPage';
 import { AppLayout } from './components/layout/AppLayout';
 import { SettlementsPage } from './pages/settlements/SettlementsPage';
+import { PrivacyPolicy } from './pages/legal/PrivacyPolicy';
+import { TermsOfService } from './pages/legal/TermsOfService';
+import { Support } from './pages/support/SupportPage';
 
 function App() {
   return (
@@ -20,6 +23,10 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/join/:inviteCode" element={<JoinPage />} />
+
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/support" element={<Support />} />
 
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />

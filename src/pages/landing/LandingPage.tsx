@@ -136,7 +136,7 @@ export const HomePage: React.FC = () => {
                 Terms of Service
               </a>{' '}
               and{' '}
-              <a href="/privacy.html" className="hover:text-primary underline underline-offset-2 transition-colors">
+              <a href="/privacy" className="hover:text-primary underline underline-offset-2 transition-colors">
                 Privacy Policy
               </a>
               .

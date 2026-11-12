@@ -12,18 +12,17 @@ export const Footer: React.FC<FooterProps> = ({ className = 'max-w-6xl' }) => {
       <div className="flex flex-col items-center justify-center gap-2 px-4 sm:flex-row sm:gap-x-4 sm:gap-y-0">
         <span>&copy; {new Date().getFullYear()} Co-Split.</span>
         <span className="text-border-strong hidden sm:inline">|</span>
-        <a href="#" className="hover:text-text-primary transition-colors">
+        <a href="/terms" className="hover:text-text-primary transition-colors">
           Terms
         </a>
         <span className="text-border-strong hidden sm:inline">|</span>
-        <a href="#" className="hover:text-text-primary transition-colors">
+        <a href="/privacy" className="hover:text-text-primary transition-colors">
           Privacy
         </a>
         <span className="text-border-strong hidden sm:inline">|</span>
-        <a href="#" className="hover:text-text-primary transition-colors">
+        <a href="/support" className="hover:text-text-primary transition-colors">
           Support
         </a>
-        <span className="text-border-strong hidden sm:inline">|</span>
       </div>
     </footer>
   );

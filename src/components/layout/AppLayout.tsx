@@ -1,9 +1,13 @@
 import { Navigate, Outlet } from 'react-router-dom';
+
 import { useAuth } from '@/auth/useAuth';
 import { useDashboard } from '@/hooks/useDashboard';
+
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+
 import { Spinner } from '@/components/Spinner';
+import { Footer } from '../Footer';
 
 export function AppLayout() {
   const { user, profile, loading, signOut } = useAuth();
@@ -34,8 +38,12 @@ export function AppLayout() {
     <SidebarProvider>
       <AppSidebar profile={profile} workspaces={workspaces} onSignOut={signOut} loadingWorkspaces={loadingWorkspaces} />
 
-      <SidebarInset className="min-w-0">
-        <Outlet />
+      <SidebarInset className="flex min-h-svh min-w-0 flex-col">
+        <main className="flex flex-1 flex-col">
+          <Outlet />
+        </main>
+
+        <Footer />
       </SidebarInset>
     </SidebarProvider>
   );
