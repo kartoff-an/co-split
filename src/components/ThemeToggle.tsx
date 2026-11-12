@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useTheme } from '../features/theme/useTheme';
+import { useTheme } from '../theme/useTheme';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 
 interface ThemeToggleProps {

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Balance, Settlement } from '../../types';
-import { supabase } from '../../lib/supabase';
+import type { Balance, Settlement } from '../types';
+import { supabase } from '../lib/supabase';
 
 interface SupabaseRpc {
   rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: unknown }>;

@@ -304,7 +304,7 @@ export function SettlementsPage() {
                           className="h-8 gap-1.5 text-xs"
                           onClick={() => handleOpenWorkspace(settlement.workspace.id)}
                         >
-                          Settle up
+                          Open Worspace
                           <ArrowRightIcon size={13} />
                         </Button>
                       </div>

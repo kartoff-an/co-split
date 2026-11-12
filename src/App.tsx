@@ -2,12 +2,12 @@ import { Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import { AuthProvider } from './auth/AuthProvider';
-import { ThemeProvider } from './features/theme/ThemeProvider';
+import { ThemeProvider } from './theme/ThemeProvider';
 import { HomePage } from './pages/landing/LandingPage';
-import { WorkspacePage } from './features/workspaces/WorkspacePage';
+import { WorkspacePage } from './pages/workspace/WorkspacePage';
 import { Dashboard } from './pages/dashboard/Dashboard';
 import { AuthCallback } from './auth/AuthCallback';
-import { JoinPage } from './features/workspaces/JoinPage';
+import { JoinPage } from './pages/workspace/components/JoinPage';
 import { AppLayout } from './components/layout/AppLayout';
 import { SettlementsPage } from './pages/settlements/SettlementsPage';
 

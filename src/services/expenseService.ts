@@ -1,5 +1,5 @@
-import { addExpenseToWorkspace, updateExpenseInWorkspace, deleteExpenseFromWorkspace } from './expenses';
-import type { Expense } from '../../types';
+import { addExpenseToWorkspace, updateExpenseInWorkspace, deleteExpenseFromWorkspace } from '@/repository/expenses';
+import type { Expense } from '@/types';
 
 export const addExpense = async (
   workspaceId: string,

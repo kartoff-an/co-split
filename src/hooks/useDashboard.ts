@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as workspaceService from '../features/workspaces/workspaceService';
+import * as workspaceService from '../services/workspaceService';
 import type { WorkspaceItem } from '@/types';
 
 interface DashboardMessage {

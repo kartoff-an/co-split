@@ -1,8 +1,18 @@
-import { supabase } from '../../lib/supabase';
-import { fetchWorkspaceMembers, addMemberToWorkspace, removeMemberFromWorkspace, fetchMemberCount } from './members';
-import { fetchWorkspace, createWorkspace, updateWorkspace, deleteWorkspace as dbDeleteWorkspace } from './workspaces';
+import { supabase } from '@/lib/supabase';
+import {
+  fetchWorkspaceMembers,
+  addMemberToWorkspace,
+  removeMemberFromWorkspace,
+  fetchMemberCount,
+} from '@/repository/members';
+import {
+  fetchWorkspace,
+  createWorkspace,
+  updateWorkspace,
+  deleteWorkspace as dbDeleteWorkspace,
+} from '@/repository/workspaces';
 import { fetchUserProfile } from '@/auth/profiles';
-import type { Workspace, Member, WorkspaceItem } from '../../types';
+import type { Workspace, Member, WorkspaceItem } from '@/types';
 
 interface SupabaseRpc {
   rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: unknown }>;

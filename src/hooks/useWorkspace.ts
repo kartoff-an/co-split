@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import type { Expense, Member, Workspace } from '../../types';
-import * as workspaceService from './workspaceService';
-import * as expenseService from '../expenses/expenseService';
-import { fetchWorkspaceExpensesPaginated } from '../expenses/expenses';
+import type { Expense, Member, Workspace } from '@/types';
+import * as workspaceService from '@/services//workspaceService';
+import * as expenseService from '@/services/expenseService';
+import { fetchWorkspaceExpensesPaginated } from '@/repository/expenses';
 
 export const useWorkspace = (workspaceId: string) => {
   const queryClient = useQueryClient();

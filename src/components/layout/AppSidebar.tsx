@@ -91,7 +91,7 @@ export function AppSidebar({ profile, workspaces, onSignOut }: AppSidebarProps) 
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu>
