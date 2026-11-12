@@ -8,10 +8,7 @@ export const getCurrencySymbol = (code: string): string => {
   return match ? match.symbol : '₱';
 };
 
-export const formatCurrency = (
-  amount: number,
-  currencyCode: string = 'PHP'
-): string => {
+export const formatCurrency = (amount: number, currencyCode: string = 'PHP'): string => {
   const code = currencyCode.toUpperCase();
   const absAmount = Math.abs(amount);
   const symbol = getCurrencySymbol(code);

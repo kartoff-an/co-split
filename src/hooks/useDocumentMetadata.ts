@@ -42,24 +42,13 @@ export function useDocumentMetadata(metadata: DocumentMetadata) {
   }, [metadata.title, metadata.description, metadata.url, metadata.image]);
 }
 
-function getMetaTag(
-  nameOrProperty: string,
-  attributeType: 'name' | 'property'
-): string | null {
-  const element = document.querySelector(
-    `meta[${attributeType}="${nameOrProperty}"]`
-  );
+function getMetaTag(nameOrProperty: string, attributeType: 'name' | 'property'): string | null {
+  const element = document.querySelector(`meta[${attributeType}="${nameOrProperty}"]`);
   return element ? element.getAttribute('content') : null;
 }
 
-function updateMetaTag(
-  nameOrProperty: string,
-  content: string,
-  attributeType: 'name' | 'property'
-) {
-  let element = document.querySelector(
-    `meta[${attributeType}="${nameOrProperty}"]`
-  );
+function updateMetaTag(nameOrProperty: string, content: string, attributeType: 'name' | 'property') {
+  let element = document.querySelector(`meta[${attributeType}="${nameOrProperty}"]`);
   if (!element) {
     element = document.createElement('meta');
     element.setAttribute(attributeType, nameOrProperty);
@@ -68,14 +57,8 @@ function updateMetaTag(
   element.setAttribute('content', content);
 }
 
-function restoreMetaTag(
-  nameOrProperty: string,
-  content: string | null,
-  attributeType: 'name' | 'property'
-) {
-  const element = document.querySelector(
-    `meta[${attributeType}="${nameOrProperty}"]`
-  );
+function restoreMetaTag(nameOrProperty: string, content: string | null, attributeType: 'name' | 'property') {
+  const element = document.querySelector(`meta[${attributeType}="${nameOrProperty}"]`);
   if (element) {
     if (content === null) {
       element.remove();
