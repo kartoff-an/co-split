@@ -11,7 +11,10 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
     "test": "vitest run",
     "test:integration": "vitest run --mode test",
-    "db:setup-test": "node scripts/setup-test-db.cjs"
+    "db:setup-test": "node scripts/setup-test-db.cjs",
+    "supabase:status": "supabase migration list",
+    "supabase:push": "supabase db push",
+    "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -50,6 +53,7 @@
     "jsdom": "^29.1.1",
     "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
+    "supabase": "^3.1.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.0.12",

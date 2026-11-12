@@ -1,0 +1,7 @@
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth.email]
+enable = true
+enable_confirmations = false
