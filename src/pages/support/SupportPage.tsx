@@ -178,7 +178,7 @@ export function Support() {
             </div>
 
             <a
-              href="mailto:cosplit.site@gmail.com?subject=Co-Split%20Support"
+              href="mailto:cosplit.mail@gmail.com?subject=Co-Split%20Support"
               className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
             >
               Contact Support

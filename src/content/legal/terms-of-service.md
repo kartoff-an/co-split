@@ -566,7 +566,7 @@ Conditions, contact us through:
 
 **Application:** Co-Split\
 **Website:** https://www.cosplit.site
-**Email:** cosplit.site@gmail.com
+**Email:** cosplit.mail@gmail.com
 
 ---
 

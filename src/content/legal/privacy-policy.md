@@ -314,7 +314,7 @@ If you have questions, concerns, or requests relating to this Privacy Policy or 
 
 **Application:** Co-Split  
 **Website:** [https://www.cosplit.site](https://www.cosplit.site)  
-**Privacy and Support Email:** [cosplit.site@gmail.com](mailto:cosplit.site@gmail.com)
+**Privacy and Support Email:** [cosplit.mail@gmail.com](mailto:cosplit.mail@gmail.com)
 
 For privacy-related requests, please provide sufficient information for us to verify your identity and understand your request.
 
