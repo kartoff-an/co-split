@@ -9,6 +9,7 @@ import { Dashboard } from './pages/dashboard/Dashboard';
 import { AuthCallback } from './auth/AuthCallback';
 import { JoinPage } from './features/workspaces/JoinPage';
 import { AppLayout } from './components/layout/AppLayout';
+import { SettlementsPage } from './pages/settlements/SettlementsPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
 
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/settlements" element={<SettlementsPage />} />
               <Route path="/workspace/:workspaceId" element={<WorkspacePage />} />
             </Route>
           </Routes>
