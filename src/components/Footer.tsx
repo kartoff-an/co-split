@@ -24,24 +24,6 @@ export const Footer: React.FC<FooterProps> = ({ className = 'max-w-6xl' }) => {
           Support
         </a>
         <span className="text-border-strong hidden sm:inline">|</span>
-        <span className="flex items-center justify-center gap-1.5">
-          <span>Free & Open Source</span>
-          <a
-            href="https://github.com/kartoff-an/co-split"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-text-muted hover:text-text-primary transition-colors"
-            title="GitHub Repository"
-          >
-            <span
-              className="block h-3.5 w-3.5 bg-current"
-              style={{
-                mask: 'url(/icons/github-icon.svg) no-repeat center',
-                WebkitMask: 'url(/icons/github-icon.svg) no-repeat center',
-              }}
-            />
-          </a>
-        </span>
       </div>
     </footer>
   );
