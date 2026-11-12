@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { useAuth } from '@/auth/useAuth';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -11,6 +11,7 @@ import { Footer } from '../Footer';
 
 export function AppLayout() {
   const { user, profile, loading, signOut } = useAuth();
+  const location = useLocation();
 
   const { workspaces, loadingWorkspaces } = useDashboard(user?.id);
 
@@ -23,7 +24,16 @@ export function AppLayout() {
   }
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    const redirectTo =
+      `${location.pathname}${location.search}${location.hash}`;
+
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{ from: redirectTo }}
+      />
+    );
   }
 
   if (!profile) {

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
@@ -25,6 +25,7 @@ import { LandingHeader } from './components/LandingHeader';
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cosplit.site';
 
@@ -36,11 +37,27 @@ export const HomePage: React.FC = () => {
     image: `${origin}/icons/co-split-icon.png`,
   });
 
+  useEffect(() => {
+    const state = location.state as { from?: string } | null;
+    const redirectTo = state?.from;
+
+    if (redirectTo?.startsWith('/')) {
+      sessionStorage.setItem('co-split:pendingPath', redirectTo);
+    }
+  }, [location.state]);
+
   // Authentication redirect handling
   useEffect(() => {
     if (authLoading || !user) return;
 
     const pendingInviteCode = sessionStorage.getItem('co-split:pendingInviteCode');
+    const pendingPath = sessionStorage.getItem('co-split:pendingPath');
+
+    if (pendingPath) {
+      sessionStorage.removeItem('co-split:pendingPath');
+      navigate(pendingPath, { replace: true });
+      return;
+    }
 
     if (pendingInviteCode) {
       sessionStorage.removeItem('co-split:pendingInviteCode');
