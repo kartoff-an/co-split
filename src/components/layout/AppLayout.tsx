@@ -24,16 +24,9 @@ export function AppLayout() {
   }
 
   if (!user) {
-    const redirectTo =
-      `${location.pathname}${location.search}${location.hash}`;
+    const redirectTo = `${location.pathname}${location.search}${location.hash}`;
 
-    return (
-      <Navigate
-        to="/"
-        replace
-        state={{ from: redirectTo }}
-      />
-    );
+    return <Navigate to="/" replace state={{ from: redirectTo }} />;
   }
 
   if (!profile) {

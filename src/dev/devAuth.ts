@@ -11,10 +11,7 @@ type TestUser = keyof typeof testUsers;
 
 declare global {
   interface Window {
-    cosplitLoginAs: (
-      user: TestUser,
-      password: string
-    ) => Promise<void>;
+    cosplitLoginAs: (user: TestUser, password: string) => Promise<void>;
   }
 }
 
