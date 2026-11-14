@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 
@@ -71,11 +71,9 @@ export function SettlementsPage() {
 
   const hasError = settlementQueries.some((query) => query.isError);
 
-  const settlements = useMemo(() => {
-    if (!user?.id) return [];
+  const settlements: SettlementItem[] = [];
 
-    const items: SettlementItem[] = [];
-
+  if (user?.id) {
     workspaces.forEach((workspace, index) => {
       const workspaceSettlements = settlementQueries[index]?.data?.settlements ?? [];
 
@@ -88,16 +86,16 @@ export function SettlementsPage() {
 
         if (!isDebtor && !isCreditor) return;
 
-        items.push({
+        settlements.push({
           ...settlement,
           workspace,
           direction: isDebtor ? 'owe' : 'owed',
         });
       });
     });
+  }
 
-    return items.sort((a, b) => b.amount - a.amount);
-  }, [workspaces, settlementQueries, user?.id, profile?.display_name]);
+  settlements.sort((a, b) => b.amount - a.amount);
 
   const filteredSettlements = settlements.filter((settlement) => {
     if (filter === 'all') return true;

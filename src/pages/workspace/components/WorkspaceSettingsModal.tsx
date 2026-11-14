@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
+import { useMemo, useState } from 'react';
+import type { SubmitEvent } from 'react';
 
 import type { Member, Workspace } from '@/types';
 
@@ -26,7 +26,16 @@ interface WorkspaceSettingsModalProps {
   currentUserId: string | undefined;
 }
 
-export function WorkspaceSettingsModal({
+export function WorkspaceSettingsModal(props: WorkspaceSettingsModalProps) {
+  return (
+    <WorkspaceSettingsModalContent
+      key={`${props.workspace.id}-${props.isOpen}`}
+      {...props}
+    />
+  );
+}
+
+export function WorkspaceSettingsModalContent({
   isOpen,
   onClose,
   workspace,
@@ -61,16 +70,6 @@ export function WorkspaceSettingsModal({
     []
   );
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    setWorkspaceName(workspace.name);
-    setAllowedMembers(workspace.allowed_members ?? 10);
-    setCurrency(workspace.currency ?? 'PHP');
-    setErrorMessage(null);
-    setSuccessMessage(null);
-  }, [isOpen, workspace]);
-
   const showSuccess = (message: string) => {
     setSuccessMessage(message);
     setErrorMessage(null);
@@ -81,7 +80,7 @@ export function WorkspaceSettingsModal({
     setSuccessMessage(null);
   };
 
-  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSave = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!workspaceName.trim()) {

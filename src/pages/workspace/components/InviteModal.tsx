@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,16 @@ interface InviteModalProps {
   onRegenerateInvite?: () => Promise<string | null>;
 }
 
-export function InviteModal({
+export function InviteModal(props: InviteModalProps) {
+  return (
+    <InviteModalContent
+      key={`${props.workspaceId}-${props.isOpen}`}
+      {...props}
+    />
+  );
+}
+
+export function InviteModalContent({
   isOpen,
   onClose,
   workspaceId,
@@ -46,16 +55,6 @@ export function InviteModal({
   const inviteLink = inviteUrl.toString();
 
   const inviteMessage = `${inviterName || 'A group member'} invited you to join "${workspaceName || 'Workspace'}" on Co-Split.\nLink: ${inviteLink}`;
-
-  useEffect(() => {
-    if (!isOpen) {
-      setCopiedId(false);
-      setCopiedUrl(false);
-      setCopiedMsg(false);
-      setSuccessMessage(null);
-      setErrorMessage(null);
-    }
-  }, [isOpen]);
 
   const copyToClipboard = async (value: string, setCopied: (value: boolean) => void) => {
     try {

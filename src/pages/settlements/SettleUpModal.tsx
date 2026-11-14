@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { Settlement, Member } from '@/types';
 import { getCurrencySymbol, formatCurrency } from '@/lib/currency';
@@ -30,7 +30,7 @@ export function SettleUpModal({
   onConfirmSettlement,
 }: SettleUpModalProps) {
   const [selectedIndex, setSelectedIndex] = useState('0');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,14 +51,7 @@ export function SettleUpModal({
   }, [settlements, activeUserId, currentMember]);
 
   const selectedSettlement = availableSettlements[Number(selectedIndex)] ?? null;
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    setSelectedIndex('0');
-    setAmount(availableSettlements[0]?.amount.toString() ?? '');
-    setError(null);
-  }, [isOpen, availableSettlements]);
+  const paymentAmount = amount ?? selectedSettlement?.amount.toString() ?? '';
 
   const debtorMember = selectedSettlement
     ? members.find(
@@ -94,7 +87,7 @@ export function SettleUpModal({
       return;
     }
 
-    const parsedAmount = Number.parseFloat(amount);
+    const parsedAmount = Number.parseFloat(paymentAmount);
 
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       setError('Enter a valid payment amount greater than zero.');
@@ -148,7 +141,7 @@ export function SettleUpModal({
           {error && (
             <div
               role="alert"
-              className="border-destructive/20 bg-destructive/5 text-destructive min-w-0 rounded-lg border px-3 py-2.5 text-sm break-words"
+              className="border-destructive/20 bg-destructive/5 text-destructive min-w-0 rounded-lg border px-3 py-2.5 text-sm wrap-break-word"
             >
               {error}
             </div>
@@ -236,7 +229,7 @@ export function SettleUpModal({
                       type="number"
                       min="0.01"
                       step="0.01"
-                      value={amount}
+                      value={paymentAmount}
                       onChange={(event) => setAmount(event.target.value)}
                       placeholder="0.00"
                       className="min-w-0 pl-8"
@@ -245,7 +238,7 @@ export function SettleUpModal({
                     />
                   </div>
 
-                  <p className="text-muted-foreground text-xs break-words">
+                  <p className="text-muted-foreground text-xs wrap-break-word">
                     Outstanding balance: {formatCurrency(selectedSettlement.amount, currency)}
                   </p>
                 </div>

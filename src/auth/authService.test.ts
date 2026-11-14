@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { User } from '@supabase/supabase-js';
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
@@ -26,9 +27,9 @@ describe('authService', () => {
 
   describe('getCurrentUser', () => {
     it('should return user object when authenticated', async () => {
-      const mockUser = { id: 'user-123', email: 'test@example.com' };
+      const mockUser = { id: 'user-123', email: 'test@example.com' } as User;
       vi.mocked(supabase.auth.getUser).mockResolvedValue({
-        data: { user: mockUser as any },
+        data: { user: mockUser },
         error: null,
       });
 
@@ -41,7 +42,7 @@ describe('authService', () => {
       vi.mocked(supabase.auth.getUser).mockResolvedValue({
         data: { user: null },
         error: null,
-      } as any);
+      } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>> );
 
       const result = await getCurrentUser();
       expect(result).toBeNull();

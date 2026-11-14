@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 
 import type { Expense, Member } from '@/types';
@@ -55,12 +55,7 @@ export function ExpenseForm({
     [members, excludedSplitMembers]
   );
 
-  // Default payer
-  useEffect(() => {
-    if (activeUserId && members.some((member) => member.id === activeUserId)) {
-      setPaidBy(activeUserId);
-    }
-  }, [activeUserId, members]);
+  const effectivePaidBy = activeUserId && members.some((member) => member.id === activeUserId) ? activeUserId : paidBy;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,7 +66,7 @@ export function ExpenseForm({
       !description.trim() ||
       !Number.isFinite(parsedAmount) ||
       parsedAmount <= 0 ||
-      !paidBy ||
+      !effectivePaidBy ||
       (isUnequalSplit && selectedSplitMembers.length === 0)
     ) {
       return;
@@ -84,7 +79,7 @@ export function ExpenseForm({
         description: description.trim(),
         amount: parsedAmount,
         category: 'Other',
-        paid_by: paidBy,
+        paid_by: effectivePaidBy,
         split_members: isUnequalSplit ? selectedSplitMembers : null,
       });
 
@@ -158,7 +153,7 @@ export function ExpenseForm({
 
           <Select
             items={payerItems}
-            value={paidBy}
+            value={effectivePaidBy}
             onValueChange={(value) => setPaidBy(value ?? '')}
             disabled={isLoading || members.length === 0}
           >
@@ -231,7 +226,7 @@ export function ExpenseForm({
               <CaretDownIcon size={14} className="text-muted-foreground" />
             </PopoverTrigger>
 
-            <PopoverContent align="start" className="w-[var(--anchor-width)] p-3">
+            <PopoverContent align="start" className="w-(--anchor-width) p-3">
               <div className="mb-3">
                 <p className="text-xs font-semibold">Split with</p>
 
@@ -279,7 +274,7 @@ export function ExpenseForm({
           !description.trim() ||
           !amount ||
           Number(amount) <= 0 ||
-          !paidBy ||
+          !effectivePaidBy ||
           (isUnequalSplit && selectedSplitMembers.length === 0)
         }
         className="h-10 w-full gap-2 text-xs font-semibold"

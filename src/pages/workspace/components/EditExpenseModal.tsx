@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { Expense, Member } from '@/types';
 import { getCurrencySymbol } from '@/lib/currency';
@@ -28,7 +28,18 @@ interface EditExpenseModalProps {
   ) => Promise<unknown>;
 }
 
-export function EditExpenseModal({
+export function EditExpenseModal(props: EditExpenseModalProps) {
+  if (!props.expense) return null;
+
+  return (
+    <EditExpenseModalContent
+      key={`${props.expense.id}-${props.isOpen}`}
+      {...props}
+    />
+  );
+}
+
+export function EditExpenseModalContent({
   isOpen,
   onClose,
   expense,
@@ -37,35 +48,23 @@ export function EditExpenseModal({
   currency = 'PHP',
   onSave,
 }: EditExpenseModalProps) {
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [paidBy, setPaidBy] = useState('');
+  const [description, setDescription] = useState(expense?.description ?? '');
+  const [amount, setAmount] = useState(String(expense?.amount ?? ''));
+  const [paidBy, setPaidBy] = useState(expense?.paid_by ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isUnequalSplit, setIsUnequalSplit] = useState(false);
-  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>([]);
+
+  const [isUnequalSplit, setIsUnequalSplit] = useState(!!expense?.split_members && expense.split_members.length > 0);
+  const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(() => {
+    if (!expense?.split_members?.length) return [];
+
+    return members
+      .map((member) => member.id)
+      .filter((id) => !expense.split_members?.includes(id));
+  });
   const [isSplitPopoverOpen, setIsSplitPopoverOpen] = useState(false);
 
   const symbol = getCurrencySymbol(currency);
-
-  useEffect(() => {
-    if (!isOpen || !expense) return;
-
-    setDescription(expense.description);
-    setAmount(String(expense.amount));
-    setPaidBy(expense.paid_by);
-    setIsLoading(false);
-    setError(null);
-    setIsSplitPopoverOpen(false);
-
-    const hasCustomSplit = !!expense.split_members && expense.split_members.length > 0;
-
-    setIsUnequalSplit(hasCustomSplit);
-
-    setExcludedSplitMembers(
-      hasCustomSplit ? members.map((member) => member.id).filter((id) => !expense.split_members?.includes(id)) : []
-    );
-  }, [isOpen, expense, members]);
 
   const selectedSplitMembers = useMemo(
     () => members.map((member) => member.id).filter((memberId) => !excludedSplitMembers.includes(memberId)),
@@ -268,7 +267,7 @@ export function EditExpenseModal({
                     <span className="text-muted-foreground text-xs">Configure</span>
                   </PopoverTrigger>
 
-                  <PopoverContent align="end" className="w-[var(--anchor-width)] min-w-64 p-3">
+                  <PopoverContent align="end" className="w-(--anchor-width) min-w-64 p-3">
                     <div className="mb-2">
                       <p className="text-sm font-medium">Include in split</p>
                       <p className="text-muted-foreground text-xs">Select at least one member.</p>

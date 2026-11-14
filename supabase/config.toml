@@ -3,5 +3,5 @@ enabled = true
 sql_paths = ["./seed.sql"]
 
 [auth.email]
-enable = true
+enabled = true
 enable_confirmations = false
