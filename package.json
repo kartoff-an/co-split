@@ -12,10 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
     "test": "vitest run",
     "test:integration": "vitest run --mode test",
-    "db:setup-test": "node scripts/setup-test-db.cjs",
-    "supabase:status": "supabase migration list",
-    "supabase:push": "supabase db push",
-    "supabase:types": "supabase gen types typescript --linked > src/types/database.types.ts"
+    "db:setup-test": "node scripts/setup-test-db.cjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
