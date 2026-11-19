@@ -1,11 +1,5 @@
-
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-    AxiosError,
-  AxiosHeaders,
-  type AxiosAdapter,
-  type InternalAxiosRequestConfig,
-} from 'axios';
+import { AxiosError, AxiosHeaders, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios';
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
@@ -67,9 +61,7 @@ describe('API client authentication', () => {
       adapter: request.adapter,
     });
 
-    expect(
-      request.getConfig()?.headers.get('Authorization'),
-    ).toBe('Bearer current-access-token');
+    expect(request.getConfig()?.headers.get('Authorization')).toBe('Bearer current-access-token');
   });
 
   it('does not send stale authorization header when session is missing', async () => {
@@ -87,9 +79,7 @@ describe('API client authentication', () => {
       },
     });
 
-    expect(
-      request.getConfig()?.headers.toJSON(),
-    ).not.toHaveProperty('Authorization');
+    expect(request.getConfig()?.headers.toJSON()).not.toHaveProperty('Authorization');
   });
 
   it('does not send authorization header when session has no access token', async () => {
@@ -108,9 +98,7 @@ describe('API client authentication', () => {
       adapter: request.adapter,
     });
 
-    expect(
-      request.getConfig()?.headers.toJSON(),
-    ).not.toHaveProperty('Authorization');
+    expect(request.getConfig()?.headers.toJSON()).not.toHaveProperty('Authorization');
   });
 
   it('rejects request when Supabase session lookup fails', async () => {
@@ -121,26 +109,19 @@ describe('API client authentication', () => {
 
     const request = createAdapter();
 
-    await expect(
-      api.get('/test', { adapter: request.adapter }),
-    ).rejects.toThrow('Session lookup failed');
+    await expect(api.get('/test', { adapter: request.adapter })).rejects.toThrow('Session lookup failed');
 
     expect(request.getConfig()).toBeUndefined();
   });
 
   it('normalizes backend HTTP errors through response interceptor', async () => {
-  getSession.mockResolvedValue({
-    data: { session: null },
-    error: null,
-  } as Awaited<ReturnType<typeof supabase.auth.getSession>>);
+    getSession.mockResolvedValue({
+      data: { session: null },
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.auth.getSession>>);
 
-  const adapter: AxiosAdapter = async (config) => {
-    throw new AxiosError(
-      'Request failed',
-      AxiosError.ERR_BAD_REQUEST,
-      config,
-      undefined,
-      {
+    const adapter: AxiosAdapter = async (config) => {
+      throw new AxiosError('Request failed', AxiosError.ERR_BAD_REQUEST, config, undefined, {
         data: {
           success: false,
           message: 'Workspace not found',
@@ -153,21 +134,16 @@ describe('API client authentication', () => {
         statusText: 'Not Found',
         headers: new AxiosHeaders(),
         config,
-      },
-    );
-  };
+      });
+    };
 
-  await expect(
-    api.get('/test', { adapter }),
-  ).rejects.toMatchObject({
-    name: 'ApiError',
-    message: 'Workspace not found',
-    status: 404,
-    code: 'WORKSPACE_NOT_FOUND',
+    await expect(api.get('/test', { adapter })).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Workspace not found',
+      status: 404,
+      code: 'WORKSPACE_NOT_FOUND',
+    });
+
+    await expect(api.get('/test', { adapter })).rejects.toBeInstanceOf(ApiError);
   });
-
-  await expect(
-    api.get('/test', { adapter }),
-  ).rejects.toBeInstanceOf(ApiError);
-});
 });

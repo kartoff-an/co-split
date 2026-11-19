@@ -1,27 +1,14 @@
-
-import {
-  AxiosError,
-  AxiosHeaders,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
-} from 'axios';
+import { AxiosError, AxiosHeaders, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import { describe, expect, it } from 'vitest';
 import { normalizeApiError } from '@/api/errors';
 
-function createAxiosError(
-  data?: unknown,
-  status?: number,
-): AxiosError {
+function createAxiosError(data?: unknown, status?: number): AxiosError {
   const config = {
     headers: new AxiosHeaders(),
   } as InternalAxiosRequestConfig;
 
   if (status === undefined) {
-    return new AxiosError(
-      'Network Error',
-      AxiosError.ERR_NETWORK,
-      config,
-    );
+    return new AxiosError('Network Error', AxiosError.ERR_NETWORK, config);
   }
 
   const response: AxiosResponse = {
@@ -32,13 +19,7 @@ function createAxiosError(
     config,
   };
 
-  return new AxiosError(
-    'Request failed',
-    AxiosError.ERR_BAD_REQUEST,
-    config,
-    undefined,
-    response,
-  );
+  return new AxiosError('Request failed', AxiosError.ERR_BAD_REQUEST, config, undefined, response);
 }
 
 describe('normalizeApiError', () => {
@@ -52,7 +33,7 @@ describe('normalizeApiError', () => {
           details: { workspace_id: 'workspace-123' },
         },
       },
-      403,
+      403
     );
 
     const normalized = normalizeApiError(error);
@@ -67,10 +48,7 @@ describe('normalizeApiError', () => {
   });
 
   it('supports FastAPI string detail responses', () => {
-    const error = createAxiosError(
-      { detail: 'Not authenticated' },
-      401,
-    );
+    const error = createAxiosError({ detail: 'Not authenticated' }, 401);
 
     const normalized = normalizeApiError(error);
 
@@ -93,9 +71,7 @@ describe('normalizeApiError', () => {
 
     expect(normalized.status).toBe(422);
     expect(normalized.details).toEqual(detail);
-    expect(normalized.message).toBe(
-      'The request could not be completed.',
-    );
+    expect(normalized.message).toBe('The request could not be completed.');
   });
 
   it('identifies network errors without HTTP responses', () => {
@@ -103,21 +79,15 @@ describe('normalizeApiError', () => {
 
     const normalized = normalizeApiError(error);
 
-    expect(normalized.message).toBe(
-      'Unable to connect to the server.',
-    );
+    expect(normalized.message).toBe('Unable to connect to the server.');
     expect(normalized.status).toBeUndefined();
     expect(normalized.isNetworkError).toBe(true);
   });
 
   it('handles non-Axios errors without losing their message', () => {
-    const normalized = normalizeApiError(
-      new Error('Unexpected application error'),
-    );
+    const normalized = normalizeApiError(new Error('Unexpected application error'));
 
-    expect(normalized.message).toBe(
-      'Unexpected application error',
-    );
+    expect(normalized.message).toBe('Unexpected application error');
     expect(normalized.status).toBeUndefined();
     expect(normalized.isNetworkError).toBe(false);
   });
@@ -125,8 +95,6 @@ describe('normalizeApiError', () => {
   it('handles unknown thrown values', () => {
     const normalized = normalizeApiError('unexpected');
 
-    expect(normalized.message).toBe(
-      'An unexpected error occurred.',
-    );
+    expect(normalized.message).toBe('An unexpected error occurred.');
   });
 });

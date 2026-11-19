@@ -27,12 +27,7 @@ interface WorkspaceSettingsModalProps {
 }
 
 export function WorkspaceSettingsModal(props: WorkspaceSettingsModalProps) {
-  return (
-    <WorkspaceSettingsModalContent
-      key={`${props.workspace.id}-${props.isOpen}`}
-      {...props}
-    />
-  );
+  return <WorkspaceSettingsModalContent key={`${props.workspace.id}-${props.isOpen}`} {...props} />;
 }
 
 export function WorkspaceSettingsModalContent({

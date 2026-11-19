@@ -42,7 +42,7 @@ describe('authService', () => {
       vi.mocked(supabase.auth.getUser).mockResolvedValue({
         data: { user: null },
         error: null,
-      } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>> );
+      } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>>);
 
       const result = await getCurrentUser();
       expect(result).toBeNull();

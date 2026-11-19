@@ -22,12 +22,7 @@ interface InviteModalProps {
 }
 
 export function InviteModal(props: InviteModalProps) {
-  return (
-    <InviteModalContent
-      key={`${props.workspaceId}-${props.isOpen}`}
-      {...props}
-    />
-  );
+  return <InviteModalContent key={`${props.workspaceId}-${props.isOpen}`} {...props} />;
 }
 
 export function InviteModalContent({

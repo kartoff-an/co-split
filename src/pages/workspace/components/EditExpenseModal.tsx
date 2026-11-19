@@ -31,12 +31,7 @@ interface EditExpenseModalProps {
 export function EditExpenseModal(props: EditExpenseModalProps) {
   if (!props.expense) return null;
 
-  return (
-    <EditExpenseModalContent
-      key={`${props.expense.id}-${props.isOpen}`}
-      {...props}
-    />
-  );
+  return <EditExpenseModalContent key={`${props.expense.id}-${props.isOpen}`} {...props} />;
 }
 
 export function EditExpenseModalContent({
@@ -58,9 +53,7 @@ export function EditExpenseModalContent({
   const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(() => {
     if (!expense?.split_members?.length) return [];
 
-    return members
-      .map((member) => member.id)
-      .filter((id) => !expense.split_members?.includes(id));
+    return members.map((member) => member.id).filter((id) => !expense.split_members?.includes(id));
   });
   const [isSplitPopoverOpen, setIsSplitPopoverOpen] = useState(false);
 
