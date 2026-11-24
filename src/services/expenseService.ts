@@ -1,33 +1,18 @@
 import { api } from '@/api/client';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData, requireApiSuccess } from '@/api/response';
-import type { ApiResponse } from '@/api/types';
-import type { Expense } from '@/types';
+import type { ApiResponse, PaginatedData } from '@/api/types';
+import type { Expense } from '@/api/types/expense';
 
-interface PaginatedData<T> {
-  items: T[];
-  total: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
-}
 
-type ExpenseCreateInput = Omit<Expense, 'id' | 'timestamp' | 'workspace_id' | 'created_by'>;
-
-type ExpenseUpdateInput = Partial<Omit<Expense, 'id' | 'timestamp' | 'workspace_id' | 'created_by'>>;
-
-interface ExpenseApiResponse extends Omit<Expense, 'amount'> {
-  amount: number | string;
-}
-
-const normalizeExpense = (expense: ExpenseApiResponse): Expense => ({ ...expense, amount: Number(expense.amount) });
+const normalizeExpense = (expense: Expense): Expense => ({ ...expense, amount: expense.amount });
 
 export const fetchWorkspaceExpensesPaginated = async (
   workspaceId: string,
   page: number,
   pageSize: number
 ): Promise<{ expenses: Expense[]; hasMore: boolean }> => {
-  const response = await api.get<ApiResponse<PaginatedData<ExpenseApiResponse>>>(
+  const response = await api.get<ApiResponse<PaginatedData<Expense>>>(
     API_ENDPOINTS.workspaces.expenses(workspaceId),
     {
       params: {
@@ -45,8 +30,8 @@ export const fetchWorkspaceExpensesPaginated = async (
   };
 };
 
-export const addExpense = async (workspaceId: string, expense: ExpenseCreateInput): Promise<Expense> => {
-  const response = await api.post<ApiResponse<ExpenseApiResponse>>(API_ENDPOINTS.expenses.base, {
+export const addExpense = async (workspaceId: string, expense: ExpenseCreate): Promise<Expense> => {
+  const response = await api.post<ApiResponse<Expense>>(API_ENDPOINTS.expenses.base, {
     workspace_id: workspaceId,
     description: expense.description,
     amount: expense.amount,
@@ -58,8 +43,8 @@ export const addExpense = async (workspaceId: string, expense: ExpenseCreateInpu
   return normalizeExpense(requireApiData(response));
 };
 
-export const updateExpense = async (expenseId: number | string, updates: ExpenseUpdateInput): Promise<Expense> => {
-  const response = await api.patch<ApiResponse<ExpenseApiResponse>>(
+export const updateExpense = async (expenseId: number | string, updates: ExpenseUpdate): Promise<Expense> => {
+  const response = await api.patch<ApiResponse<Expense>>(
     API_ENDPOINTS.expenses.detail(Number(expenseId)),
     updates
   );

@@ -12,7 +12,8 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
     "test": "vitest run",
     "test:integration": "vitest run --mode test",
-    "db:setup-test": "node scripts/setup-test-db.cjs"
+    "db:setup-test": "node scripts/setup-test-db.cjs",
+    "api:types": "openapi-typescript http://localhost:8000/openapi.json -o src/api/generated/schema.d.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -50,10 +51,11 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "supabase": "^3.1.0",
-    "typescript": "~6.0.2",
+    "typescript": "~5.9.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.0.12",
     "vitest": "^4.1.9"
