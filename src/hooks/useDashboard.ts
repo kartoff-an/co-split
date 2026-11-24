@@ -13,7 +13,10 @@ export const useDashboard = (userId: string | undefined) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<DashboardMessage | null>(null);
 
-  const { data: workspaces = [], isLoading: loadingWorkspaces } = useQuery<WorkspaceItem[]>({
+  const {
+    data: workspaces = [],
+    isLoading: loadingWorkspaces,
+  } = useQuery<WorkspaceItem[]>({
     queryKey: ['workspaces', userId],
     queryFn: () => workspaceService.getUserWorkspaces(),
     enabled: !!userId,
@@ -62,7 +65,9 @@ export const useDashboard = (userId: string | undefined) => {
     }
   };
 
-  const ownedWorkspaces = workspaces.filter((workspace: WorkspaceItem) => workspace.owner_id === userId).length;
+  const ownedWorkspaces = workspaces.filter(
+    (workspace: WorkspaceItem) => workspace.owner_id === userId
+  ).length;
 
   return {
     workspaces,

@@ -20,16 +20,8 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
 
-  const {
-    ownedWorkspaces,
-    workspaces,
-    loadingWorkspaces,
-    actionLoading,
-    message,
-    clearMessage,
-    createWorkspace,
-    joinWorkspace,
-  } = useDashboard(user?.id);
+  const { ownedWorkspaces, workspaces, loadingWorkspaces, actionLoading, message, clearMessage, createWorkspace, joinWorkspace } =
+    useDashboard(user?.id);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/', { replace: true });

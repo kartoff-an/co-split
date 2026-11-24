@@ -1,8 +1,8 @@
-import { api } from '@/api/client';
-import { API_ENDPOINTS } from '@/api/endpoints';
-import { requireApiData, requireApiSuccess } from '@/api/response';
-import type { ApiResponse } from '@/api/types';
-import type { Member, Workspace, WorkspaceItem } from '@/types';
+import { api } from "@/api/client";
+import { API_ENDPOINTS } from "@/api/endpoints";
+import { requireApiData, requireApiSuccess } from "@/api/response";
+import type { ApiResponse } from "@/api/types";
+import type { Member, Workspace, WorkspaceItem } from "@/types";
 
 interface WorkspaceResponse {
   id: string;
@@ -11,8 +11,9 @@ interface WorkspaceResponse {
   allowed_members: number | null;
   currency: string;
   invite_code: string;
-  created_at: string;
+  created_at: string
 }
+
 
 interface WorkspaceMemberResponse {
   id: string;
@@ -23,9 +24,11 @@ interface WorkspaceMemberResponse {
   joined_at: string;
 }
 
+
 interface WorkspaceInvitePreviewResponse {
   name: string | null;
 }
+
 
 interface WorkspaceListResponse {
   id: string;
@@ -39,6 +42,7 @@ interface WorkspaceListResponse {
   user_net_balance: number;
 }
 
+
 export const getUserWorkspaces = async (): Promise<WorkspaceItem[]> => {
   const response = await api.get<ApiResponse<WorkspaceListResponse[]>>(API_ENDPOINTS.workspaces.base);
 
@@ -51,20 +55,24 @@ export const getUserWorkspaces = async (): Promise<WorkspaceItem[]> => {
   }));
 };
 
+
 export const createWorkspaceWithMember = async (name: string): Promise<string> => {
   const response = await api.post<ApiResponse<WorkspaceResponse>>(API_ENDPOINTS.workspaces.base, { name });
   const workspace = requireApiData(response);
 
   return workspace.id;
-};
+}
+
 
 export const joinWorkspaceWithCode = async (inviteCode: string): Promise<string> => {
-  const response = await api.post<ApiResponse<WorkspaceResponse>>(API_ENDPOINTS.workspaces.join, {
-    invite_code: inviteCode,
-  });
+  const response = await api.post<ApiResponse<WorkspaceResponse>>(
+      API_ENDPOINTS.workspaces.join,
+      { invite_code: inviteCode }
+  );
 
   return requireApiData(response).id;
-};
+}
+
 
 export const getWorkspaceInvitePreview = async (inviteCode: string): Promise<string | null> => {
   const response = await api.get<ApiResponse<WorkspaceInvitePreviewResponse>>(
@@ -72,7 +80,8 @@ export const getWorkspaceInvitePreview = async (inviteCode: string): Promise<str
   );
 
   return requireApiData(response).name;
-};
+}
+
 
 export const regenerateInviteCode = async (workspaceId: string): Promise<string> => {
   const response = await api.post<ApiResponse<WorkspaceResponse>>(
@@ -80,7 +89,8 @@ export const regenerateInviteCode = async (workspaceId: string): Promise<string>
   );
 
   return requireApiData(response).invite_code;
-};
+}
+
 
 export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => {
   const input = pastedLinkOrId.trim();
@@ -103,7 +113,7 @@ export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => 
       const url = new URL(input, window.location.origin);
       inviteCode = url.searchParams.get('code');
     } catch {
-      throw new Error('Invalid workspace invite link.');
+      throw new Error('Invalid workspace invite link.')
     }
   } else if (input.includes(':')) {
     const parts = input.split(':');
@@ -117,17 +127,16 @@ export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => 
   }
 
   return joinWorkspaceWithCode(inviteCode);
-};
+}
 
-export const getWorkspaceDetails = async (
-  workspaceId: string
-): Promise<{
+
+export const getWorkspaceDetails = async (workspaceId: string): Promise<{
   workspace: Workspace | null;
   members: Member[];
 }> => {
   const [workspaceResponse, membersResponse] = await Promise.all([
     api.get<ApiResponse<WorkspaceResponse>>(API_ENDPOINTS.workspaces.detail(workspaceId)),
-    api.get<ApiResponse<WorkspaceMemberResponse[]>>(API_ENDPOINTS.workspaces.members(workspaceId)),
+    api.get<ApiResponse<WorkspaceMemberResponse[]>>(API_ENDPOINTS.workspaces.members(workspaceId))
   ]);
 
   const workspaceData = requireApiData(workspaceResponse);
@@ -140,7 +149,7 @@ export const getWorkspaceDetails = async (
     allowed_members: workspaceData.allowed_members,
     currency: workspaceData.currency,
     created_at: workspaceData.created_at,
-    invite_code: workspaceData.invite_code,
+    invite_code: workspaceData.invite_code
   };
 
   const members: Member[] = memebrData.map((member) => ({
@@ -149,42 +158,55 @@ export const getWorkspaceDetails = async (
     workspace_id: member.workspace_id,
     display_name: member.display_name,
     avatar_url: member.avatar_url,
-    joined_at: member.joined_at,
+    joined_at: member.joined_at
   }));
 
   return { workspace, members };
-};
+}
 
-export const removeMember = async (workspaceId: string, userId: string): Promise<boolean> => {
-  const response = await api.delete<ApiResponse<null>>(API_ENDPOINTS.workspaces.removeMember(workspaceId, userId));
+
+export const removeMember = async (
+  workspaceId: string,
+  userId: string
+): Promise<boolean> => {
+  const response = await api.delete<ApiResponse<null>>(
+    API_ENDPOINTS.workspaces.removeMember(workspaceId, userId)
+  );
 
   requireApiSuccess(response);
 
   return true;
-};
+}
 
-export const updateWorkspaceDetails = async (workspaceId: string, updates: Partial<Workspace>): Promise<Workspace> => {
-  const response = await api.patch<ApiResponse<WorkspaceResponse>>(API_ENDPOINTS.workspaces.detail(workspaceId), {
-    ...(updates.name !== undefined && { name: updateWorkspaceDetails.name }),
-    ...(updates.allowed_members !== undefined && { allowed_members: updates.allowed_members }),
-    ...(updates.currency !== undefined && { currency: updates.currency }),
-  });
+export const updateWorkspaceDetails = async (
+  workspaceId: string,
+  updates: Partial<Workspace>
+): Promise<Workspace> => {
+  const response = await api.patch<ApiResponse<WorkspaceResponse>>(
+    API_ENDPOINTS.workspaces.detail(workspaceId),
+    {
+      ...(updates.name !== undefined && { name: updateWorkspaceDetails.name }),
+      ...(updates.allowed_members !== undefined && { allowed_members: updates.allowed_members }),
+      ...(updates.currency !== undefined && { currency: updates.currency })
+    }
+  );
 
   const workspace = requireApiData(response);
 
   return {
-    id: workspace.id,
+    id:workspace.id,
     name: workspace.name,
     owner_id: workspace.owner_id,
     allowed_members: workspace.allowed_members,
     currency: workspace.currency,
     created_at: workspace.created_at,
-    invite_code: workspace.invite_code,
+    invite_code: workspace.invite_code
   };
-};
+}
+
 
 export const deleteWorkspace = async (workspaceId: string): Promise<void> => {
   const response = await api.delete<ApiResponse<null>>(API_ENDPOINTS.workspaces.detail(workspaceId));
 
   requireApiSuccess(response);
-};
+}
