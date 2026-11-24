@@ -161,29 +161,6 @@ export const useWorkspace = (workspaceId: string) => {
     }
   };
 
-  const addMember = async (userId: string) => {
-    try {
-      const newMember = await workspaceService.addMemberToWorkspaceWithCheck(workspaceId, userId);
-      if (newMember) {
-        queryClient.setQueryData(
-          ['workspace', workspaceId],
-          (old: { workspace: Workspace | null; members: Member[] } | undefined) => {
-            if (!old) return old;
-            return {
-              ...old,
-              members: [...old.members.filter((m) => m.id !== userId), newMember],
-            };
-          }
-        );
-        queryClient.invalidateQueries({ queryKey: ['workspaces'] });
-      }
-      return newMember;
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'Failed to add member');
-      return null;
-    }
-  };
-
   const removeMember = async (userId: string) => {
     try {
       const success = await workspaceService.removeMember(workspaceId, userId);
@@ -289,7 +266,6 @@ export const useWorkspace = (workspaceId: string) => {
     addExpense,
     updateExpense,
     deleteExpense,
-    addMember,
     removeMember,
     updateWorkspace,
     deleteWorkspace,

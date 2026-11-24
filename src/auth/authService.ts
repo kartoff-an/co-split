@@ -1,19 +1,28 @@
 import { supabase } from '@/lib/supabase';
-import { fetchUserProfile } from './profiles';
+import { api } from '@/api/client';
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import type { UserProfile } from '@/types';
+import { API_ENDPOINTS } from '@/api/endpoints';
 
 export const getCurrentUser = async (): Promise<User | null> => {
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  if (error) throw error;
+
   return user;
 };
 
 export const getSession = async (): Promise<Session | null> => {
   const {
     data: { session },
+    error,
   } = await supabase.auth.getSession();
+
+  if (error) throw error;
+
   return session;
 };
 
@@ -27,7 +36,9 @@ export const onAuthStateChange = (
 };
 
 export const signOut = async (): Promise<void> => {
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) throw error;
 };
 
 export const signInWithGoogle = async (): Promise<void> => {
@@ -40,6 +51,8 @@ export const signInWithGoogle = async (): Promise<void> => {
   if (error) throw error;
 };
 
-export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
-  return fetchUserProfile(userId);
+export const getUserProfile = async (): Promise<UserProfile> => {
+  const response = await api.get<UserProfile>(API_ENDPOINTS.users.me);
+
+  return response.data;
 };

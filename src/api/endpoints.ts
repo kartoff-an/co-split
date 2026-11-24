@@ -5,8 +5,9 @@ export const API_ENDPOINTS = {
 
   workspaces: {
     base: '/workspaces',
-    detail: (workspaceId: string) => `/workspace/${workspaceId}`,
+    detail: (workspaceId: string) => `/workspaces/${workspaceId}`,
     join: '/workspaces/join',
+    invitePreview: (inviteCode: string) => `/workspaces/invite/${inviteCode}/preview`,
     regenerateInviteCode: (workspaceId: string) => `/workspaces/${workspaceId}/invite-code/regenerate`,
     members: (workspaceId: string) => `/workspaces/${workspaceId}/members`,
     removeMember: (workspaceId: string, userId: string) => `/workspaces/${workspaceId}/members/${userId}`,
@@ -17,7 +18,7 @@ export const API_ENDPOINTS = {
   },
 
   expenses: {
-    base: '/expense',
+    base: '/expenses',
     detail: (expenseId: number) => `/expenses/${expenseId}`,
   },
 

@@ -1,104 +1,96 @@
-import { supabase } from '@/lib/supabase';
-import {
-  fetchWorkspaceMembers,
-  addMemberToWorkspace,
-  removeMemberFromWorkspace,
-  fetchMemberCount,
-} from '@/repository/members';
-import {
-  fetchWorkspace,
-  createWorkspace,
-  updateWorkspace,
-  deleteWorkspace as dbDeleteWorkspace,
-} from '@/repository/workspaces';
-import { fetchUserProfile } from '@/auth/profiles';
-import type { Workspace, Member, WorkspaceItem } from '@/types';
+import { api } from "@/api/client";
+import { API_ENDPOINTS } from "@/api/endpoints";
+import { requireApiData, requireApiSuccess } from "@/api/response";
+import type { ApiResponse } from "@/api/types";
+import type { Member, Workspace, WorkspaceItem } from "@/types";
 
-interface SupabaseRpc {
-  rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: unknown }>;
+interface WorkspaceResponse {
+  id: string;
+  name: string;
+  owner_id: string;
+  allowed_members: number | null;
+  currency: string;
+  invite_code: string;
+  created_at: string
 }
 
-interface DBWorkspaceItem {
+
+interface WorkspaceMemberResponse {
+  id: string;
+  membership_id: number;
+  workspace_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  joined_at: string;
+}
+
+
+interface WorkspaceInvitePreviewResponse {
+  name: string | null;
+}
+
+
+interface WorkspaceListResponse {
   id: string;
   name: string;
   created_at: string;
   owner_id: string;
-  owner_name: string;
+  owner_name: string | null;
   currency: string;
   total_expenses: number;
   member_count: number;
   user_net_balance: number;
 }
 
-interface DBMemberResult {
-  id: string;
-  workspace_id: string;
-  user_id: string;
-  joined_at: string;
-  user_profiles: {
-    display_name: string;
-    avatar_url: string | null;
-  } | null;
-}
 
-export const getUserWorkspaces = async (userId: string): Promise<WorkspaceItem[]> => {
-  const client = supabase as unknown as SupabaseRpc;
-  const { data, error } = await client.rpc('get_user_workspaces', {
-    u_id: userId,
-  });
+export const getUserWorkspaces = async (): Promise<WorkspaceItem[]> => {
+  const response = await api.get<ApiResponse<WorkspaceListResponse[]>>(API_ENDPOINTS.workspaces.base);
 
-  if (error) throw error;
-
-  const list = data as DBWorkspaceItem[] | null;
-
-  return (list || []).map((w) => ({
-    id: w.id,
-    name: w.name,
-    created_at: w.created_at,
-    owner_id: w.owner_id,
-    owner_name: w.owner_name,
-    currency: w.currency,
-    total_expenses: Number(w.total_expenses),
-    member_count: Number(w.member_count),
-    user_net_balance: Number(w.user_net_balance),
+  return requireApiData(response).map((workspace) => ({
+    ...workspace,
+    owner_name: workspace.owner_name ?? 'Unknown',
+    total_expenses: Number(workspace.total_expenses),
+    member_count: Number(workspace.member_count),
+    user_net_balance: Number(workspace.user_net_balance),
   }));
 };
 
-export const createWorkspaceWithMember = async (name: string, ownerId: string): Promise<string> => {
-  const workspace = await createWorkspace(name, ownerId);
-  await addMemberToWorkspace(workspace.id, ownerId);
+
+export const createWorkspaceWithMember = async (name: string): Promise<string> => {
+  const response = await api.post<ApiResponse<WorkspaceResponse>>(API_ENDPOINTS.workspaces.base, { name });
+  const workspace = requireApiData(response);
+
   return workspace.id;
-};
+}
+
 
 export const joinWorkspaceWithCode = async (inviteCode: string): Promise<string> => {
-  const client = supabase as unknown as SupabaseRpc;
-  const { data, error } = await client.rpc('join_workspace_with_code', {
-    invite_uuid: inviteCode,
-  });
+  const response = await api.post<ApiResponse<WorkspaceResponse>>(
+      API_ENDPOINTS.workspaces.join,
+      { invite_code: inviteCode }
+  );
 
-  if (error) throw error;
-  return data as string;
-};
+  return requireApiData(response).id;
+}
+
 
 export const getWorkspaceInvitePreview = async (inviteCode: string): Promise<string | null> => {
-  const client = supabase as unknown as SupabaseRpc;
-  const { data, error } = await client.rpc('get_workspace_invite_preview', {
-    invite_uuid: inviteCode,
-  });
+  const response = await api.get<ApiResponse<WorkspaceInvitePreviewResponse>>(
+    API_ENDPOINTS.workspaces.invitePreview(inviteCode)
+  );
 
-  if (error) throw error;
-  return typeof data === 'string' ? data : null;
-};
+  return requireApiData(response).name;
+}
+
 
 export const regenerateInviteCode = async (workspaceId: string): Promise<string> => {
-  const client = supabase as unknown as SupabaseRpc;
-  const { data, error } = await client.rpc('regenerate_workspace_invite_code', {
-    w_id: workspaceId,
-  });
+  const response = await api.post<ApiResponse<WorkspaceResponse>>(
+    API_ENDPOINTS.workspaces.regenerateInviteCode(workspaceId)
+  );
 
-  if (error) throw error;
-  return data as string;
-};
+  return requireApiData(response).invite_code;
+}
+
 
 export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => {
   const input = pastedLinkOrId.trim();
@@ -106,21 +98,22 @@ export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => 
 
   if (input.includes('/join/')) {
     try {
-      const url = new URL(input);
+      const url = new URL(input, window.location.origin);
       const pathParts = url.pathname.split('/');
       const joinIndex = pathParts.indexOf('join') + 1;
+
       if (joinIndex > 0 && joinIndex < pathParts.length) {
         inviteCode = pathParts[joinIndex];
       }
-    } catch (e) {
-      console.error('Failed to parse pasted join URL:', e);
+    } catch {
+      throw new Error('Invalid workspace invite link.');
     }
-  } else if (input.includes('/workspace/')) {
+  } else if (input.includes('/workspaces.')) {
     try {
-      const url = new URL(input);
+      const url = new URL(input, window.location.origin);
       inviteCode = url.searchParams.get('code');
-    } catch (e) {
-      console.error('Failed to parse pasted legacy URL:', e);
+    } catch {
+      throw new Error('Invalid workspace invite link.')
     }
   } else if (input.includes(':')) {
     const parts = input.split(':');
@@ -134,70 +127,86 @@ export const joinWorkspace = async (pastedLinkOrId: string): Promise<string> => 
   }
 
   return joinWorkspaceWithCode(inviteCode);
-};
+}
 
-export const getWorkspaceDetails = async (
-  workspaceId: string
-): Promise<{
+
+export const getWorkspaceDetails = async (workspaceId: string): Promise<{
   workspace: Workspace | null;
   members: Member[];
 }> => {
-  const workspace = await fetchWorkspace(workspaceId);
-  if (!workspace) return { workspace: null, members: [] };
+  const [workspaceResponse, membersResponse] = await Promise.all([
+    api.get<ApiResponse<WorkspaceResponse>>(API_ENDPOINTS.workspaces.detail(workspaceId)),
+    api.get<ApiResponse<WorkspaceMemberResponse[]>>(API_ENDPOINTS.workspaces.members(workspaceId))
+  ]);
 
-  const rawMembers = await fetchWorkspaceMembers(workspaceId);
+  const workspaceData = requireApiData(workspaceResponse);
+  const memebrData = requireApiData(membersResponse);
 
-  const mappedMembers: Member[] = (rawMembers as unknown as DBMemberResult[]).map((member) => ({
-    id: member.user_id,
-    membership_id: String(member.id),
+  const workspace: Workspace = {
+    id: workspaceData.id,
+    name: workspaceData.name,
+    owner_id: workspaceData.owner_id,
+    allowed_members: workspaceData.allowed_members,
+    currency: workspaceData.currency,
+    created_at: workspaceData.created_at,
+    invite_code: workspaceData.invite_code
+  };
+
+  const members: Member[] = memebrData.map((member) => ({
+    id: member.id,
+    membership_id: String(member.membership_id),
     workspace_id: member.workspace_id,
-    display_name: member.user_profiles?.display_name || 'Unknown',
-    avatar_url: member.user_profiles?.avatar_url || null,
-    joined_at: member.joined_at,
+    display_name: member.display_name,
+    avatar_url: member.avatar_url,
+    joined_at: member.joined_at
   }));
 
-  return { workspace, members: mappedMembers };
-};
+  return { workspace, members };
+}
 
-export const addMemberToWorkspaceWithCheck = async (workspaceId: string, userId: string): Promise<Member | null> => {
-  const workspace = await fetchWorkspace(workspaceId);
-  if (!workspace) throw new Error('Workspace not found.');
 
-  const count = await fetchMemberCount(workspaceId);
-  const limit = workspace.allowed_members ?? 10;
-  if (count >= limit) {
-    throw new Error(`This workspace has reached its member limit of ${limit}.`);
-  }
+export const removeMember = async (
+  workspaceId: string,
+  userId: string
+): Promise<boolean> => {
+  const response = await api.delete<ApiResponse<null>>(
+    API_ENDPOINTS.workspaces.removeMember(workspaceId, userId)
+  );
 
-  const data = await addMemberToWorkspace(workspaceId, userId);
-  const profile = await fetchUserProfile(userId);
+  requireApiSuccess(response);
 
-  if (profile) {
-    return {
-      id: userId,
-      membership_id: String(data.id),
-      workspace_id: workspaceId,
-      display_name: profile.display_name,
-      avatar_url: profile.avatar_url,
-      joined_at: data.joined_at,
-    };
-  }
-
-  return null;
-};
-
-export const removeMember = async (workspaceId: string, userId: string): Promise<boolean> => {
-  await removeMemberFromWorkspace(workspaceId, userId);
   return true;
-};
+}
 
 export const updateWorkspaceDetails = async (
   workspaceId: string,
   updates: Partial<Workspace>
-): Promise<Workspace | null> => {
-  return updateWorkspace(workspaceId, updates);
-};
+): Promise<Workspace> => {
+  const response = await api.patch<ApiResponse<WorkspaceResponse>>(
+    API_ENDPOINTS.workspaces.detail(workspaceId),
+    {
+      ...(updates.name !== undefined && { name: updateWorkspaceDetails.name }),
+      ...(updates.allowed_members !== undefined && { allowed_members: updates.allowed_members }),
+      ...(updates.currency !== undefined && { currency: updates.currency })
+    }
+  );
+
+  const workspace = requireApiData(response);
+
+  return {
+    id:workspace.id,
+    name: workspace.name,
+    owner_id: workspace.owner_id,
+    allowed_members: workspace.allowed_members,
+    currency: workspace.currency,
+    created_at: workspace.created_at,
+    invite_code: workspace.invite_code
+  };
+}
+
 
 export const deleteWorkspace = async (workspaceId: string): Promise<void> => {
-  await dbDeleteWorkspace(workspaceId);
-};
+  const response = await api.delete<ApiResponse<null>>(API_ENDPOINTS.workspaces.detail(workspaceId));
+
+  requireApiSuccess(response);
+}
