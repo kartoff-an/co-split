@@ -4,7 +4,6 @@ import { useQueries } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/useAuth';
 import { useDashboard } from '@/hooks/useDashboard';
-import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/currency';
 
 import type { Settlement, WorkspaceItem } from '@/types';
@@ -22,11 +21,30 @@ import {
   TrendUpIcon,
   WarningCircleIcon,
 } from '@phosphor-icons/react';
+import { API_ENDPOINTS } from '@/api/endpoints';
+import type { ApiResponse } from '@/api/types';
+import { api } from '@/api/client';
+import { requireApiData } from '@/api/response';
 
 type SettlementFilter = 'all' | 'owe' | 'owed';
 
-interface SettlementResult {
+interface MemberResponse {
+  id: string;
+  display_name: string;
+}
+
+interface SuggestedSettlementResponse {
+  from_user_id: string;
+  to_user_id: string;
+  amount: number | string;
+}
+
+interface WorkspaceSettlementResult {
   settlements: Settlement[];
+}
+
+interface WorkspaceBalanceResponse {
+  suggested_settlements: SuggestedSettlementResponse[];
 }
 
 interface SettlementItem extends Settlement {
@@ -34,13 +52,9 @@ interface SettlementItem extends Settlement {
   direction: 'owe' | 'owed';
 }
 
-interface SupabaseRpc {
-  rpc(fn: string, args: Record<string, unknown>): Promise<{ data: unknown; error: unknown }>;
-}
-
 export function SettlementsPage() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
 
   const { workspaces, loadingWorkspaces } = useDashboard(user?.id);
 
@@ -49,17 +63,24 @@ export function SettlementsPage() {
   const settlementQueries = useQueries({
     queries: workspaces.map((workspace) => ({
       queryKey: ['workspace-balance', workspace.id],
-      queryFn: async (): Promise<SettlementResult> => {
-        const client = supabase as unknown as SupabaseRpc;
+      queryFn: async (): Promise<WorkspaceSettlementResult> => {
+        const [balanceResponse, membersResponse] = await Promise.all([
+          api.get<ApiResponse<WorkspaceBalanceResponse>>(API_ENDPOINTS.workspaces.balances(workspace.id)),
+          api.get<ApiResponse<MemberResponse[]>>(API_ENDPOINTS.workspaces.members(workspace.id)),
+        ]);
 
-        const { data, error } = await client.rpc('calculate_workspace_balances', { w_id: workspace.id });
-
-        if (error) throw error;
-
-        const result = (data ?? { settlements: [] }) as SettlementResult;
+        const balanceData = requireApiData(balanceResponse);
+        const members = requireApiData(membersResponse);
+        const memberById = new Map(members.map((member) => [member.id, member.display_name]));
 
         return {
-          settlements: result.settlements ?? [],
+          settlements: balanceData.suggested_settlements.map((settlement) => ({
+            from_id: settlement.from_user_id,
+            from: memberById.get(settlement.from_user_id) ?? 'Unknown member',
+            to_id: settlement.to_user_id,
+            to: memberById.get(settlement.to_user_id) ?? 'Unknown member',
+            amount: Number(settlement.amount),
+          })),
         };
       },
       enabled: !!user?.id,
@@ -78,11 +99,8 @@ export function SettlementsPage() {
       const workspaceSettlements = settlementQueries[index]?.data?.settlements ?? [];
 
       workspaceSettlements.forEach((settlement) => {
-        const isDebtor =
-          settlement.from_id === user.id || (!settlement.from_id && settlement.from === profile?.display_name);
-
-        const isCreditor =
-          settlement.to_id === user.id || (!settlement.to_id && settlement.to === profile?.display_name);
+        const isDebtor = settlement.from_id === user.id;
+        const isCreditor = settlement.to_id === user.id;
 
         if (!isDebtor && !isCreditor) return;
 

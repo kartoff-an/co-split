@@ -3,7 +3,6 @@ import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-quer
 import type { Expense, Member, Workspace } from '@/types';
 import * as workspaceService from '@/services//workspaceService';
 import * as expenseService from '@/services/expenseService';
-import { fetchWorkspaceExpensesPaginated } from '@/repository/expenses';
 
 export const useWorkspace = (workspaceId: string) => {
   const queryClient = useQueryClient();
@@ -28,7 +27,7 @@ export const useWorkspace = (workspaceId: string) => {
     fetchNextPage,
   } = useInfiniteQuery({
     queryKey: ['workspace-expenses', workspaceId],
-    queryFn: ({ pageParam = 1 }) => fetchWorkspaceExpensesPaginated(workspaceId, pageParam, pageSize),
+    queryFn: ({ pageParam = 1 }) => expenseService.fetchWorkspaceExpensesPaginated(workspaceId, pageParam, pageSize),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasMore ? allPages.length + 1 : undefined;

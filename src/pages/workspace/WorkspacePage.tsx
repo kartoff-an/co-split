@@ -60,7 +60,11 @@ export function WorkspacePage() {
     refetch,
   } = useWorkspace(workspaceId);
 
-  const { balances, settlements, totalWorkspaceCost, averageCostPerPerson } = useBalance(workspaceId, expenses.length);
+  const { balances, settlements, totalWorkspaceCost, averageCostPerPerson } = useBalance(
+    workspaceId,
+    expenses.length,
+    members
+  );
 
   const isMember = !!user && members.some((member: Member) => member.id === user.id);
   const isOwner = !!user && workspace?.owner_id === user.id;
