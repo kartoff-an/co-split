@@ -8,24 +8,40 @@ import { AuthContext } from './AuthContext';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClient = useQueryClient();
+
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [authInitLoading, setAuthInitLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
+    let authEventReceived = false;
 
-    authService.getSession().then((initialSession) => {
-      if (!mounted) return;
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
-      setAuthInitLoading(false);
-    });
+    authService
+      .getSession()
+      .then((initialSession) => {
+        if (!mounted || authEventReceived) return;
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to restore authentication session:', error);
+      })
+      .finally(() => {
+        if (mounted) setAuthInitLoading(false);
+      });
 
-    const subscription = authService.onAuthStateChange((_event, currentSession) => {
+    const subscription = authService.onAuthStateChange((event, currentSession) => {
       if (!mounted) return;
+
+      authEventReceived = true;
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+      }
+
       setAuthInitLoading(false);
     });
 
@@ -33,41 +49,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
-  const { data: profile = null, isLoading: profileLoading } = useQuery({
+  const profileQuery = useQuery<UserProfile>({
     queryKey: ['user-profile', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return null;
-      try {
-        const data = await authService.getUserProfile(user.id);
-        if (data) return data;
-      } catch (err) {
-        console.error('Error fetching user profile from database:', err);
-      }
-
-      // Fallback to metadata if DB row not available
-      return {
-        id: user.id,
-        display_name: user.user_metadata?.full_name || user.user_metadata?.name || 'New User',
-        avatar_url: user.user_metadata?.avatar_url || null,
-        email: user.email || '',
-        created_at: user.created_at,
-      } as UserProfile;
-    },
+    queryFn: authService.getUserProfile,
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 15, // Cache profile for 15 minutes
     gcTime: 1000 * 60 * 60, // Retain in memory for 1 hour
   });
 
-  const signOut = async () => {
+  const signOut = async (): Promise<void> => {
     await authService.signOut();
     setUser(null);
     setSession(null);
     queryClient.clear();
   };
+  const profileError = profileQuery.error instanceof Error ? profileQuery.error : null;
+  const loading = authInitLoading || (!!user && profileQuery.isLoading);
 
-  const loading = authInitLoading || (!!user && profileLoading && !profile);
-
-  return <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        profile: profileQuery.data ?? null,
+        profileError,
+        loading,
+        signOut,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };

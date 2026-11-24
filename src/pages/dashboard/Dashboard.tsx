@@ -14,15 +14,22 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { SpinnerGapIcon, WarningCircleIcon, CheckCircleIcon, XIcon } from '@phosphor-icons/react';
 
-import type { WorkspaceItem } from '@/types';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
 
-  const { workspaces, loadingWorkspaces, actionLoading, message, clearMessage, createWorkspace, joinWorkspace } =
-    useDashboard(user?.id);
+  const {
+    ownedWorkspaces,
+    workspaces,
+    loadingWorkspaces,
+    actionLoading,
+    message,
+    clearMessage,
+    createWorkspace,
+    joinWorkspace,
+  } = useDashboard(user?.id);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/', { replace: true });
@@ -41,8 +48,6 @@ export function Dashboard() {
   };
 
   const handleOpenWorkspace = (id: string) => navigate(`/workspace/${id}`);
-
-  const ownedWorkspaces = workspaces.filter((workspace: WorkspaceItem) => workspace.owner_id === user?.id).length;
 
   if (authLoading || !profile) {
     return (
