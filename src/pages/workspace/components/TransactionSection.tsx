@@ -185,7 +185,7 @@ export function TransactionSection({
         </div>
 
         {/* Search and advanced filters */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="full-width flex gap-2 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
             <MagnifyingGlassIcon size={16} className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2" />
 

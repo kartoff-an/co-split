@@ -1,10 +1,5 @@
-
 import { useMemo } from 'react';
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '@/api/queryKeys';
 import {
@@ -15,39 +10,21 @@ import {
 
 import * as settlementService from '@/services/settlementService';
 
-import type {
-  SettlementCreate,
-  SettlementQueryParams,
-} from '@/api/types';
+import type { SettlementCreate, SettlementQueryParams } from '@/api/types';
 
-export const useSettlements = (
-  workspaceId: string,
-  filters: SettlementQueryParams = {},
-) => {
+export const useSettlements = (workspaceId: string, filters: SettlementQueryParams = {}) => {
   const queryClient = useQueryClient();
 
   const normalizedFilters = useMemo<SettlementQueryParams>(() => {
     return Object.fromEntries(
-      Object.entries(filters).filter(
-        ([, value]) =>
-          value !== undefined &&
-          value !== null &&
-          value !== '',
-      ),
+      Object.entries(filters).filter(([, value]) => value !== undefined && value !== null && value !== '')
     ) as SettlementQueryParams;
   }, [filters]);
 
   const query = useQuery({
-    queryKey: queryKeys.settlements.list(
-      workspaceId,
-      normalizedFilters,
-    ),
+    queryKey: queryKeys.settlements.list(workspaceId, normalizedFilters),
 
-    queryFn: () =>
-      settlementService.getWorkspaceSettlements(
-        workspaceId,
-        normalizedFilters,
-      ),
+    queryFn: () => settlementService.getWorkspaceSettlements(workspaceId, normalizedFilters),
 
     enabled: Boolean(workspaceId),
     staleTime: 30_000,
@@ -55,38 +32,26 @@ export const useSettlements = (
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: SettlementCreate) =>
-      settlementService.createSettlement(workspaceId, data),
+    mutationFn: (data: SettlementCreate) => settlementService.createSettlement(workspaceId, data),
 
     onSuccess: async () => {
-      await invalidateAfterSettlementCreated(
-        queryClient,
-        workspaceId,
-      );
+      await invalidateAfterSettlementCreated(queryClient, workspaceId);
     },
   });
 
   const confirmMutation = useMutation({
-    mutationFn: (settlementId: number) =>
-      settlementService.confirmSettlement(settlementId),
+    mutationFn: (settlementId: number) => settlementService.confirmSettlement(settlementId),
 
     onSuccess: async () => {
-      await invalidateAfterSettlementConfirmed(
-        queryClient,
-        workspaceId,
-      );
+      await invalidateAfterSettlementConfirmed(queryClient, workspaceId);
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (settlementId: number) =>
-      settlementService.deleteSettlement(settlementId),
+    mutationFn: (settlementId: number) => settlementService.deleteSettlement(settlementId),
 
     onSuccess: async () => {
-      await invalidateAfterSettlementDeleted(
-        queryClient,
-        workspaceId,
-      );
+      await invalidateAfterSettlementDeleted(queryClient, workspaceId);
     },
   });
 
@@ -95,10 +60,7 @@ export const useSettlements = (
 
     loading: query.isPending,
     fetching: query.isFetching,
-    error:
-      query.error instanceof Error
-        ? query.error.message
-        : null,
+    error: query.error instanceof Error ? query.error.message : null,
 
     refetch: query.refetch,
 
@@ -110,9 +72,6 @@ export const useSettlements = (
     confirming: confirmMutation.isPending,
     deleting: deleteMutation.isPending,
 
-    isMutating:
-      createMutation.isPending ||
-      confirmMutation.isPending ||
-      deleteMutation.isPending,
+    isMutating: createMutation.isPending || confirmMutation.isPending || deleteMutation.isPending,
   };
 };

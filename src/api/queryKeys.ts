@@ -28,7 +28,7 @@ export const queryKeys = {
     all: ['workspace-settlements'] as const,
     workspace: (workspaceId: string) => ['workspace-settlements', workspaceId] as const,
     list: (workspaceId: string, filters: SettlementQueryParams) =>
-    ['workspace-settlements', workspaceId, filters] as const
+      ['workspace-settlements', workspaceId, filters] as const,
   },
 
   activity: {

@@ -18,17 +18,22 @@ import { Button } from '@/components/ui/button';
 import { SpinnerGapIcon, WarningCircleIcon } from '@phosphor-icons/react';
 
 import { WorkspaceHeader } from './components/WorkspaceHeader';
-import { BalanceSummary } from './components/BalanceSummary';
 import { TransactionSection } from './components/TransactionSection';
 import { WorkspaceMembers } from './components/WorkspaceMembers';
 import { WorkspaceOverview } from './components/WorkspaceOverview';
 import { WorkspaceWelcome } from './components/WorkspaceWelcome';
 import type { ExpenseFilters, Expense, ExpenseCreate, ExpenseUpdate, SettlementQueryParams } from '@/api/types';
+import { WorkspaceTabNavigation } from './components/WorkspaceTabNavigation';
+import { TabsContent } from '@/components/ui/tabs';
+import { WorkspaceTransactionTab } from './components/WorkspaceTransactionTab';
+import { WorkspaceSettlementsTab } from './components/WorkspaceSettlementsTab';
 
 export function WorkspacePage() {
   const { workspaceId = '' } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeTab = searchParams.get('tab') === 'settlements' ? 'settlements' : 'transactions';
 
   const inviteCode = searchParams.get('code');
 
@@ -86,8 +91,10 @@ export function WorkspacePage() {
     deleteSettlement,
     confirming: settlementConfirming,
     deleting: settlementDeleting,
-    createSettlement
+    createSettlement,
   } = useSettlements(workspaceId, settlementFilters);
+
+  const pendingSettlementCount = settlements.filter((settlement) => settlement.status === 'pending').length;
 
   const isMember = !!user && members.some((member) => member.id === user.id);
   const isOwner = !!user && workspace?.owner_id === user.id;
@@ -137,11 +144,7 @@ export function WorkspacePage() {
     await addExpense(expense);
   };
 
-  const handleConfirmSettlement = async (
-    paidBy: string,
-    paidTo: string,
-    amount: number,
-  ) => {
+  const handleConfirmSettlement = async (paidBy: string, paidTo: string, amount: number) => {
     await createSettlement({
       from_user_id: paidBy,
       to_user_id: paidTo,
@@ -150,15 +153,11 @@ export function WorkspacePage() {
     });
   };
 
-  const handleConfirmRecordedSettlement = async (
-    settlementId: number,
-  ) => {
+  const handleConfirmRecordedSettlement = async (settlementId: number) => {
     await confirmSettlement(settlementId);
   };
 
-  const handleDeleteRecordedSettlement = async (
-    settlementId: number,
-  ) => {
+  const handleDeleteRecordedSettlement = async (settlementId: number) => {
     await deleteSettlement(settlementId);
   };
 
@@ -184,6 +183,21 @@ export function WorkspacePage() {
     }
 
     return success;
+  };
+
+  const handleWorkspaceTabChange = (tab: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', tab);
+    setSearchParams(params, { replace: true });
+  };
+
+  const handleViewPendingHistory = () => {
+    setSettlementFilters((current) => ({
+      ...current,
+      status: 'pending',
+    }));
+
+    handleWorkspaceTabChange('settlements');
   };
 
   if (authLoading || joining || (workspaceLoading && !workspace)) {
@@ -263,103 +277,61 @@ export function WorkspacePage() {
             currency={workspace.currency}
           />
 
-          <div className="border-border/70 border-t" />
-
-          {/* Main workspace content */}
-          <div className="grid min-w-0 grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.8fr)_minmax(300px,1fr)]">
-            <div className="flex min-w-0 flex-col gap-4">
-              <TransactionSection
-                expenses={expenses}
-                expensesTotal={expensesTotal}
+          <WorkspaceTabNavigation value={activeTab} onValueChange={handleWorkspaceTabChange}>
+            <TabsContent value="transactions">
+              <WorkspaceTransactionTab
+                balances={memberBalances}
                 members={members}
                 currency={workspace.currency}
                 currentUserId={user?.id}
-                filters={expenseFilters}
-                isFetching={expensesFetching}
-                hasMore={hasMore}
-                loadingMore={loadingMore}
-                onFiltersChange={handleExpenseFiltersChange}
-                onLoadMore={loadMoreExpenses}
-                onAddExpense={handleAddExpense}
-                onUpdateExpense={handleUpdateExpense}
-                onDeleteExpense={handleDeleteExpense}
+                transactions={
+                  <TransactionSection
+                    expenses={expenses}
+                    expensesTotal={expensesTotal}
+                    members={members}
+                    currency={workspace.currency}
+                    currentUserId={user?.id}
+                    filters={expenseFilters}
+                    isFetching={expensesFetching}
+                    hasMore={hasMore}
+                    loadingMore={loadingMore}
+                    onFiltersChange={handleExpenseFiltersChange}
+                    onLoadMore={loadMoreExpenses}
+                    onAddExpense={handleAddExpense}
+                    onUpdateExpense={handleUpdateExpense}
+                    onDeleteExpense={handleDeleteExpense}
+                  />
+                }
               />
-            </div>
+            </TabsContent>
 
-            {/* Left column */}
-            <div className="flex min-w-0 flex-col gap-5">
-              {/* Balance summary */}
-              <section className="bg-card border-border/80 rounded-xl border p-4">
-                <BalanceSummary
-                  balances={memberBalances}
-                  members={members}
-                  currency={workspace.currency}
-                  currentUserId={user?.id}
-                />
-              </section>
-
-              {/* Settlement plan */}
-              <section className="bg-card border-border/80 rounded-xl border p-4">
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <div>
-                    <h3 className="text-sm font-semibold tracking-tight">Settlement plan</h3>
-                  </div>
-
-                  {suggestedSettlements.length > 0 && (
-                    <Button size="sm" className="h-8 text-xs" onClick={() => setIsSettleUpOpen(true)}>
-                      Settle up
-                    </Button>
-                  )}
-                </div>
-
-                {suggestedSettlements.length === 0 ? (
-                  <p className="text-muted-foreground py-4 text-center text-xs">Everyone is settled up.</p>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {suggestedSettlements.map((settlement, index) => {
-                      const from = members.find((member) => member.id === settlement.from_user_id);
-
-                      const to = members.find((member) => member.id === settlement.to_user_id);
-
-                      return (
-                        <div
-                          key={`${settlement.from_user_id}-${settlement.to_user_id}-${index}`}
-                          className="bg-muted/50 flex items-center justify-between gap-3 rounded-md px-3 py-2"
-                        >
-                          <p className="min-w-0 truncate text-xs">
-                            {from?.display_name ?? 'Unknown member'} <span className="text-muted-foreground">owes</span>{' '}
-                            {to?.display_name ?? 'Unknown member'}
-                          </p>
-
-                          <p className="shrink-0 text-xs font-semibold tabular-nums">
-                            {new Intl.NumberFormat(undefined, {
-                              style: 'currency',
-                              currency: workspace.currency,
-                            }).format(Number(settlement.amount))}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <SettlementHistorySection
-                  settlements={settlements}
-                  members={members}
-                  currency={workspace.currency}
-                  currentUserId={user?.id}
-                  filters={settlementFilters}
-                  loading={settlementsLoading}
-                  fetching={settlementsFetching}
-                  confirming={settlementConfirming}
-                  deleting={settlementDeleting}
-                  onFiltersChange={setSettlementFilters}
-                  onConfirm={handleConfirmRecordedSettlement}
-                  onDelete={handleDeleteRecordedSettlement}
-                />
-              </section>
-            </div>
-          </div>
+            <TabsContent value="settlements">
+              <WorkspaceSettlementsTab
+                suggestedSettlements={suggestedSettlements}
+                members={members}
+                currency={workspace.currency}
+                pendingCount={pendingSettlementCount}
+                onSettleUp={() => setIsSettleUpOpen(true)}
+                onViewPendingHistory={handleViewPendingHistory}
+                history={
+                  <SettlementHistorySection
+                    settlements={settlements}
+                    members={members}
+                    currency={workspace.currency}
+                    currentUserId={user?.id}
+                    filters={settlementFilters}
+                    loading={settlementsLoading}
+                    fetching={settlementsFetching}
+                    confirming={settlementConfirming}
+                    deleting={settlementDeleting}
+                    onFiltersChange={setSettlementFilters}
+                    onConfirm={handleConfirmRecordedSettlement}
+                    onDelete={handleDeleteRecordedSettlement}
+                  />
+                }
+              />
+            </TabsContent>
+          </WorkspaceTabNavigation>
         </div>
       </main>
 
