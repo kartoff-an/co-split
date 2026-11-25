@@ -296,8 +296,6 @@ export function WorkspacePage() {
                   history={
                     <SettlementHistorySection
                       settlements={settlements}
-                      members={members}
-                      currency={workspace.currency}
                       currentUserId={user?.id}
                       filters={settlementFilters}
                       loading={settlementsLoading}
