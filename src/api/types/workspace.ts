@@ -8,6 +8,3 @@ export type WorkspaceListItem = components['schemas']['WorkspaceListItem'];
 export type WorkspaceMember = components['schemas']['WorkspaceMemberResponse'];
 
 export type WorkspaceInvitePreview = components['schemas']['WorkspaceInvitePreview'];
-
-export type MemberBalance = components['schemas']['MemberBalanceResponse'];
-export type WorkspaceBalance = components['schemas']['WorkspaceBalanceResponse'];

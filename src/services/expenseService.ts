@@ -3,7 +3,6 @@ import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData, requireApiSuccess } from '@/api/response';
 import type { ApiResponse, PaginatedData, Expense, ExpenseCreate, ExpenseUpdate } from '@/api/types';
 
-
 const normalizeExpense = (expense: Expense): Expense => ({ ...expense, amount: expense.amount });
 
 export const fetchWorkspaceExpensesPaginated = async (
@@ -11,15 +10,12 @@ export const fetchWorkspaceExpensesPaginated = async (
   page: number,
   pageSize: number
 ): Promise<{ expenses: Expense[]; hasMore: boolean }> => {
-  const response = await api.get<ApiResponse<PaginatedData<Expense>>>(
-    API_ENDPOINTS.workspaces.expenses(workspaceId),
-    {
-      params: {
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
-      },
-    }
-  );
+  const response = await api.get<ApiResponse<PaginatedData<Expense>>>(API_ENDPOINTS.workspaces.expenses(workspaceId), {
+    params: {
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    },
+  });
 
   const result = requireApiData(response);
 
@@ -43,10 +39,7 @@ export const addExpense = async (workspaceId: string, expense: ExpenseCreate): P
 };
 
 export const updateExpense = async (expenseId: number | string, updates: ExpenseUpdate): Promise<Expense> => {
-  const response = await api.patch<ApiResponse<Expense>>(
-    API_ENDPOINTS.expenses.detail(Number(expenseId)),
-    updates
-  );
+  const response = await api.patch<ApiResponse<Expense>>(API_ENDPOINTS.expenses.detail(Number(expenseId)), updates);
 
   return normalizeExpense(requireApiData(response));
 };

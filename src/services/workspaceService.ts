@@ -3,7 +3,6 @@ import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData, requireApiSuccess } from '@/api/response';
 import type { ApiResponse, Workspace, WorkspaceInvitePreview, WorkspaceListItem, WorkspaceMember } from '@/api/types';
 
-
 export const getUserWorkspaces = async (): Promise<WorkspaceListItem[]> => {
   const response = await api.get<ApiResponse<WorkspaceListItem[]>>(API_ENDPOINTS.workspaces.base);
 
@@ -40,9 +39,7 @@ export const getWorkspaceInvitePreview = async (inviteCode: string): Promise<str
 };
 
 export const regenerateInviteCode = async (workspaceId: string): Promise<string> => {
-  const response = await api.post<ApiResponse<Workspace>>(
-    API_ENDPOINTS.workspaces.regenerateInviteCode(workspaceId)
-  );
+  const response = await api.post<ApiResponse<Workspace>>(API_ENDPOINTS.workspaces.regenerateInviteCode(workspaceId));
 
   return requireApiData(response).invite_code;
 };

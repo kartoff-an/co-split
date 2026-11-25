@@ -3,8 +3,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/auth/useAuth';
 import { useWorkspace } from '@/hooks/useWorkspace';
-import { useBalance } from '@/hooks/useBalance';
+import { useBalance, workspaceBalanceQueryKey } from '@/hooks/useBalance';
 import * as workspaceService from '@/services/workspaceService';
+import * as settlementService from '@/services/settlementService';
 
 import { InviteModal } from './components/InviteModal';
 import { WorkspaceSettingsModal } from '@/pages/workspace/components/WorkspaceSettingsModal';
@@ -15,18 +16,20 @@ import { useDocumentMetadata } from '@/hooks/useDocumentMetadata';
 import { Button } from '@/components/ui/button';
 import { SpinnerGapIcon, WarningCircleIcon } from '@phosphor-icons/react';
 
-import type { Expense, Member } from '@/types';
 import { WorkspaceHeader } from './components/WorkspaceHeader';
 import { BalanceSummary } from './components/BalanceSummary';
 import { TransactionSection } from './components/TransactionSection';
 import { WorkspaceMembers } from './components/WorkspaceMembers';
 import { WorkspaceOverview } from './components/WorkspaceOverview';
 import { WorkspaceWelcome } from './components/WorkspaceWelcome';
+import type { Expense } from '@/api/types';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function WorkspacePage() {
   const { workspaceId = '' } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
 
   const inviteCode = searchParams.get('code');
 
@@ -60,13 +63,14 @@ export function WorkspacePage() {
     refetch,
   } = useWorkspace(workspaceId);
 
-  const { balances, settlements, totalWorkspaceCost, averageCostPerPerson } = useBalance(
-    workspaceId,
-    expenses.length,
-    members
-  );
+  const {
+    members: memberBalances,
+    suggestedSettlements,
+    totalWorkspaceCost,
+    averageCostPerPerson,
+  } = useBalance(workspaceId);
 
-  const isMember = !!user && members.some((member: Member) => member.id === user.id);
+  const isMember = !!user && members.some((member) => member.id === user.id);
   const isOwner = !!user && workspace?.owner_id === user.id;
 
   useEffect(() => {
@@ -115,19 +119,21 @@ export function WorkspacePage() {
   };
 
   const handleConfirmSettlement = async (paidBy: string, paidTo: string, amount: number) => {
-    const payerName = members.find((member: Member) => member.id === paidBy)?.display_name ?? 'Member';
-
-    const payeeName = members.find((member: Member) => member.id === paidTo)?.display_name ?? 'Member';
-
-    await addExpense({
-      description: `Payment: ${payerName} paid ${payeeName}`,
+    await settlementService.createSettlement(workspaceId, {
+      from_user_id: paidBy,
+      to_user_id: paidTo,
       amount,
-      category: 'Payment',
-      paid_by: paidBy,
-      split_members: [paidTo],
+      note: 'Settlement payment',
     });
 
-    await refetch();
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: workspaceBalanceQueryKey(workspaceId),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['workspace-activity', workspaceId],
+      }),
+    ]);
   };
 
   const handleUpdateExpense = async (
@@ -273,7 +279,7 @@ export function WorkspacePage() {
               {/* Balance summary */}
               <section className="bg-card border-border/80 rounded-xl border p-4">
                 <BalanceSummary
-                  balances={balances}
+                  balances={memberBalances}
                   members={members}
                   currency={workspace.currency}
                   currentUserId={user?.id}
@@ -287,34 +293,41 @@ export function WorkspacePage() {
                     <h3 className="text-sm font-semibold tracking-tight">Settlement plan</h3>
                   </div>
 
-                  {settlements.length > 0 && (
+                  {suggestedSettlements.length > 0 && (
                     <Button size="sm" className="h-8 text-xs" onClick={() => setIsSettleUpOpen(true)}>
                       Settle up
                     </Button>
                   )}
                 </div>
 
-                {settlements.length === 0 ? (
+                {suggestedSettlements.length === 0 ? (
                   <p className="text-muted-foreground py-4 text-center text-xs">Everyone is settled up.</p>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    {settlements.map((settlement, index) => (
-                      <div
-                        key={`${settlement.from_id}-${settlement.to_id}-${index}`}
-                        className="bg-muted/50 flex items-center justify-between gap-3 rounded-md px-3 py-2"
-                      >
-                        <p className="min-w-0 truncate text-xs">
-                          {settlement.from} <span className="text-muted-foreground">owes</span> {settlement.to}
-                        </p>
+                    {suggestedSettlements.map((settlement, index) => {
+                      const from = members.find((member) => member.id === settlement.from_user_id);
 
-                        <p className="shrink-0 text-xs font-semibold tabular-nums">
-                          {new Intl.NumberFormat(undefined, {
-                            style: 'currency',
-                            currency: workspace.currency,
-                          }).format(settlement.amount)}
-                        </p>
-                      </div>
-                    ))}
+                      const to = members.find((member) => member.id === settlement.to_user_id);
+
+                      return (
+                        <div
+                          key={`${settlement.from_user_id}-${settlement.to_user_id}-${index}`}
+                          className="bg-muted/50 flex items-center justify-between gap-3 rounded-md px-3 py-2"
+                        >
+                          <p className="min-w-0 truncate text-xs">
+                            {from?.display_name ?? 'Unknown member'} <span className="text-muted-foreground">owes</span>{' '}
+                            {to?.display_name ?? 'Unknown member'}
+                          </p>
+
+                          <p className="shrink-0 text-xs font-semibold tabular-nums">
+                            {new Intl.NumberFormat(undefined, {
+                              style: 'currency',
+                              currency: workspace.currency,
+                            }).format(Number(settlement.amount))}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </section>
@@ -340,7 +353,7 @@ export function WorkspacePage() {
         key={isSettleUpOpen ? 'open' : 'closed'}
         isOpen={isSettleUpOpen}
         onClose={() => setIsSettleUpOpen(false)}
-        settlements={settlements}
+        settlements={suggestedSettlements}
         members={members}
         activeUserId={user?.id}
         currency={workspace.currency}

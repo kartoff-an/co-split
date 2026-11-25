@@ -1,9 +1,10 @@
-import type { Balance, Member } from '@/types';
+import type { MemberBalance, WorkspaceMember } from '@/api/types';
+
 import { formatCurrency } from '@/lib/currency';
 
 interface BalanceSummaryProps {
-  balances: Balance[];
-  members: Member[];
+  balances: MemberBalance[];
+  members: WorkspaceMember[];
   currency: string;
   currentUserId?: string;
 }
@@ -20,27 +21,27 @@ export function BalanceSummary({ balances, members, currency, currentUserId }: B
       ) : (
         <div className="flex flex-col gap-3">
           {balances.map((balance) => {
-            const member = members.find((item) => item.id === balance.member_id);
-            const positive = balance.net_balance > 0;
-            const negative = balance.net_balance < 0;
+            const member = members.find((item) => item.id === balance.user_id);
+
+            const netBalance = Number(balance.net_balance);
+            const positive = netBalance > 0;
+            const negative = netBalance < 0;
 
             return (
-              <div key={balance.member_id} className="flex items-center justify-between gap-3">
+              <div key={balance.user_id} className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
                   {member?.avatar_url ? (
                     <img src={member.avatar_url} alt="" className="size-7 rounded-full object-cover" />
                   ) : (
                     <div className="bg-muted text-muted-foreground flex size-7 items-center justify-center rounded-full text-[10px] font-semibold">
-                      {balance.member_name?.slice(0, 1).toUpperCase()}
+                      {member?.display_name?.slice(0, 1).toUpperCase() ?? '?'}
                     </div>
                   )}
 
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium">
-                      {balance.member_name}
-                      {balance.member_id === currentUserId ? ' (You)' : ''}
-                    </p>
-                  </div>
+                  <p className="truncate text-xs font-medium">
+                    {member?.display_name ?? 'Unknown member'}
+                    {balance.user_id === currentUserId ? ' (You)' : ''}
+                  </p>
                 </div>
 
                 <p
@@ -53,7 +54,7 @@ export function BalanceSummary({ balances, members, currency, currentUserId }: B
                   }`}
                 >
                   {positive ? '+' : negative ? '-' : ''}
-                  {formatCurrency(Math.abs(balance.net_balance), currency)}
+                  {formatCurrency(Math.abs(netBalance), currency)}
                 </p>
               </div>
             );

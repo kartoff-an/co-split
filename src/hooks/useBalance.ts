@@ -4,58 +4,46 @@ import { api } from '@/api/client';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData } from '@/api/response';
 
-import type {
-  ApiResponse,
-  WorkspaceBalanceResponse,
-  WorkspaceMember,
-} from '@/api/types';
+import type { ApiResponse, WorkspaceBalance } from '@/api/types';
 
+export const workspaceBalanceQueryKey = (workspaceId: string) => ['workspace-balance', workspaceId] as const;
 
-export const useBalance = (workspaceId: string, expensesTrigger?: unknown, members: WorkspaceMember[] = []) => {
+export const useBalance = (workspaceId: string) => {
   const query = useQuery({
-    queryKey: ['workspace-balance', workspaceId, expensesTrigger],
-    enabled: !!workspaceId,
-    queryFn: async () => {
-      const response = await api.get<ApiResponse<WorkspaceBalanceResponse>>(
-        API_ENDPOINTS.workspaces.balances(workspaceId)
-      );
+    queryKey: workspaceBalanceQueryKey(workspaceId),
+
+    queryFn: async (): Promise<WorkspaceBalance> => {
+      const response = await api.get<ApiResponse<WorkspaceBalance>>(API_ENDPOINTS.workspaces.balances(workspaceId));
 
       return requireApiData(response);
     },
-    staleTime: 1000 * 30,
-    gcTime: 1000 * 60 * 5,
+
+    enabled: Boolean(workspaceId),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 
-  const memberById = new Map(members.map((member) => [member.id, member]));
+  const balance = query.data;
 
-  const balances: Balance[] = (query.data?.members ?? []).map((balance) => ({
-    member_id: balance.user_id,
-    member_name: memberById.get(balance.user_id)?.display_name ?? 'Unknown member',
-    net_balance: Number(balance.net_balance),
-  }));
+  // Expenses are represented by total_paid.
+  // Each expense contributes exactly once to the total.
+  const totalWorkspaceCost = (balance?.members ?? []).reduce((total, member) => total + Number(member.total_paid), 0);
 
-  const settlements: Settlement[] = (query.data?.suggested_settlements ?? []).map((settlement) => ({
-    from_id: settlement.from_user_id,
-    from: memberById.get(settlement.from_user_id)?.display_name ?? 'Unknown member',
-    to_id: settlement.to_user_id,
-    to: memberById.get(settlement.to_user_id)?.display_name ?? 'Unknown member',
-    amount: Number(settlement.amount),
-  }));
-
-  const totalWorkspaceCost = (query.data?.members ?? []).reduce(
-    (total, balance) => total + Number(balance.total_paid),
-    0
-  );
-
-  const averageCostPerPerson = members.length ? totalWorkspaceCost / members.length : 0;
+  const averageCostPerPerson = balance?.members.length ? totalWorkspaceCost / balance.members.length : 0;
 
   return {
-    balances,
-    settlements,
+    balance: balance ?? null,
+    members: balance?.members ?? [],
+    suggestedSettlements: balance?.suggested_settlements ?? [],
+
+    // Derived presentation statistics.
     totalWorkspaceCost,
     averageCostPerPerson,
-    loading: query.isLoading,
+
+    loading: query.isPending,
+    isFetching: query.isFetching,
     error: query.error instanceof Error ? query.error.message : null,
+
     refetch: query.refetch,
   };
 };

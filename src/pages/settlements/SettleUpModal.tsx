@@ -1,11 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import type { Settlement, Member } from '@/types';
+import type { SuggestedSettlement, WorkspaceMember } from '@/api/types';
+
 import { getCurrencySymbol, formatCurrency } from '@/lib/currency';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 import { ArrowRightIcon, BankIcon, CheckCircleIcon } from '@phosphor-icons/react';
@@ -13,10 +16,11 @@ import { ArrowRightIcon, BankIcon, CheckCircleIcon } from '@phosphor-icons/react
 interface SettleUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  settlements: Settlement[];
-  members: Member[];
+  settlements: SuggestedSettlement[];
+  members: WorkspaceMember[];
   activeUserId?: string | null;
   currency?: string;
+
   onConfirmSettlement: (paidBy: string, paidTo: string, amount: number) => Promise<void>;
 }
 
@@ -36,49 +40,44 @@ export function SettleUpModal({
 
   const symbol = getCurrencySymbol(currency);
 
-  const currentMember = useMemo(() => members.find((member) => member.id === activeUserId), [members, activeUserId]);
+  // Resolve members using their backend user IDs.
+  const memberById = useMemo(() => new Map(members.map((member) => [member.id, member])), [members]);
 
+  // Only show settlements involving the current user.
   const availableSettlements = useMemo(() => {
     if (!activeUserId) return settlements;
 
     return settlements.filter(
-      (settlement) =>
-        settlement.from_id === activeUserId ||
-        settlement.to_id === activeUserId ||
-        settlement.from === currentMember?.display_name ||
-        settlement.to === currentMember?.display_name
+      (settlement) => settlement.from_user_id === activeUserId || settlement.to_user_id === activeUserId
     );
-  }, [settlements, activeUserId, currentMember]);
+  }, [settlements, activeUserId]);
 
   const selectedSettlement = availableSettlements[Number(selectedIndex)] ?? null;
+
   const paymentAmount = amount ?? selectedSettlement?.amount.toString() ?? '';
 
-  const debtorMember = selectedSettlement
-    ? members.find(
-        (member) => member.id === selectedSettlement.from_id || member.display_name === selectedSettlement.from
-      )
-    : null;
-
-  const creditorMember = selectedSettlement
-    ? members.find((member) => member.id === selectedSettlement.to_id || member.display_name === selectedSettlement.to)
-    : null;
-
-  const payerId = debtorMember?.id || selectedSettlement?.from_id || '';
-  const payeeId = creditorMember?.id || selectedSettlement?.to_id || '';
+  const isCurrentUserDebtor = (settlement: SuggestedSettlement) => settlement.from_user_id === activeUserId;
 
   const handleSelectSettlement = (value: string) => {
     setSelectedIndex(value);
 
     const settlement = availableSettlements[Number(value)];
 
-    if (settlement) {
-      setAmount(settlement.amount.toString());
-    }
-
+    setAmount(settlement ? settlement.amount.toString() : null);
     setError(null);
   };
 
-  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleClose = () => {
+    if (isSubmitting) return;
+
+    setSelectedIndex('0');
+    setAmount(null);
+    setError(null);
+
+    onClose();
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
 
@@ -94,6 +93,15 @@ export function SettleUpModal({
       return;
     }
 
+    // Do not allow recording more than the suggested outstanding amount.
+    if (parsedAmount > Number(selectedSettlement.amount)) {
+      setError('Payment amount cannot exceed the outstanding balance.');
+      return;
+    }
+
+    const payerId = selectedSettlement.from_user_id;
+    const payeeId = selectedSettlement.to_user_id;
+
     if (!payerId || !payeeId || payerId === payeeId) {
       setError('Unable to identify the settlement participants.');
       return;
@@ -104,7 +112,7 @@ export function SettleUpModal({
 
       await onConfirmSettlement(payerId, payeeId, parsedAmount);
 
-      onClose();
+      handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record settlement payment.');
     } finally {
@@ -112,14 +120,11 @@ export function SettleUpModal({
     }
   };
 
-  const isCurrentUserDebtor = (settlement: Settlement) =>
-    settlement.from_id === activeUserId || settlement.from === currentMember?.display_name;
-
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        if (!open && !isSubmitting) onClose();
+        if (!open) handleClose();
       }}
     >
       <DialogContent className="border-border bg-card flex max-h-[90dvh] w-[calc(100vw-2rem)] max-w-lg flex-col overflow-x-hidden overflow-y-auto rounded-xl p-4 sm:p-6">
@@ -175,11 +180,16 @@ export function SettleUpModal({
                 >
                   {availableSettlements.map((settlement, index) => {
                     const isSelected = selectedIndex === String(index);
+
                     const isDebtor = isCurrentUserDebtor(settlement);
+
+                    const debtorName = memberById.get(settlement.from_user_id)?.display_name ?? 'Unknown member';
+
+                    const creditorName = memberById.get(settlement.to_user_id)?.display_name ?? 'Unknown member';
 
                     return (
                       <label
-                        key={`${settlement.from_id}-${settlement.to_id}-${index}`}
+                        key={`${settlement.from_user_id}-${settlement.to_user_id}-${index}`}
                         className={`flex min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 transition-colors ${
                           isSelected
                             ? 'border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20'
@@ -191,11 +201,11 @@ export function SettleUpModal({
 
                           <div className="min-w-0 flex-1">
                             <div className="flex min-w-0 items-center gap-1.5 text-sm font-medium">
-                              <span className="min-w-0 flex-1 truncate">{settlement.from}</span>
+                              <span className="min-w-0 flex-1 truncate">{debtorName}</span>
 
                               <ArrowRightIcon className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
 
-                              <span className="min-w-0 flex-1 truncate">{settlement.to}</span>
+                              <span className="min-w-0 flex-1 truncate">{creditorName}</span>
                             </div>
 
                             <p className="text-muted-foreground mt-1 text-xs">
@@ -205,7 +215,7 @@ export function SettleUpModal({
                         </div>
 
                         <span className="max-w-[40%] shrink-0 truncate text-right text-sm font-semibold tabular-nums">
-                          {formatCurrency(settlement.amount, currency)}
+                          {formatCurrency(Number(settlement.amount), currency)}
                         </span>
                       </label>
                     );
@@ -228,6 +238,7 @@ export function SettleUpModal({
                       id="settlement-amount"
                       type="number"
                       min="0.01"
+                      max={Number(selectedSettlement.amount)}
                       step="0.01"
                       value={paymentAmount}
                       onChange={(event) => setAmount(event.target.value)}
@@ -239,7 +250,7 @@ export function SettleUpModal({
                   </div>
 
                   <p className="text-muted-foreground text-xs wrap-break-word">
-                    Outstanding balance: {formatCurrency(selectedSettlement.amount, currency)}
+                    Outstanding balance: {formatCurrency(Number(selectedSettlement.amount), currency)}
                   </p>
                 </div>
               )}
@@ -250,7 +261,7 @@ export function SettleUpModal({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
