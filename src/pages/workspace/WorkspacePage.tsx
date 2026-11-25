@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/auth/useAuth';
@@ -22,8 +22,8 @@ import { TransactionSection } from './components/TransactionSection';
 import { WorkspaceMembers } from './components/WorkspaceMembers';
 import { WorkspaceOverview } from './components/WorkspaceOverview';
 import { WorkspaceWelcome } from './components/WorkspaceWelcome';
-import type { Expense } from '@/api/types';
 import { useQueryClient } from '@tanstack/react-query';
+import type { ExpenseFilters, Expense, ExpenseCreate, ExpenseUpdate } from '@/api/types';
 
 export function WorkspacePage() {
   const { workspaceId = '' } = useParams<{ workspaceId: string }>();
@@ -43,9 +43,17 @@ export function WorkspacePage() {
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joined, setJoined] = useState(false);
 
+  const [expenseFilters, setExpenseFilters] = useState<ExpenseFilters>({});
+
+  const handleExpenseFiltersChange = useCallback((filters: ExpenseFilters) => {
+    setExpenseFilters(filters);
+  }, []);
+
   const {
     workspace,
     expenses,
+    expensesTotal,
+    expensesFetching,
     members,
     loading: workspaceLoading,
     error,
@@ -61,7 +69,7 @@ export function WorkspacePage() {
     deleteWorkspace,
     regenerateInvite,
     refetch,
-  } = useWorkspace(workspaceId);
+  } = useWorkspace(workspaceId, expenseFilters);
 
   const {
     members: memberBalances,
@@ -114,7 +122,7 @@ export function WorkspacePage() {
     image: `${origin}/icons/co-split-icon.png`,
   });
 
-  const handleAddExpense = async (expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>) => {
+  const handleAddExpense = async (expense: ExpenseCreate) => {
     await addExpense(expense);
   };
 
@@ -136,10 +144,7 @@ export function WorkspacePage() {
     ]);
   };
 
-  const handleUpdateExpense = async (
-    expenseId: number | string,
-    updates: Partial<Omit<Expense, 'id' | 'workspace_id' | 'timestamp'>>
-  ) => {
+  const handleUpdateExpense = async (expenseId: number | string, updates: ExpenseUpdate) => {
     try {
       await updateExpense(expenseId, updates);
 
@@ -262,11 +267,15 @@ export function WorkspacePage() {
             <div className="flex min-w-0 flex-col gap-4">
               <TransactionSection
                 expenses={expenses}
+                expensesTotal={expensesTotal}
                 members={members}
                 currency={workspace.currency}
                 currentUserId={user?.id}
+                filters={expenseFilters}
+                isFetching={expensesFetching}
                 hasMore={hasMore}
                 loadingMore={loadingMore}
+                onFiltersChange={handleExpenseFiltersChange}
                 onLoadMore={loadMoreExpenses}
                 onAddExpense={handleAddExpense}
                 onUpdateExpense={handleUpdateExpense}

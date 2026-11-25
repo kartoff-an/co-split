@@ -19,7 +19,6 @@ import { fadeUp, slideInRight } from '@/lib/motionVariants';
 
 import { Button } from '@/components/ui/button';
 
-import { SectionDivider } from '../../components/SectionDivider';
 import { LandingHeader } from './components/LandingHeader';
 
 export const HomePage: React.FC = () => {
@@ -179,15 +178,15 @@ export const HomePage: React.FC = () => {
       </main>
 
       {/* Landing page sections */}
-      <SectionDivider />
+      {/* <SectionDivider /> */}
 
       <LandingFeatures />
 
-      <SectionDivider />
+      {/* <SectionDivider /> */}
 
       <HowItWorks />
 
-      <SectionDivider />
+      {/* <SectionDivider /> */}
 
       <Footer className="relative z-10 mt-auto" />
     </div>
