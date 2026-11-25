@@ -22,6 +22,11 @@ export const API_ENDPOINTS = {
     detail: (expenseId: number) => `/expenses/${expenseId}`,
   },
 
+  settlements: {
+    detail: (settlementId: number) => `/settlements/${settlementId}`,
+    confirm: (settlementId: number) => `/settlements/${settlementId}/confirm`,
+  },
+
   notifications: {
     base: '/notifications',
   },

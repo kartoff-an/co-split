@@ -1,4 +1,4 @@
-import type { ExpenseFilters } from './types';
+import type { ExpenseFilters, SettlementQueryParams } from './types';
 
 export const queryKeys = {
   workspaces: {
@@ -27,6 +27,8 @@ export const queryKeys = {
   settlements: {
     all: ['workspace-settlements'] as const,
     workspace: (workspaceId: string) => ['workspace-settlements', workspaceId] as const,
+    list: (workspaceId: string, filters: SettlementQueryParams) =>
+    ['workspace-settlements', workspaceId, filters] as const
   },
 
   activity: {

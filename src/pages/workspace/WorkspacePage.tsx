@@ -4,12 +4,13 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useBalance } from '@/hooks/useBalance';
+import { useSettlements } from '@/hooks/useSettlements';
 import * as workspaceService from '@/services/workspaceService';
-import * as settlementService from '@/services/settlementService';
 
 import { InviteModal } from './components/InviteModal';
 import { WorkspaceSettingsModal } from '@/pages/workspace/components/WorkspaceSettingsModal';
 import { SettleUpModal } from '@/pages/settlements/SettleUpModal';
+import { SettlementHistorySection } from '../settlements/components/SettlementHistorySection';
 
 import { useDocumentMetadata } from '@/hooks/useDocumentMetadata';
 
@@ -22,9 +23,7 @@ import { TransactionSection } from './components/TransactionSection';
 import { WorkspaceMembers } from './components/WorkspaceMembers';
 import { WorkspaceOverview } from './components/WorkspaceOverview';
 import { WorkspaceWelcome } from './components/WorkspaceWelcome';
-import type { ExpenseFilters, Expense, ExpenseCreate, ExpenseUpdate } from '@/api/types';
-import { invalidateAfterSettlementCreated } from '@/api/queryInvalidation';
-import { queryClient } from '@/lib/queryClient';
+import type { ExpenseFilters, Expense, ExpenseCreate, ExpenseUpdate, SettlementQueryParams } from '@/api/types';
 
 export function WorkspacePage() {
   const { workspaceId = '' } = useParams<{ workspaceId: string }>();
@@ -44,6 +43,7 @@ export function WorkspacePage() {
   const [joined, setJoined] = useState(false);
 
   const [expenseFilters, setExpenseFilters] = useState<ExpenseFilters>({});
+  const [settlementFilters, setSettlementFilters] = useState<SettlementQueryParams>({});
 
   const handleExpenseFiltersChange = useCallback((filters: ExpenseFilters) => {
     setExpenseFilters(filters);
@@ -77,6 +77,17 @@ export function WorkspacePage() {
     totalWorkspaceCost,
     averageCostPerPerson,
   } = useBalance(workspaceId);
+
+  const {
+    settlements,
+    loading: settlementsLoading,
+    fetching: settlementsFetching,
+    confirmSettlement,
+    deleteSettlement,
+    confirming: settlementConfirming,
+    deleting: settlementDeleting,
+    createSettlement
+  } = useSettlements(workspaceId, settlementFilters);
 
   const isMember = !!user && members.some((member) => member.id === user.id);
   const isOwner = !!user && workspace?.owner_id === user.id;
@@ -126,15 +137,29 @@ export function WorkspacePage() {
     await addExpense(expense);
   };
 
-  const handleConfirmSettlement = async (paidBy: string, paidTo: string, amount: number) => {
-    await settlementService.createSettlement(workspaceId, {
+  const handleConfirmSettlement = async (
+    paidBy: string,
+    paidTo: string,
+    amount: number,
+  ) => {
+    await createSettlement({
       from_user_id: paidBy,
       to_user_id: paidTo,
       amount,
       note: 'Settlement payment',
     });
+  };
 
-    await invalidateAfterSettlementCreated(queryClient, workspaceId);
+  const handleConfirmRecordedSettlement = async (
+    settlementId: number,
+  ) => {
+    await confirmSettlement(settlementId);
+  };
+
+  const handleDeleteRecordedSettlement = async (
+    settlementId: number,
+  ) => {
+    await deleteSettlement(settlementId);
   };
 
   const handleUpdateExpense = async (expenseId: number | string, updates: ExpenseUpdate) => {
@@ -317,6 +342,21 @@ export function WorkspacePage() {
                     })}
                   </div>
                 )}
+
+                <SettlementHistorySection
+                  settlements={settlements}
+                  members={members}
+                  currency={workspace.currency}
+                  currentUserId={user?.id}
+                  filters={settlementFilters}
+                  loading={settlementsLoading}
+                  fetching={settlementsFetching}
+                  confirming={settlementConfirming}
+                  deleting={settlementDeleting}
+                  onFiltersChange={setSettlementFilters}
+                  onConfirm={handleConfirmRecordedSettlement}
+                  onDelete={handleDeleteRecordedSettlement}
+                />
               </section>
             </div>
           </div>
