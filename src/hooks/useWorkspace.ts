@@ -70,7 +70,6 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     return infiniteExpensesData?.pages.flatMap((page) => page.items) ?? [];
   }, [infiniteExpensesData]);
 
-  // Total matching records across all pages, not just loaded records.
   const expensesTotal = infiniteExpensesData?.pages[0]?.total ?? 0;
 
   // --------------------------------------------------

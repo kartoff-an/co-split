@@ -19,10 +19,7 @@ export interface ApiErrorBody {
   success?: boolean;
   message?: string;
   detail?: unknown;
-  error?: {
-    code?: string;
-    details?: unknown;
-  } | null;
+  error?: ApiError | null;
 }
 
 export interface PaginatedData<T> {

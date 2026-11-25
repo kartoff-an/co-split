@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as workspaceService from '../services/workspaceService';
-import type { WorkspaceItem } from '@/types';
+import type { WorkspaceListItem } from '@/api/types';
 
 interface DashboardMessage {
   text: string;
@@ -13,7 +13,7 @@ export const useDashboard = (userId: string | undefined) => {
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<DashboardMessage | null>(null);
 
-  const { data: workspaces = [], isLoading: loadingWorkspaces } = useQuery<WorkspaceItem[]>({
+  const { data: workspaces = [], isLoading: loadingWorkspaces } = useQuery<WorkspaceListItem[]>({
     queryKey: ['workspaces', userId],
     queryFn: () => workspaceService.getUserWorkspaces(),
     enabled: !!userId,
@@ -62,7 +62,7 @@ export const useDashboard = (userId: string | undefined) => {
     }
   };
 
-  const ownedWorkspaces = workspaces.filter((workspace: WorkspaceItem) => workspace.owner_id === userId).length;
+  const ownedWorkspaces = workspaces.filter((workspace: WorkspaceListItem) => workspace.owner_id === userId).length;
 
   return {
     workspaces,

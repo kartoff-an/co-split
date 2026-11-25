@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import type { WorkspaceItem } from '@/types';
-
 import { CoSplitIcon } from '@/components/CoSplitIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -35,13 +33,14 @@ import {
   CaretDownIcon,
   ArrowsLeftRightIcon,
 } from '@phosphor-icons/react';
+import type { WorkspaceListItem } from '@/api/types';
 
 interface AppSidebarProps {
   profile: {
     display_name: string;
     avatar_url: string | null;
   };
-  workspaces: WorkspaceItem[];
+  workspaces: WorkspaceListItem[];
   loadingWorkspaces?: boolean;
   onSignOut: () => void;
 }

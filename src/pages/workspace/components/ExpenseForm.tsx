@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 
-import type { Expense, Member } from '@/types';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,10 +12,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { PlusIcon, UsersIcon, CaretDownIcon } from '@phosphor-icons/react';
 
 import { getCurrencySymbol } from '@/lib/currency';
+import type { ExpenseCreate, WorkspaceMember } from '@/api/types';
 
 interface ExpenseFormProps {
-  members: Member[];
-  onAddExpense: (expense: Omit<Expense, 'id' | 'timestamp' | 'workspace_id'>) => Promise<void>;
+  members: WorkspaceMember[];
+  onAddExpense: (expense: ExpenseCreate) => Promise<void>;
   activeUserId?: string | null;
   currency?: string;
   className?: string;
@@ -76,8 +75,9 @@ export function ExpenseForm({
 
     try {
       await onAddExpense({
+        workspace_id: '', // TODO: Add Workspace_Id here
         description: description.trim(),
-        amount: parsedAmount,
+        amount: parsedAmount.toString(),
         category: 'Other',
         paid_by: effectivePaidBy,
         split_members: isUnequalSplit ? selectedSplitMembers : null,

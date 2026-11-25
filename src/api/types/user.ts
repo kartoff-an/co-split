@@ -1,3 +1,3 @@
 import type { components } from '@/api/generated/schema';
 
-export type UserProfileRead = components['schemas']['UserProfileRead'];
+export type UserProfile = components['schemas']['UserProfileRead'];

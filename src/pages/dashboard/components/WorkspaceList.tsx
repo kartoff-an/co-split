@@ -1,5 +1,4 @@
-import type { WorkspaceItem } from '@/types';
-
+import type { WorkspaceListItem } from '@/api/types';
 import { WorkspaceCard } from './WorkspaceCard';
 
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { TrayIcon, SpinnerGapIcon } from '@phosphor-icons/react';
 
 interface WorkspaceListProps {
-  workspaces: WorkspaceItem[];
+  workspaces: WorkspaceListItem[];
   userId: string;
   loading: boolean;
   onOpen: (id: string) => void;

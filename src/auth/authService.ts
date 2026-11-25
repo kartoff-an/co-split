@@ -1,8 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { api } from '@/api/client';
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
-import type { UserProfile } from '@/types';
 import { API_ENDPOINTS } from '@/api/endpoints';
+import type { UserProfile } from '@/api/types';
 
 export const getCurrentUser = async (): Promise<User | null> => {
   const {

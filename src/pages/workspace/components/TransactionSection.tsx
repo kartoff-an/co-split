@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react';
 
 import { ArrowDownIcon, ArrowUpIcon, MagnifyingGlassIcon, PlusIcon, ReceiptIcon } from '@phosphor-icons/react';
 
-import type { Expense, Member } from '@/types';
-
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,10 +11,11 @@ import { ExpenseForm } from './ExpenseForm';
 
 import { ExpenseDetailsModal } from './ExpenseDetailsModal';
 import { EditExpenseModal } from './EditExpenseModal';
+import type { Expense, WorkspaceMember } from '@/api/types';
 
 interface TransactionSectionProps {
   expenses: Expense[];
-  members: Member[];
+  members: WorkspaceMember[];
   currency: string;
   currentUserId?: string;
   hasMore: boolean;

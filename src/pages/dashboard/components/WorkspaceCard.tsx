@@ -1,22 +1,22 @@
 import type { KeyboardEvent } from 'react';
 
-import type { WorkspaceItem } from '@/types';
 import { formatCurrency } from '@/lib/currency';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 import { ArrowUpRightIcon, UsersThreeIcon, TrendUpIcon, TrendDownIcon } from '@phosphor-icons/react';
+import type { WorkspaceListItem } from '@/api/types';
 
 interface WorkspaceCardProps {
-  workspace: WorkspaceItem;
+  workspace: WorkspaceListItem;
   userId: string;
   onOpen: (id: string) => void;
 }
 
 export function WorkspaceCard({ workspace, userId, onOpen }: WorkspaceCardProps) {
   const isOwner = workspace.owner_id === userId;
-  const netBalance = workspace.user_net_balance;
+  const netBalance = Number(workspace.user_net_balance);
   const isSettled = Math.abs(netBalance) < 0.01;
   const isPositive = netBalance >= 0;
 
@@ -86,7 +86,7 @@ export function WorkspaceCard({ workspace, userId, onOpen }: WorkspaceCardProps)
           <div className="space-y-0.5">
             <p className="text-muted-foreground text-[9px] font-medium tracking-wide uppercase">Total expenses</p>
             <p className="text-xs font-semibold tabular-nums">
-              {formatCurrency(workspace.total_expenses, workspace.currency)}
+              {formatCurrency(Number(workspace.total_expenses), workspace.currency)}
             </p>
           </div>
 

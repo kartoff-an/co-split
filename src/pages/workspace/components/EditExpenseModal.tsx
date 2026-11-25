@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 
-import type { Expense, Member } from '@/types';
 import { getCurrencySymbol } from '@/lib/currency';
 
 import { Button } from '@/components/ui/button';
@@ -14,12 +13,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import { PencilSimpleIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import type { Expense, WorkspaceMember } from '@/api/types';
 
 interface EditExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
   expense: Expense | null;
-  members: Member[];
+  members: WorkspaceMember[];
   activeUserId?: string | null;
   currency?: string;
   onSave: (
@@ -96,7 +96,7 @@ export function EditExpenseModalContent({
     try {
       await onSave(expense.id, {
         description: description.trim(),
-        amount: parsedAmount,
+        amount: parsedAmount.toString(),
         paid_by: paidBy,
         split_members: isUnequalSplit ? selectedSplitMembers : null,
       });

@@ -1,14 +1,14 @@
-import type { Expense, Member } from '@/types';
 import { formatCurrency } from '@/lib/currency';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
+import type { Expense, WorkspaceMember } from '@/api/types';
 
 interface ExpenseDetailsModalProps {
   expense: Expense | null;
-  members: Member[];
+  members: WorkspaceMember[];
   activeUserId?: string | null;
   currency: string;
   onClose: () => void;
@@ -93,7 +93,7 @@ export function ExpenseDetailsModal({
 
         <div className="space-y-3">
           <DetailItem label="Amount">
-            <p className="text-lg font-semibold tabular-nums">{formatCurrency(expense.amount, currency)}</p>
+            <p className="text-lg font-semibold tabular-nums">{formatCurrency(Number(expense.amount), currency)}</p>
           </DetailItem>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

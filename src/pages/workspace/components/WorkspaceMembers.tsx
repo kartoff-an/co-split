@@ -1,9 +1,9 @@
-import type { Member } from '@/types';
+import type { WorkspaceMember } from '@/api/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface WorkspaceMembersProps {
-  members: Member[];
+  members: WorkspaceMember[];
 }
 
 export function WorkspaceMembers({ members }: WorkspaceMembersProps) {
