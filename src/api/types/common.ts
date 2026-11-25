@@ -9,6 +9,22 @@ export interface ApiResponse<T> {
   error: ApiError | null;
 }
 
+/**
+ * Error response shape accepted by the Axios error normalizer.
+ *
+ * `detail` supports FastAPI's default HTTP error format.
+ * `error` supports Co-Split's standardized error envelope.
+ */
+export interface ApiErrorBody {
+  success?: boolean;
+  message?: string;
+  detail?: unknown;
+  error?: {
+    code?: string;
+    details?: unknown;
+  } | null;
+}
+
 export interface PaginatedData<T> {
   items: T[];
   total: number;

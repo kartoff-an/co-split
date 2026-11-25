@@ -4,32 +4,14 @@ import { api } from '@/api/client';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData } from '@/api/response';
 
-import type { ApiResponse } from '@/api/types';
-import type { Balance, Member, Settlement } from '@/types';
+import type {
+  ApiResponse,
+  WorkspaceBalanceResponse,
+  WorkspaceMember,
+} from '@/api/types';
 
-interface MemberBalanceResponse {
-  user_id: string;
-  total_paid: number | string;
-  total_share: number | string;
-  total_sent: number | string;
-  total_received: number | string;
-  net_balance: number | string;
-}
 
-interface SuggestedSettlementResponse {
-  from_user_id: string;
-  to_user_id: string;
-  amount: number | string;
-}
-
-interface WorkspaceBalanceResponse {
-  workspace_id: string;
-  currency: string;
-  members: MemberBalanceResponse[];
-  suggested_settlements: SuggestedSettlementResponse[];
-}
-
-export const useBalance = (workspaceId: string, expensesTrigger?: unknown, members: Member[] = []) => {
+export const useBalance = (workspaceId: string, expensesTrigger?: unknown, members: WorkspaceMember[] = []) => {
   const query = useQuery({
     queryKey: ['workspace-balance', workspaceId, expensesTrigger],
     enabled: !!workspaceId,

@@ -1,8 +1,7 @@
 import { api } from '@/api/client';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData, requireApiSuccess } from '@/api/response';
-import type { ApiResponse, PaginatedData } from '@/api/types';
-import type { Expense } from '@/api/types/expense';
+import type { ApiResponse, PaginatedData, Expense, ExpenseCreate, ExpenseUpdate } from '@/api/types';
 
 
 const normalizeExpense = (expense: Expense): Expense => ({ ...expense, amount: expense.amount });
