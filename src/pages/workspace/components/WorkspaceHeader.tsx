@@ -2,16 +2,18 @@ import { ArrowLeftIcon, GearSixIcon, UserPlusIcon } from '@phosphor-icons/react'
 
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface WorkspaceHeaderProps {
-  workspaceName: string;
   isOwner: boolean;
   onBack: () => void;
   onInvite: () => void;
   onSettings: () => void;
 }
 
-export function WorkspaceHeader({ workspaceName, isOwner, onBack, onInvite, onSettings }: WorkspaceHeaderProps) {
+export function WorkspaceHeader({ isOwner, onBack, onInvite, onSettings }: WorkspaceHeaderProps) {
+  const { workspace } = useWorkspaceContext();
+
   return (
     <header className="bg-background/85 sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 px-4 backdrop-blur sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
@@ -25,7 +27,7 @@ export function WorkspaceHeader({ workspaceName, isOwner, onBack, onInvite, onSe
 
         <div className="min-w-0">
           <p className="text-muted-foreground text-[10px] leading-none">Workspace</p>
-          <h1 className="truncate text-sm font-semibold tracking-tight">{workspaceName}</h1>
+          <h1 className="truncate text-sm font-semibold tracking-tight">{workspace.name}</h1>
         </div>
       </div>
 

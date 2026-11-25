@@ -1,12 +1,10 @@
-import type { WorkspaceMember } from '@/api/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
-interface WorkspaceMembersProps {
-  members: WorkspaceMember[];
-}
+export function WorkspaceMembers() {
+  const { members } = useWorkspaceContext();
 
-export function WorkspaceMembers({ members }: WorkspaceMembersProps) {
   return (
     <TooltipProvider>
       <div className="flex items-center -space-x-2">

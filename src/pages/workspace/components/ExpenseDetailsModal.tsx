@@ -4,27 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
-import type { Expense, WorkspaceMember } from '@/api/types';
+import type { Expense } from '@/api/types';
+import { formatDate } from '@/lib/utils';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface ExpenseDetailsModalProps {
   expense: Expense | null;
-  members: WorkspaceMember[];
   activeUserId?: string | null;
-  currency: string;
   onClose: () => void;
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
 }
 
-export function ExpenseDetailsModal({
-  expense,
-  members,
-  activeUserId,
-  currency,
-  onClose,
-  onEdit,
-  onDelete,
-}: ExpenseDetailsModalProps) {
+export function ExpenseDetailsModal({ expense, activeUserId, onClose, onEdit, onDelete }: ExpenseDetailsModalProps) {
+  const { members, currency } = useWorkspaceContext();
+
   if (!expense) return null;
 
   const getMemberName = (id: string) => {
@@ -37,17 +31,6 @@ export function ExpenseDetailsModal({
     if (!createdBy) return 'Unknown';
 
     return getMemberName(createdBy);
-  };
-
-  const formatDateTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-
-    if (Number.isNaN(date.getTime())) return 'Unknown date';
-
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(date);
   };
 
   const isPayment = expense.category === 'Payment' || expense.category === 'Settlement';
@@ -86,7 +69,7 @@ export function ExpenseDetailsModal({
             )}
           </div>
 
-          <DialogTitle className="text-lg font-semibold break-words">{expense.description}</DialogTitle>
+          <DialogTitle className="text-lg font-semibold wrap-break-word">{expense.description}</DialogTitle>
 
           <DialogDescription>Details about this workspace transaction.</DialogDescription>
         </DialogHeader>
@@ -107,7 +90,7 @@ export function ExpenseDetailsModal({
           </div>
 
           <DetailItem label="Logged on">
-            <p className="text-sm font-medium">{formatDateTime(expense.timestamp)}</p>
+            <p className="text-sm font-medium">{formatDate(expense.timestamp)}</p>
           </DetailItem>
 
           {expense.split_members && expense.split_members.length > 0 && (

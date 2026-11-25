@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import type { SuggestedSettlement, WorkspaceMember } from '@/api/types';
+import type { SuggestedSettlement } from '@/api/types';
 
 import { getCurrencySymbol, formatCurrency } from '@/lib/currency';
 
@@ -12,27 +12,20 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 import { ArrowRightIcon, BankIcon, CheckCircleIcon } from '@phosphor-icons/react';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface SettleUpModalProps {
   isOpen: boolean;
   onClose: () => void;
   settlements: SuggestedSettlement[];
-  members: WorkspaceMember[];
   activeUserId?: string | null;
-  currency?: string;
 
   onConfirmSettlement: (paidBy: string, paidTo: string, amount: number) => Promise<void>;
 }
 
-export function SettleUpModal({
-  isOpen,
-  onClose,
-  settlements,
-  members,
-  activeUserId,
-  currency = 'PHP',
-  onConfirmSettlement,
-}: SettleUpModalProps) {
+export function SettleUpModal({ isOpen, onClose, settlements, activeUserId, onConfirmSettlement }: SettleUpModalProps) {
+  const { members, currency } = useWorkspaceContext();
+
   const [selectedIndex, setSelectedIndex] = useState('0');
   const [amount, setAmount] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -9,12 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { CheckIcon, ClipboardTextIcon, LinkIcon, ArrowsClockwiseIcon } from '@phosphor-icons/react';
 
 import { Spinner } from '@/components/Spinner';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface InviteModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspaceId: string;
-  workspaceName: string;
   inviterName: string;
   inviteCode?: string;
   isOwner?: boolean;
@@ -29,12 +29,13 @@ export function InviteModalContent({
   isOpen,
   onClose,
   workspaceId,
-  workspaceName,
   inviterName,
   inviteCode,
   isOwner = false,
   onRegenerateInvite,
 }: InviteModalProps) {
+  const { workspace } = useWorkspaceContext();
+
   const [copiedId, setCopiedId] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedMsg, setCopiedMsg] = useState(false);
@@ -49,7 +50,7 @@ export function InviteModalContent({
 
   const inviteLink = inviteUrl.toString();
 
-  const inviteMessage = `${inviterName || 'A group member'} invited you to join "${workspaceName || 'Workspace'}" on Co-Split.\nLink: ${inviteLink}`;
+  const inviteMessage = `${inviterName || 'A group member'} invited you to join "${workspace.name || 'Workspace'}" on Co-Split.\nLink: ${inviteLink}`;
 
   const copyToClipboard = async (value: string, setCopied: (value: boolean) => void) => {
     try {

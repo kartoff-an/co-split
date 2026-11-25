@@ -13,15 +13,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import { PencilSimpleIcon, UsersThreeIcon } from '@phosphor-icons/react';
-import type { Expense, WorkspaceMember } from '@/api/types';
+import type { Expense } from '@/api/types';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface EditExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
   expense: Expense | null;
-  members: WorkspaceMember[];
   activeUserId?: string | null;
-  currency?: string;
   onSave: (
     expenseId: number | string,
     updates: Partial<Omit<Expense, 'id' | 'workspace_id' | 'timestamp'>>
@@ -34,21 +33,18 @@ export function EditExpenseModal(props: EditExpenseModalProps) {
   return <EditExpenseModalContent key={`${props.expense.id}-${props.isOpen}`} {...props} />;
 }
 
-export function EditExpenseModalContent({
-  isOpen,
-  onClose,
-  expense,
-  members,
-  activeUserId,
-  currency = 'PHP',
-  onSave,
-}: EditExpenseModalProps) {
+export function EditExpenseModalContent({ isOpen, onClose, expense, activeUserId, onSave }: EditExpenseModalProps) {
+  const { members, currency } = useWorkspaceContext();
+
+  // FORM STATE
   const [description, setDescription] = useState(expense?.description ?? '');
   const [amount, setAmount] = useState(String(expense?.amount ?? ''));
   const [paidBy, setPaidBy] = useState(expense?.paid_by ?? '');
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // SPLIT CONFIGURATION STATE
   const [isUnequalSplit, setIsUnequalSplit] = useState(!!expense?.split_members && expense.split_members.length > 0);
   const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>(() => {
     if (!expense?.split_members?.length) return [];
@@ -57,6 +53,7 @@ export function EditExpenseModalContent({
   });
   const [isSplitPopoverOpen, setIsSplitPopoverOpen] = useState(false);
 
+  // DERIVED RULES
   const symbol = getCurrencySymbol(currency);
 
   const selectedSplitMembers = useMemo(
@@ -73,6 +70,7 @@ export function EditExpenseModalContent({
     [members, activeUserId]
   );
 
+  // FORM SUBMISSION
   const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -109,6 +107,7 @@ export function EditExpenseModalContent({
     }
   };
 
+  // SPLIT INTERACTION HANDLERS
   const handleSplitMemberChange = (memberId: string, checked: boolean) => {
     setExcludedSplitMembers((current) => (checked ? current.filter((id) => id !== memberId) : [...current, memberId]));
   };

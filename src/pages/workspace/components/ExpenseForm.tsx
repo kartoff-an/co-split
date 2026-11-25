@@ -12,23 +12,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { PlusIcon, UsersIcon, CaretDownIcon } from '@phosphor-icons/react';
 
 import { getCurrencySymbol } from '@/lib/currency';
-import type { ExpenseCreate, WorkspaceMember } from '@/api/types';
+import type { ExpenseCreate } from '@/api/types';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface ExpenseFormProps {
-  members: WorkspaceMember[];
   onAddExpense: (expense: ExpenseCreate) => Promise<void>;
   activeUserId?: string | null;
-  currency?: string;
   className?: string;
 }
 
-export function ExpenseForm({
-  members,
-  onAddExpense,
-  activeUserId,
-  currency = 'PHP',
-  className = '',
-}: ExpenseFormProps) {
+export function ExpenseForm({ onAddExpense, activeUserId, className = '' }: ExpenseFormProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
@@ -36,6 +29,8 @@ export function ExpenseForm({
   const [isUnequalSplit, setIsUnequalSplit] = useState(false);
   const [excludedSplitMembers, setExcludedSplitMembers] = useState<string[]>([]);
   const [isSplitOpen, setIsSplitOpen] = useState(false);
+
+  const { members, workspace, currency } = useWorkspaceContext();
 
   const symbol = getCurrencySymbol(currency);
 
@@ -75,7 +70,7 @@ export function ExpenseForm({
 
     try {
       await onAddExpense({
-        workspace_id: '', // TODO: Add Workspace_Id here
+        workspace_id: workspace.id,
         description: description.trim(),
         amount: parsedAmount.toString(),
         category: 'Other',

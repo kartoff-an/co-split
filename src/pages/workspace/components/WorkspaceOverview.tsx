@@ -1,21 +1,17 @@
 import { ArrowsLeftRightIcon, CurrencyCircleDollarIcon, UsersThreeIcon } from '@phosphor-icons/react';
 
 import { formatCurrency } from '@/lib/currency';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface WorkspaceOverviewProps {
   totalSpent: number;
   averagePerPerson: number;
   memberCount: number;
-  currency: string;
   transactionCount: number;
 }
 
-export function WorkspaceOverview({
-  totalSpent,
-  averagePerPerson,
-  currency,
-  transactionCount,
-}: WorkspaceOverviewProps) {
+export function WorkspaceOverview({ totalSpent, averagePerPerson, transactionCount }: WorkspaceOverviewProps) {
+  const { currency } = useWorkspaceContext();
   const metrics = [
     {
       label: 'Total spent',

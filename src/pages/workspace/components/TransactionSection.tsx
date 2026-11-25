@@ -13,13 +13,14 @@ import { ExpenseDetailsModal } from './ExpenseDetailsModal';
 import { EditExpenseModal } from './EditExpenseModal';
 import { ExpenseFiltersPopover } from './ExpenseFilterPopover';
 
-import type { Expense, ExpenseCreate, ExpenseFilters, ExpenseUpdate, WorkspaceMember } from '@/api/types';
+import type { Expense, ExpenseCreate, ExpenseFilters, ExpenseUpdate } from '@/api/types';
+import { formatDate } from '@/lib/utils';
+import { formatCurrency } from '@/lib/currency';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface TransactionSectionProps {
   expenses: Expense[];
   expensesTotal: number;
-  members: WorkspaceMember[];
-  currency: string;
   currentUserId?: string;
 
   filters: ExpenseFilters;
@@ -30,40 +31,16 @@ interface TransactionSectionProps {
   onFiltersChange: (filters: ExpenseFilters) => void;
   onLoadMore: () => void;
 
-  onAddExpense: (expense: ExpenseCreate) => Promise<void>;
+  onAddExpense: (expense: ExpenseCreate) => Promise<unknown>;
 
   onDeleteExpense?: (expense: Expense) => void;
 
   onUpdateExpense: (expenseId: number | string, updates: ExpenseUpdate) => Promise<unknown>;
 }
 
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function formatDate(timestamp: string | number | Date): string {
-  const date = new Date(timestamp);
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Unknown date';
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(date);
-}
-
 export function TransactionSection({
   expenses,
   expensesTotal,
-  members,
-  currency,
   currentUserId,
   filters,
   isFetching,
@@ -80,6 +57,8 @@ export function TransactionSection({
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
+  const { members, currency } = useWorkspaceContext();
 
   // Resolve payer IDs to member names.
   const memberMap = useMemo(() => new Map(members.map((member) => [member.id, member])), [members]);
@@ -409,22 +388,14 @@ export function TransactionSection({
             </DialogDescription>
           </DialogHeader>
 
-          <ExpenseForm
-            members={members}
-            currency={currency}
-            activeUserId={currentUserId}
-            onAddExpense={handleAddExpense}
-            className="pt-2"
-          />
+          <ExpenseForm activeUserId={currentUserId} onAddExpense={handleAddExpense} className="pt-2" />
         </DialogContent>
       </Dialog>
 
       {/* Expense details */}
       <ExpenseDetailsModal
         expense={selectedExpense}
-        members={members}
         activeUserId={currentUserId}
-        currency={currency}
         onClose={() => setSelectedExpense(null)}
         onEdit={handleEditExpense}
         onDelete={handleDeleteExpense}
@@ -434,9 +405,7 @@ export function TransactionSection({
       <EditExpenseModal
         isOpen={!!editingExpense}
         expense={editingExpense}
-        members={members}
         activeUserId={currentUserId}
-        currency={currency}
         onClose={() => setEditingExpense(null)}
         onSave={onUpdateExpense}
       />

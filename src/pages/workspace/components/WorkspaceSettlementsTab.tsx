@@ -2,29 +2,24 @@ import type { ReactNode } from 'react';
 
 import { ArrowRightIcon, CheckCircleIcon } from '@phosphor-icons/react';
 
-import type { SuggestedSettlement, WorkspaceMember } from '@/api/types';
+import type { SuggestedSettlement } from '@/api/types';
 
 import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
 
 interface WorkspaceSettlementsTabProps {
   suggestedSettlements: SuggestedSettlement[];
-  members: WorkspaceMember[];
-  currency: string;
   pendingCount: number;
   onSettleUp: () => void;
   onViewPendingHistory: () => void;
   history: ReactNode;
 }
 
-export function WorkspaceSettlementsTab({
-  suggestedSettlements,
-  members,
-  currency,
-  onSettleUp,
-  history,
-}: WorkspaceSettlementsTabProps) {
+export function WorkspaceSettlementsTab({ suggestedSettlements, onSettleUp, history }: WorkspaceSettlementsTabProps) {
+  const { members, currency } = useWorkspaceContext();
+
   return (
     <div className="flex min-w-0 flex-col gap-6">
       {/* Suggested settlements */}

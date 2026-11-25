@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { SubmitEvent } from 'react';
 
-import type { Member, Workspace } from '@/types';
-
 import { Spinner } from '@/components/Spinner';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 
@@ -14,32 +12,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import { WarningIcon, CrownIcon, TrashIcon, UserMinusIcon } from '@phosphor-icons/react';
+import { useWorkspaceContext } from '@/contexts/WorkspaceContext';
+import type { Workspace } from '@/api/types';
 
 interface WorkspaceSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  workspace: Workspace;
-  members: Member[];
   onUpdateWorkspace: (updates: Partial<Workspace>) => Promise<Workspace | null>;
   onRemoveMember: (userId: string) => Promise<boolean>;
   onDeleteWorkspace: () => Promise<boolean>;
   currentUserId: string | undefined;
 }
 
-export function WorkspaceSettingsModal(props: WorkspaceSettingsModalProps) {
-  return <WorkspaceSettingsModalContent key={`${props.workspace.id}-${props.isOpen}`} {...props} />;
-}
-
-export function WorkspaceSettingsModalContent({
+export function WorkspaceSettingsModal({
   isOpen,
   onClose,
-  workspace,
-  members,
   onUpdateWorkspace,
   onRemoveMember,
   onDeleteWorkspace,
   currentUserId,
 }: WorkspaceSettingsModalProps) {
+  const { workspace, members } = useWorkspaceContext();
+
   const [workspaceName, setWorkspaceName] = useState(workspace.name);
   const [allowedMembers, setAllowedMembers] = useState(workspace.allowed_members ?? 10);
   const [currency, setCurrency] = useState(workspace.currency ?? 'PHP');
