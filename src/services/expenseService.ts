@@ -1,27 +1,46 @@
 import { api } from '@/api/client';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData, requireApiSuccess } from '@/api/response';
-import type { ApiResponse, PaginatedData, Expense, ExpenseCreate, ExpenseUpdate } from '@/api/types';
 
-const normalizeExpense = (expense: Expense): Expense => ({ ...expense, amount: expense.amount });
+import type { ApiResponse, PaginatedData, Expense, ExpenseCreate, ExpenseUpdate, ExpenseFilters } from '@/api/types';
+
+export type ExpensePage = PaginatedData<Expense>;
+
+const normalizeExpense = (expense: Expense): Expense => ({
+  ...expense,
+});
+
+export const normalizeExpenseFilters = (filters: ExpenseFilters): ExpenseFilters => {
+  return Object.fromEntries(
+    Object.entries(filters).filter(([, value]) => {
+      if (value === undefined || value === null) return false;
+      if (typeof value === 'string' && !value.trim()) return false;
+      return true;
+    })
+  ) as ExpenseFilters;
+};
 
 export const fetchWorkspaceExpensesPaginated = async (
   workspaceId: string,
-  page: number,
-  pageSize: number
-): Promise<{ expenses: Expense[]; hasMore: boolean }> => {
+  offset: number,
+  limit: number,
+  filters: ExpenseFilters = {}
+): Promise<ExpensePage> => {
+  const normalizedFilters = normalizeExpenseFilters(filters);
+
   const response = await api.get<ApiResponse<PaginatedData<Expense>>>(API_ENDPOINTS.workspaces.expenses(workspaceId), {
     params: {
-      limit: pageSize,
-      offset: (page - 1) * pageSize,
+      limit,
+      offset,
+      ...normalizedFilters,
     },
   });
 
   const result = requireApiData(response);
 
   return {
-    expenses: result.items.map(normalizeExpense),
-    hasMore: result.has_more,
+    ...result,
+    items: result.items.map(normalizeExpense),
   };
 };
 

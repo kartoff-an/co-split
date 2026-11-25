@@ -1,7 +1,14 @@
 import { api } from '@/api/client';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { requireApiData, requireApiSuccess } from '@/api/response';
-import type { ApiResponse, Workspace, WorkspaceInvitePreview, WorkspaceListItem, WorkspaceMember } from '@/api/types';
+import type {
+  ApiResponse,
+  Workspace,
+  WorkspaceInvitePreview,
+  WorkspaceListItem,
+  WorkspaceMember,
+  WorkspaceUpdate,
+} from '@/api/types';
 
 export const getUserWorkspaces = async (): Promise<WorkspaceListItem[]> => {
   const response = await api.get<ApiResponse<WorkspaceListItem[]>>(API_ENDPOINTS.workspaces.base);
@@ -125,7 +132,7 @@ export const removeMember = async (workspaceId: string, userId: string): Promise
   return true;
 };
 
-export const updateWorkspaceDetails = async (workspaceId: string, updates: Partial<Workspace>): Promise<Workspace> => {
+export const updateWorkspaceDetails = async (workspaceId: string, updates: WorkspaceUpdate): Promise<Workspace> => {
   const response = await api.patch<ApiResponse<Workspace>>(API_ENDPOINTS.workspaces.detail(workspaceId), {
     ...(updates.name !== undefined && { name: updates.name }),
     ...(updates.allowed_members !== undefined && { allowed_members: updates.allowed_members }),
