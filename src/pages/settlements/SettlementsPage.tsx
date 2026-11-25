@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries } from '@tanstack/react-query';
 
 import { useAuth } from '@/auth/useAuth';
 import { useDashboard } from '@/hooks/useDashboard';
-import { formatCurrency } from '@/lib/currency';
 
-import type { Settlement, WorkspaceItem } from '@/types';
+import { queryKeys } from '@/api/queryKeys';
+
+import * as balanceService from '@/services/balanceService';
+import * as workspaceService from '@/services/workspaceService';
+
+import type { WorkspaceListItem } from '@/api/types';
+
+import { formatCurrency } from '@/lib/currency';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,124 +27,145 @@ import {
   TrendUpIcon,
   WarningCircleIcon,
 } from '@phosphor-icons/react';
-import { API_ENDPOINTS } from '@/api/endpoints';
-import type { ApiResponse } from '@/api/types';
-import { api } from '@/api/client';
-import { requireApiData } from '@/api/response';
 
 type SettlementFilter = 'all' | 'owe' | 'owed';
 
-interface MemberResponse {
-  id: string;
-  display_name: string;
-}
-
-interface SuggestedSettlementResponse {
-  from_user_id: string;
-  to_user_id: string;
-  amount: number | string;
-}
-
-interface WorkspaceSettlementResult {
-  settlements: Settlement[];
-}
-
-interface WorkspaceBalanceResponse {
-  suggested_settlements: SuggestedSettlementResponse[];
-}
-
-interface SettlementItem extends Settlement {
-  workspace: WorkspaceItem;
+interface SuggestedPayment {
+  fromUserId: string;
+  fromName: string;
+  toUserId: string;
+  toName: string;
+  amount: number;
+  workspace: WorkspaceListItem;
   direction: 'owe' | 'owed';
 }
 
+const FILTER_OPTIONS: {
+  value: SettlementFilter;
+  label: string;
+}[] = [
+  { value: 'all', label: 'All' },
+  { value: 'owe', label: 'You owe' },
+  { value: 'owed', label: 'Owed to you' },
+];
+
 export function SettlementsPage() {
   const navigate = useNavigate();
+
   const { user } = useAuth();
 
   const { workspaces, loadingWorkspaces } = useDashboard(user?.id);
 
   const [filter, setFilter] = useState<SettlementFilter>('all');
 
-  const settlementQueries = useQueries({
+  // Workspace balances
+  const balanceQueries = useQueries({
     queries: workspaces.map((workspace) => ({
-      queryKey: ['workspace-balance', workspace.id],
-      queryFn: async (): Promise<WorkspaceSettlementResult> => {
-        const [balanceResponse, membersResponse] = await Promise.all([
-          api.get<ApiResponse<WorkspaceBalanceResponse>>(API_ENDPOINTS.workspaces.balances(workspace.id)),
-          api.get<ApiResponse<MemberResponse[]>>(API_ENDPOINTS.workspaces.members(workspace.id)),
-        ]);
-
-        const balanceData = requireApiData(balanceResponse);
-        const members = requireApiData(membersResponse);
-        const memberById = new Map(members.map((member) => [member.id, member.display_name]));
-
-        return {
-          settlements: balanceData.suggested_settlements.map((settlement) => ({
-            from_id: settlement.from_user_id,
-            from: memberById.get(settlement.from_user_id) ?? 'Unknown member',
-            to_id: settlement.to_user_id,
-            to: memberById.get(settlement.to_user_id) ?? 'Unknown member',
-            amount: Number(settlement.amount),
-          })),
-        };
-      },
-      enabled: !!user?.id,
+      queryKey: queryKeys.balances.detail(workspace.id),
+      queryFn: () => balanceService.getWorkspaceBalance(workspace.id),
+      enabled: Boolean(user?.id),
       staleTime: 30_000,
+      gcTime: 5 * 60_000,
     })),
   });
 
-  const isLoading = loadingWorkspaces || settlementQueries.some((query) => query.isLoading);
+  // Workspace members
+  const workspaceQueries = useQueries({
+    queries: workspaces.map((workspace) => ({
+      queryKey: queryKeys.workspace.detail(workspace.id),
+      queryFn: () => workspaceService.getWorkspaceDetails(workspace.id),
+      enabled: Boolean(user?.id),
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+    })),
+  });
 
-  const hasError = settlementQueries.some((query) => query.isError);
+  // Query states
+  const isLoading =
+    loadingWorkspaces ||
+    balanceQueries.some((query) => query.isPending) ||
+    workspaceQueries.some((query) => query.isPending);
 
-  const settlements: SettlementItem[] = [];
+  const hasError = balanceQueries.some((query) => query.isError) || workspaceQueries.some((query) => query.isError);
 
-  if (user?.id) {
+  const isFetching =
+    balanceQueries.some((query) => query.isFetching) || workspaceQueries.some((query) => query.isFetching);
+
+  const handleRetry = async () => {
+    await Promise.all([
+      ...balanceQueries.map((query) => query.refetch()),
+      ...workspaceQueries.map((query) => query.refetch()),
+    ]);
+  };
+
+  // Suggested payments
+  const settlements: SuggestedPayment[] = (() => {
+    if (!user?.id) return [];
+
+    const result: SuggestedPayment[] = [];
+
     workspaces.forEach((workspace, index) => {
-      const workspaceSettlements = settlementQueries[index]?.data?.settlements ?? [];
+      const balance = balanceQueries[index]?.data;
+      const workspaceDetails = workspaceQueries[index]?.data;
 
-      workspaceSettlements.forEach((settlement) => {
-        const isDebtor = settlement.from_id === user.id;
-        const isCreditor = settlement.to_id === user.id;
+      if (!balance || !workspaceDetails) return;
+
+      const memberNames = new Map(workspaceDetails.members.map((member) => [member.id, member.display_name]));
+
+      balance.suggested_settlements.forEach((suggestion) => {
+        const isDebtor = suggestion.from_user_id === user.id;
+        const isCreditor = suggestion.to_user_id === user.id;
 
         if (!isDebtor && !isCreditor) return;
 
-        settlements.push({
-          ...settlement,
+        result.push({
+          fromUserId: suggestion.from_user_id,
+          fromName: memberNames.get(suggestion.from_user_id) ?? 'Unknown member',
+
+          toUserId: suggestion.to_user_id,
+          toName: memberNames.get(suggestion.to_user_id) ?? 'Unknown member',
+
+          amount: Number(suggestion.amount),
           workspace,
+
           direction: isDebtor ? 'owe' : 'owed',
         });
       });
     });
-  }
 
-  settlements.sort((a, b) => b.amount - a.amount);
+    return result.sort((a, b) => b.amount - a.amount);
+  })();
 
-  const filteredSettlements = settlements.filter((settlement) => {
-    if (filter === 'all') return true;
-    return settlement.direction === filter;
-  });
+  // Filtering
+  const filteredSettlements = useMemo(
+    () =>
+      settlements.filter((settlement) => {
+        if (filter === 'all') return true;
 
-  const totalOwed = settlements.filter((item) => item.direction === 'owe');
+        return settlement.direction === filter;
+      }),
+    [settlements, filter]
+  );
 
-  const totalOwedToYou = settlements.filter((item) => item.direction === 'owed');
-
-  const summarizeByCurrency = (items: SettlementItem[]) => {
+  // Currency summaries
+  const summarizeByCurrency = (direction: 'owe' | 'owed') => {
     const totals = new Map<string, number>();
 
-    items.forEach((item) => {
-      const currency = item.workspace.currency;
+    settlements
+      .filter((item) => item.direction === direction)
+      .forEach((item) => {
+        const currency = item.workspace.currency;
 
-      totals.set(currency, (totals.get(currency) ?? 0) + item.amount);
-    });
+        totals.set(currency, (totals.get(currency) ?? 0) + item.amount);
+      });
 
     return [...totals.entries()].map(([currency, amount]) => formatCurrency(amount, currency)).join(' · ') || '—';
   };
 
-  const owedSummary = summarizeByCurrency(totalOwed);
-  const owedToYouSummary = summarizeByCurrency(totalOwedToYou);
+  const owedSummary = summarizeByCurrency('owe');
+  const owedToYouSummary = summarizeByCurrency('owed');
 
+  // Navigation
   const handleOpenWorkspace = (workspaceId: string) => {
     navigate(`/workspace/${workspaceId}`);
   };
@@ -153,17 +180,16 @@ export function SettlementsPage() {
 
       <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mx-auto max-w-7xl space-y-7">
-          {/* Welcome section */}
-          <section className="space-y-3">
-            <div className="space-y-2">
-              <h1 className="font-heading text-foreground text-2xl leading-tight font-extrabold tracking-tight">
-                Settlements
-              </h1>
+          {/* Page heading */}
 
-              <p className="text-muted-foreground max-w-2xl text-xs leading-6 sm:text-sm">
-                Keep track of what you owe and what others owe you across all your workspaces.
-              </p>
-            </div>
+          <section className="space-y-2">
+            <h1 className="font-heading text-foreground text-2xl leading-tight font-extrabold tracking-tight">
+              Settlements
+            </h1>
+
+            <p className="text-muted-foreground max-w-2xl text-xs leading-6 sm:text-sm">
+              Review suggested payments based on outstanding balances across your workspaces.
+            </p>
           </section>
 
           {/* Balance overview */}
@@ -197,27 +223,28 @@ export function SettlementsPage() {
             </div>
           </section>
 
-          {/* Settlement list */}
+          <div className="border-border/70 border-t" />
+
+          {/* Suggested payments */}
+
           <section className="min-w-0 space-y-4">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div className="space-y-1">
-                <h2 className="text-sm font-semibold tracking-tight">Outstanding settlements</h2>
+                <h2 className="text-sm font-semibold tracking-tight">Suggested payments</h2>
+
+                <p className="text-muted-foreground text-xs">
+                  Payments calculated from your current workspace balances.
+                </p>
               </div>
 
               <Badge variant="outline" className="w-fit text-[10px]">
-                {settlements.length} total
+                {settlements.length} {settlements.length === 1 ? 'payment' : 'payments'}
               </Badge>
             </div>
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-2">
-              {(
-                [
-                  { value: 'all', label: 'All' },
-                  { value: 'owe', label: 'You owe' },
-                  { value: 'owed', label: 'Owed to you' },
-                ] as const
-              ).map((option) => (
+              {FILTER_OPTIONS.map((option) => (
                 <Button
                   key={option.value}
                   size="sm"
@@ -234,13 +261,25 @@ export function SettlementsPage() {
             {isLoading ? (
               <div className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-xl border border-dashed">
                 <SpinnerGapIcon size={24} className="text-muted-foreground animate-spin" />
-                <p className="text-muted-foreground text-xs">Loading your settlements...</p>
+
+                <p className="text-muted-foreground text-xs">Loading your suggested payments...</p>
               </div>
             ) : hasError ? (
               <div className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-6 text-center">
                 <WarningCircleIcon size={24} className="text-destructive" />
-                <p className="text-sm font-semibold">Unable to load settlements</p>
-                <p className="text-muted-foreground text-xs">Please refresh the page and try again.</p>
+
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold">Unable to load suggested payments</p>
+
+                  <p className="text-muted-foreground text-xs">
+                    Some workspace balances or member details could not be retrieved.
+                  </p>
+                </div>
+
+                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={handleRetry} disabled={isFetching}>
+                  {isFetching && <SpinnerGapIcon size={14} className="animate-spin" />}
+                  Try again
+                </Button>
               </div>
             ) : filteredSettlements.length === 0 ? (
               <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed p-6 text-center">
@@ -259,21 +298,21 @@ export function SettlementsPage() {
 
                   <p className="text-muted-foreground max-w-sm text-xs">
                     {filter === 'all'
-                      ? 'There are no outstanding payments involving you across your workspaces.'
-                      : 'There are no payments matching this filter.'}
+                      ? 'There are no outstanding payment recommendations involving you across your workspaces.'
+                      : 'There are no suggested payments matching this filter.'}
                   </p>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                {filteredSettlements.map((settlement, index) => {
+                {filteredSettlements.map((settlement) => {
                   const isOwing = settlement.direction === 'owe';
 
-                  const otherPerson = isOwing ? settlement.to : settlement.from;
+                  const otherPerson = isOwing ? settlement.toName : settlement.fromName;
 
                   return (
                     <div
-                      key={`${settlement.workspace.id}-${settlement.from_id}-${settlement.to_id}-${index}`}
+                      key={`${settlement.workspace.id}-${settlement.fromUserId}-${settlement.toUserId}`}
                       className="group border-border/80 bg-card hover:border-primary/35 hover:bg-muted/30 flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between sm:p-4"
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -320,7 +359,7 @@ export function SettlementsPage() {
                           className="h-8 gap-1.5 text-xs"
                           onClick={() => handleOpenWorkspace(settlement.workspace.id)}
                         >
-                          Open Worspace
+                          Open workspace
                           <ArrowRightIcon size={13} />
                         </Button>
                       </div>

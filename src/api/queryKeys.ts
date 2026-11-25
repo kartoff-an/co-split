@@ -21,6 +21,7 @@ export const queryKeys = {
   balances: {
     all: ['workspace-balance'] as const,
     detail: (workspaceId: string) => ['workspace-balance', workspaceId] as const,
+    overview: (workspaceId: string) => ['workspace-balance-overview', workspaceId] as const,
   },
 
   settlements: {

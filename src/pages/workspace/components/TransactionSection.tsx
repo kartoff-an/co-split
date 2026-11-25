@@ -102,7 +102,6 @@ export function TransactionSection({
     return [...values].sort((a, b) => a.localeCompare(b));
   }, [expenses, filters.category]);
 
-
   // Debounce search requests.
   useEffect(() => {
     const timeout = window.setTimeout(() => {

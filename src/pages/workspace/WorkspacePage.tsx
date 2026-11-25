@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/auth/useAuth';
 import { useWorkspace } from '@/hooks/useWorkspace';
-import { useBalance, workspaceBalanceQueryKey } from '@/hooks/useBalance';
+import { useBalance } from '@/hooks/useBalance';
 import * as workspaceService from '@/services/workspaceService';
 import * as settlementService from '@/services/settlementService';
 
@@ -22,14 +22,14 @@ import { TransactionSection } from './components/TransactionSection';
 import { WorkspaceMembers } from './components/WorkspaceMembers';
 import { WorkspaceOverview } from './components/WorkspaceOverview';
 import { WorkspaceWelcome } from './components/WorkspaceWelcome';
-import { useQueryClient } from '@tanstack/react-query';
 import type { ExpenseFilters, Expense, ExpenseCreate, ExpenseUpdate } from '@/api/types';
+import { invalidateAfterSettlementCreated } from '@/api/queryInvalidation';
+import { queryClient } from '@/lib/queryClient';
 
 export function WorkspacePage() {
   const { workspaceId = '' } = useParams<{ workspaceId: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const queryClient = useQueryClient();
 
   const inviteCode = searchParams.get('code');
 
@@ -134,26 +134,11 @@ export function WorkspacePage() {
       note: 'Settlement payment',
     });
 
-    await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: workspaceBalanceQueryKey(workspaceId),
-      }),
-      queryClient.invalidateQueries({
-        queryKey: ['workspace-activity', workspaceId],
-      }),
-    ]);
+    await invalidateAfterSettlementCreated(queryClient, workspaceId);
   };
 
   const handleUpdateExpense = async (expenseId: number | string, updates: ExpenseUpdate) => {
-    try {
-      await updateExpense(expenseId, updates);
-
-      // Refresh workspace expenses and related data.
-      await refetch();
-    } catch (error) {
-      console.error('Failed to update expense:', error);
-      throw error;
-    }
+    await updateExpense(expenseId, updates);
   };
 
   const handleDeleteExpense = async (expense: Expense) => {
@@ -163,14 +148,7 @@ export function WorkspacePage() {
 
     if (!confirmed) return;
 
-    try {
-      await deleteExpense(expense.id);
-
-      await refetch();
-    } catch (error) {
-      console.error('Failed to delete expense:', error);
-      throw error;
-    }
+    await deleteExpense(expense.id);
   };
 
   const handleDeleteWorkspace = async () => {

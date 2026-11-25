@@ -8,6 +8,7 @@ import { queryKeys } from '@/api/queryKeys';
 
 import * as workspaceService from '@/services/workspaceService';
 import * as expenseService from '@/services/expenseService';
+import { invalidateAfterExpenseMutation, invalidateAfterMembershipMutation } from '@/api/queryInvalidation';
 
 const DEFAULT_EXPENSE_PAGE_SIZE = 10;
 
@@ -21,10 +22,6 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
   // Normalize filters before using them in query keys and API requests.
   const normalizedFilters = useMemo(() => expenseService.normalizeExpenseFilters(expenseFilters), [expenseFilters]);
 
-  // --------------------------------------------------
-  // Workspace details
-  // --------------------------------------------------
-
   const {
     data: workspaceDetails,
     isLoading: detailsLoading,
@@ -34,10 +31,6 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     queryFn: () => workspaceService.getWorkspaceDetails(workspaceId),
     enabled: !!workspaceId,
   });
-
-  // --------------------------------------------------
-  // Workspace expenses
-  // --------------------------------------------------
 
   const {
     data: infiniteExpensesData,
@@ -72,30 +65,10 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
 
   const expensesTotal = infiniteExpensesData?.pages[0]?.total ?? 0;
 
-  // --------------------------------------------------
   // Shared cache invalidation
-  // --------------------------------------------------
+  const invalidateExpenseQueries = () => invalidateAfterExpenseMutation(queryClient, workspaceId);
 
-  const invalidateExpenseQueries = async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.expenses.workspace(workspaceId),
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.workspace.detail(workspaceId),
-      }),
-
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.workspaces.all,
-      }),
-    ]);
-  };
-
-  // --------------------------------------------------
   // Pagination
-  // --------------------------------------------------
-
   const loadMoreExpenses = async () => {
     if (!workspaceId || isFetchingNextPage || !hasNextPage) {
       return;
@@ -109,10 +82,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Create expense
-  // --------------------------------------------------
-
   const addExpense = async (expense: ExpenseCreate) => {
     try {
       setActionError(null);
@@ -133,10 +103,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Update expense
-  // --------------------------------------------------
-
   const updateExpense = async (expenseId: number | string, updates: ExpenseUpdate) => {
     try {
       setActionError(null);
@@ -157,10 +124,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Delete expense
-  // --------------------------------------------------
-
   const deleteExpense = async (expenseId: number | string) => {
     try {
       setActionError(null);
@@ -177,10 +141,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Remove workspace member
-  // --------------------------------------------------
-
   const removeMember = async (userId: string) => {
     try {
       setActionError(null);
@@ -188,23 +149,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
       const success = await workspaceService.removeMember(workspaceId, userId);
 
       if (success) {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.workspace.detail(workspaceId),
-          }),
-
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.workspaces.all,
-          }),
-
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.balances.detail(workspaceId),
-          }),
-
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.expenses.workspace(workspaceId),
-          }),
-        ]);
+        await invalidateAfterMembershipMutation(queryClient, workspaceId);
       }
 
       return success;
@@ -215,10 +160,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Update workspace
-  // --------------------------------------------------
-
   const updateWorkspace = async (updates: WorkspaceUpdate) => {
     try {
       setActionError(null);
@@ -245,10 +187,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Delete workspace
-  // --------------------------------------------------
-
   const deleteWorkspace = async () => {
     try {
       setActionError(null);
@@ -275,10 +214,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Regenerate invite code
-  // --------------------------------------------------
-
   const regenerateInvite = async () => {
     if (!workspaceId) {
       return null;
@@ -303,17 +239,10 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
     }
   };
 
-  // --------------------------------------------------
   // Error state
-  // --------------------------------------------------
-
   const error =
     actionError ||
     (detailsError ? (detailsError instanceof Error ? detailsError.message : 'Failed to load workspace') : null);
-
-  // --------------------------------------------------
-  // Public hook API
-  // --------------------------------------------------
 
   return {
     // Workspace data
@@ -352,15 +281,7 @@ export const useWorkspace = (workspaceId: string, expenseFilters: ExpenseFilters
 
     // Refetch
     refetch: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.workspace.detail(workspaceId),
-        }),
-
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.expenses.workspace(workspaceId),
-        }),
-      ]);
+      await invalidateAfterMembershipMutation(queryClient, workspaceId);
     },
   };
 };
